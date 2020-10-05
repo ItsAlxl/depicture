@@ -1,0 +1,11 @@
+{
+    "name": "depicture",
+    "version": "0.0.1",
+    "description": "draw what you read, then say what you see",
+    "license": "Unlicense",
+    "dependencies": {
+        "@types/node": "^14.11.2",
+        "express": "^4.17.1",
+        "socket.io": "^2.3.0"
+    }
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>depicture</title>
+    <link rel="stylesheet" href="game.css" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body onload="changeView('join')">
+
+    <div id="view-join" class="view-hidden">
+        Name: <input id="nick-name" autocomplete="off" />
+        <br><br><br>
+        <input id="join-code" autocomplete="off" />
+        <button onclick="joinGame();">Join Game</button>
+        <br><br><br>
+        <button onclick="hostGame();">Host Game</button>
+    </div>
+    <div id="view-lobby" class="view-hidden">
+        <h1>Waiting on host</h1>
+        <h2 id="lobby-name"></h2>
+        <ul id="lobby-players"></ul>
+        <button onclick="startHostedGame();" class="view-hidden" id="host-start-btn">Begin!</button>
+    </div>
+
+    <div id="view-wait" class="view-hidden">
+        <h1>Waiting on other players...</h1>
+    </div>
+
+    <div id="view-draw" class="view-hidden">
+        <h2>Draw this:</h2>
+        <h1 id="prompt-text">smiley face</h1>
+        <canvas id="draw-canvas" width="480" height="384" class="art"></canvas>
+        <br>
+        <button onclick="setPenColor('black');">black</button>
+        <button onclick="setPenColor('red');">red</button>
+        <button onclick="setPenColor('green');">green</button>
+        <button onclick="setPenColor('blue');">blue</button>
+        <button onclick="setPenColor('white');">white</button>
+        <br>
+        <button onclick="setPenWidth(10);">10</button>
+        <button onclick="setPenWidth(15);">15</button>
+        <button onclick="setPenWidth(20);">20</button>
+        <button onclick="setPenWidth(25);">25</button>
+        <br>
+        <button onclick="clearCanvas();">clear</button>
+        <br>
+        <button onclick="submitDrawing();">DONE</button>
+    </div>
+
+    <div id="view-caption" class="view-hidden">
+        <h2>Say what you see:</h2>
+        <img id="display-img" width="480" height="384" class="art">
+        <br>
+        <input id="picture-guess" autocomplete="off" />
+        <button onclick="submitTitleGuess();">Submit</button>
+    </div>
+
+    <div id="view-end" class="view-hidden">
+        <h1>Game over!</h1>
+        <div id="ending-scroll"></div>
+    </div>
+
+    <script src="canvas_paint.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>

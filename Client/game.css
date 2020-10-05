@@ -1,0 +1,11 @@
+.art {
+    border: 1px solid #000000;
+}
+
+.view-hidden {
+    display: none;
+}
+
+.view-visible {
+    display: inline;
+}
