@@ -2,8 +2,8 @@ class Story {
     images = [];
     captions = [];
 
-    constructor() {
-        this.captions.push("smiley face");
+    constructor(seed) {
+        this.captions.push(seed);
     }
 
     getPair(idx) {
@@ -83,9 +83,11 @@ class Room {
     setupGame() {
         this.plrTurnOrder = Object.keys(this.plrs);
         this.numPlrs = this.plrTurnOrder.length;
+    }
 
-        for (let i = 0; i < this.getNumPlrs(); i++) {
-            this.stories.push(new Story());
+    takeStorySeeds(seeds) {
+        for (let i = 0; i < seeds.length; i++) {
+            this.stories.push(new Story(seeds[i]));
         }
     }
 

@@ -50,15 +50,15 @@ function hostIdToGameId(hostId) {
 function advanceTurn(g) {
     let endNow = g.advanceTurn();
 
-    if (!endNow) {
+    if (endNow) {
+        io.to(g.id).emit('take completed stories', g.stories);
+    } else {
         let v = g.getCurrentView();
 
         io.to(g.id).emit('take view', v);
         for (let p in g.plrs) {
             io.to(p).emit('take story content', g.getCurrentStory(p));
         }
-    } else {
-        io.to(g.id).emit('take completed stories', g.stories);
     }
 }
 
@@ -79,6 +79,11 @@ io.on('connection', (socket) => {
     socket.on('start hosted game', () => {
         let g = liveGames[hostIdToGameId(socket.id)];
         g.setupGame();
+        io.to(socket.id).emit('take story seeds', g.getNumPlrs());
+    });
+    socket.on('give story seeds', (seeds) => {
+        let g = liveGames[hostIdToGameId(socket.id)];
+        g.takeStorySeeds(seeds);
         advanceTurn(g);
     });
 

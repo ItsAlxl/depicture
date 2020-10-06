@@ -1,7 +1,7 @@
 # depicture
 A game about drawing what you read, then saying what you see.
 
-Each player is given a distinct prompt, which they attempt to depict in a drawing. Then, the drawings are shifted between players, who now have to guess what the prompt was. This continues until every player has contributed to every story, at which point the stories are all revealed, and everyone can see just how badly the whole thing ended up.
+Each player is given a distinct prompt, which they attempt to depict in a drawing. Then, the drawings are passed between players, who now have to guess what the prompt was. This continues until every player has contributed to every story, at which point the stories are all revealed, and everyone can see just how badly the whole thing ended up.
 
 # Where can I play?
 ## Official site
@@ -28,3 +28,6 @@ docker run alxl/depicture
 # Run a Docker container of depicture that uses port 8080 instead of 6465
 docker run -p 8080:6465 alxl/depicture
 ```
+
+## Custom prompts
+Currently, the program will poll the API hosted on my website. You can set up your own using my companion project, [PHP Line Spitter](https://github.com/ItsAlxl/PHP-Line-Spitter). Supply your prompt lists as `.txt` files in the `lists/` folder of the PHP Line Spitter, change the `APIHost` const located at the top of `game.js` in depicture, and you should be good to go.
