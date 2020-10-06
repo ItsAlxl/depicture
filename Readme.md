@@ -22,11 +22,8 @@ By default, depicture uses port 6465. Use your browser to connect to port 6465 o
 ## In a Docker container
 Yep, depicture is [Dockerized](https://www.docker.com/). There is a Docker image available for the latest stable build of depicture at [alxl/depicture](https://hub.docker.com/repository/docker/alxl/depicture) on Docker Hub.
 ```sh
-# Run a Docker container of depicture
-docker run alxl/depicture
-
-# Run a Docker container of depicture that uses port 8080 instead of 6465
-docker run -p 8080:6465 alxl/depicture
+# Run a Docker container of depicture open on port 80
+docker run -p 80:6465 alxl/depicture:latest
 ```
 
 ## Custom prompts

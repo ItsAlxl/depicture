@@ -6,6 +6,7 @@
     display: none;
 }
 
-.view-visible {
-    display: inline;
+.pen-column {
+    padding-right: 50px;
+    padding-left: 0px;
 }

@@ -8,7 +8,7 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body onload="changeView('join')">
+<body onload="initViews();">
 
     <div id="view-join" class="view-hidden">
         Name: <input id="nick-name" autocomplete="off" />
@@ -17,12 +17,33 @@
         <button onclick="joinGame();">Join Game</button>
         <br><br><br>
         <button onclick="hostGame();">Host Game</button>
+        <br><br><br>
+        <div>
+            <h1>Updates</h1>
+            <h2>What's new</h2>
+            <ul>
+                <li>Fixed pen getting stuck on drawing when leaving the canvas</li>
+                <li>Added quick restart game button (only host sees it)</li>
+                <li>Player names are attached to their work in the end screen</li>
+                <li>Restrictions on text inputs</li>
+            </ul>
+            <h2>What's missing</h2>
+            <ul>
+                <li>Reveal end stories piece by piece</li>
+                <li>Feedback for invalid actions</li>
+                <li>Player names of who you're waiting on</li>
+                <li>Deal with dropin/dropout gracefully</li>
+                <li>Make saved games prettier</li>
+                <li>Players can ready/unready in lobby</li>
+                <li><s>A smaller pen size</s></li>
+            </ul>
+        </div>
     </div>
     <div id="view-lobby" class="view-hidden">
         <h1>Waiting on host</h1>
         <h2 id="lobby-name"></h2>
         <div id="host-deck-selection" class="view-hidden">
-            
+
         </div>
         <ul id="lobby-players"></ul>
         <button onclick="startHostedGame();" class="view-hidden" id="host-start-btn">Begin!</button>
@@ -36,20 +57,38 @@
         <h2>Draw this:</h2>
         <h1 id="prompt-text">smiley face</h1>
         <canvas id="draw-canvas" width="480" height="384" class="art"></canvas>
+        <br><br>
+        <table>
+            <tr>
+                <th class="pen-column">Color</th>
+                <th class="pen-column">Width</th>
+            </tr>
+            <tr>
+                <td>
+                    <input type="radio" id="pen-black" name="pc" onclick="setPenColor('black');">
+                    <label for="pen-black">Black</label><br>
+                    <input type="radio" id="pen-red" name="pc" onclick="setPenColor('red');">
+                    <label for="pen-red">Red</label><br>
+                    <input type="radio" id="pen-green" name="pc" onclick="setPenColor('green');">
+                    <label for="pen-green">Green</label><br>
+                    <input type="radio" id="pen-white" name="pc" onclick="setPenColor('white');">
+                    <label for="pen-white">White</label>
+                </td>
+                <td>
+                    <input type="radio" id="pen-small" name="pw" onclick="setPenWidth(7);">
+                    <label for="pen-small">Small</label><br>
+                    <input type="radio" id="pen-med" name="pw" onclick="setPenWidth(12);">
+                    <label for="pen-med">Medium</label><br>
+                    <input type="radio" id="pen-large" name="pw" onclick="setPenWidth(17);">
+                    <label for="pen-large">Large</label><br>
+                    <input type="radio" id="pen-huge" name="pw" onclick="setPenWidth(22);">
+                    <label for="pen-huge">Big Chungus</label>
+                </td>
+            </tr>
+        </table>
         <br>
-        <button onclick="setPenColor('black');">black</button>
-        <button onclick="setPenColor('red');">red</button>
-        <button onclick="setPenColor('green');">green</button>
-        <button onclick="setPenColor('blue');">blue</button>
-        <button onclick="setPenColor('white');">white</button>
-        <br>
-        <button onclick="setPenWidth(10);">10</button>
-        <button onclick="setPenWidth(15);">15</button>
-        <button onclick="setPenWidth(20);">20</button>
-        <button onclick="setPenWidth(25);">25</button>
-        <br>
-        <button onclick="clearCanvas();">clear</button>
-        <br>
+        <button onclick="clearCanvas();">Clear Canvas</button>
+        <br><br>
         <button onclick="submitDrawing();">DONE</button>
     </div>
 
@@ -64,6 +103,7 @@
     <div id="view-end" class="view-hidden">
         <h1>Game over!</h1>
         <div id="ending-scroll"></div>
+        <button onclick="restartGame();" class="view-hidden" id="restart-game-btn">Play Again</button>
     </div>
 
     <script src="canvas_paint.js"></script>

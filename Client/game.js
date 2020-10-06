@@ -5,9 +5,16 @@ const APIHost = 'https://itsalxl.com/depicture-words';
 // Views
 
 var currentView = '';
+function initViews() {
+    changeView('join');
+}
+
 function changeView(v) {
     if (currentView.length > 0) {
         $('#view-' + currentView).addClass('view-hidden');
+    }
+    if (v == "draw") {
+        resetDrawingOptions();
     }
     $('#view-' + v).removeClass('view-hidden');
     currentView = v;
@@ -29,12 +36,27 @@ socket.on('take story content', function (c) {
 // Lobbying
 
 var gameId;
+var plrName;
+function validateName() {
+    let p = $('#nick-name').val().trim();
+    if (p.length < 3) {
+        return false;
+    } else {
+        plrName = p.substring(0, Math.min(20, p.length));
+        return true;
+    }
+}
+
 function hostGame() {
-    socket.emit('host game', $('#nick-name').val());
+    if (validateName()) {
+        socket.emit('host game', plrName);
+    }
 }
 
 function joinGame() {
-    socket.emit('join game', $('#join-code').val(), $('#nick-name').val());
+    if (validateName()) {
+        socket.emit('join game', $('#join-code').val(), plrName);
+    }
 }
 
 function startHostedGame() {
@@ -54,13 +76,14 @@ socket.on('go to lobby', function (roomId, asHost) {
     if (asHost) {
         $('#host-start-btn').removeClass('view-hidden');
         $('#host-deck-selection').removeClass('view-hidden');
+        $('#restart-game-btn').removeClass('view-hidden');
 
         $('#host-deck-selection').empty();
-        console.log('OK here we go');
         appendLists(APIHost);
     } else {
         $('#host-start-btn').addClass('view-hidden');
         $('#host-deck-selection').addClass('view-hidden');
+        $('#restart-game-btn').addClass('view-hidden');
     }
     changeView('lobby');
 });
@@ -106,7 +129,7 @@ function populateSeeds(fromHost, nameArray) {
             seedDeck.push(seeds[s]);
         }
     })
-    .done(finishSeedSetup);
+        .done(finishSeedSetup);
 }
 
 socket.on('take story seeds', function (nPlrs) {
@@ -138,18 +161,22 @@ function finishSeedSetup() {
 }
 
 function serveSeeds() {
-    console.log('serving seeds');
-    console.log(seedDeck);
     let seeds = [];
     for (let i = 0; i < numPlrs; i++) {
         seeds.push(seedDeck.pop());
     }
-    console.log(seeds);
     socket.emit('give story seeds', seeds);
 }
 
 
 // Playing the game
+
+function resetDrawingOptions() {
+    $('#pen-med').prop('checked', true);
+    $('#pen-med').click();
+    $('#pen-black').prop('checked', true);
+    $('#pen-black').click();
+}
 
 function submitDrawing() {
     var canvasData = document.getElementById('draw-canvas').toDataURL();
@@ -159,33 +186,53 @@ function submitDrawing() {
 }
 
 function submitTitleGuess() {
-    socket.emit('give story content', gameId, $('#picture-guess').val());
-    changeView('wait');
-    $('#picture-guess').val('');
+    let caption = $('#picture-guess').val().trim();
+    if (caption.length >= 3) {
+        caption = caption.substring(0, Math.min(50, caption.length));
+        socket.emit('give story content', gameId, caption);
+        changeView('wait');
+        $('#picture-guess').val('');
+    }
 }
 
-socket.on('take completed stories', function (stories) {
+socket.on('take completed stories', function (stories, plrNamesInOrder) {
     $('#ending-scroll').empty();
     changeView('end');
 
     let scrollHtml = '';
+    let storyLength = stories[0].images.length + stories[0].captions.length;
+    let pidMax = plrNamesInOrder.length;
     for (let i = 0; i < stories.length; i++) {
         scrollHtml += '<div>'
 
         let s = stories[i];
-        for (let j = 0; j < s.images.length + s.captions.length; j++) {
+        let pid = i;
+        for (let j = 0; j < storyLength; j++) {
             let idx = Math.floor(j / 2);
+
+            scrollHtml += '<p>'
             if (j % 2 == 0) {
-                console.log(s.captions[idx]);
-                scrollHtml += '<p>' + s.captions[idx] + '</p>';
+                if (j == 0) {
+                    scrollHtml += 'Starting prompt:<br>';
+                } else {
+                    scrollHtml += plrNamesInOrder[pid] + ' wrote:<br>';
+                }
+                scrollHtml += s.captions[idx];
             } else {
-                console.log(s.images[idx]);
+                scrollHtml += plrNamesInOrder[pid] + ' drew:<br>';
                 scrollHtml += '<img id="display-img" width="480" height="384" class="art" src="' + s.images[idx] + '">';
             }
+            scrollHtml += '</p>'
+            if (j > 0) {
+                pid = (pid + pidMax - 1) % pidMax;
+            }
         }
-
         scrollHtml += '</div><br><br><br><br><br>';
     }
 
     $('#ending-scroll').html(scrollHtml);
 });
+
+function restartGame() {
+    socket.emit('begin restart', gameId);
+}

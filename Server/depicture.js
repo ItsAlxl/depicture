@@ -51,7 +51,7 @@ function advanceTurn(g) {
     let endNow = g.advanceTurn();
 
     if (endNow) {
-        io.to(g.id).emit('take completed stories', g.stories);
+        io.to(g.id).emit('take completed stories', g.stories, g.getPlrNamesInOrder());
     } else {
         let v = g.getCurrentView();
 
@@ -94,6 +94,12 @@ io.on('connection', (socket) => {
         if (g.areAllReady()) {
             advanceTurn(g);
         }
+    });
+
+    socket.on('begin restart', (gameId) => {
+        let g = liveGames[gameId];
+        g.restart();
+        io.to(g.hostId).emit('take story seeds', g.getNumPlrs());
     });
 
     socket.on('disconnecting', () => {

@@ -8,8 +8,8 @@ var mouseX = mouseY = 0;
 var mousedown = false;
 
 // Pen
-var penColor = 'black';
-var penWidth = 10;
+var penColor = 'white';
+var penWidth = 0;
 function setPenWidth(w) {
     penWidth = w;
 }
@@ -28,7 +28,10 @@ $(canvas).on('mousedown', function (e) {
         mousedown = true;
     }
 });
-$(canvas).on('mouseup', function (e) {
+$(canvas).on('mouseleave', function () {
+    mousedown = false;
+});
+$(document).on('mouseup', function (e) {
     if (e.button == 0) {
         mousedown = false;
     }

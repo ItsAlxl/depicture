@@ -11,7 +11,7 @@ class Story {
     }
 
     getCurrent(type) {
-        if (type == "caption") {
+        if (type == 'caption') {
             return this.images[this.images.length - 1];
         } else {
             return this.captions[this.captions.length - 1];
@@ -19,7 +19,7 @@ class Story {
     }
 
     takeCurrent(type, content) {
-        if (type == "caption") {
+        if (type == 'caption') {
             this.captions.push(content);
         } else {
             this.images.push(content);
@@ -29,7 +29,7 @@ class Story {
 
 class Player {
     id;
-    name;
+    nickname;
 
     constructor(id, name) {
         this.id = id;
@@ -42,8 +42,8 @@ class Room {
     stories = [];
     plrs = {};
     hostId;
-    plrTurnOrder;
-    numPlrs;
+    plrTurnOrder = [];
+    numPlrs = -1;
     turns;
     numPlrsReady;
 
@@ -53,7 +53,6 @@ class Room {
     }
     restart() {
         this.stories.length = 0;
-        this.numPlrs = -1;
         this.turns = -1;
         this.numPlrsReady = 0;
     }
@@ -111,9 +110,9 @@ class Room {
 
     getCurrentView() {
         if (this.turns % 2 == 0) {
-            return "draw";
+            return 'draw';
         } else {
-            return "caption";
+            return 'caption';
         }
     }
 
@@ -129,6 +128,14 @@ class Room {
 
     takeCurrentStory(plrId, content) {
         this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content);
+    }
+
+    getPlrNamesInOrder() {
+        let pnio = [];
+        for (let p in this.plrTurnOrder) {
+            pnio.push(this.plrs[this.plrTurnOrder[p]].nickname);
+        }
+        return pnio;
     }
 }
 
