@@ -5,7 +5,7 @@ Each player is given a distinct prompt, which they attempt to depict in a drawin
 
 # Where can I play?
 ## Official site
-You can access the game [here](https://depicture.itsalxl.com); play with your friends!
+You can access the game [here](http://depicture.itsalxl.com); play with your friends!
 ## Compile from source
 You can compile and run your own server from the source code; all you strictly need is [NodeJS](https://nodejs.org/). Although you could download the source files manually off of GitHub, it's probably best if you use [git](https://git-scm.com/).
 
