@@ -7,7 +7,7 @@ Each player is given a distinct prompt, which they attempt to depict in a drawin
 ## Official site
 You can access the game [here](http://depicture.itsalxl.com); play with your friends!
 ## Compile from source
-You can compile and run your own server from the source code; all you strictly need is [NodeJS](https://nodejs.org/). Although you could download the source files manually off of GitHub, it's probably best if you use [git](https://git-scm.com/).
+You can compile and run your own server from the source code; all you strictly need is [NodeJS](https://nodejs.org/). You can get the source code from [GitHub](https://github.com/ItsAlxl/depicture).
 
 Once you have the code, execute the following commands within the project root to start the server.
 ```sh
@@ -15,16 +15,16 @@ Once you have the code, execute the following commands within the project root t
 npm install
 
 # Run server
-node Server/depicture.js
+npm start
 ```
 By default, depicture uses port 6465. Use your browser to connect to port 6465 of the server (e.g. `localhost:6465`), and you're all set!
 
 ## In a Docker container
-Yep, depicture is [Dockerized](https://www.docker.com/). There is a Docker image available for the latest stable build of depicture at [alxl/depicture](https://hub.docker.com/repository/docker/alxl/depicture) on Docker Hub.
-```sh
-# Run a Docker container of depicture open on port 80
-docker run -p 80:6465 alxl/depicture:latest
-```
+There is a Docker image available for the latest stable build of depicture at [alxl/depicture](https://hub.docker.com/repository/docker/alxl/depicture) on Docker Hub.
+
+Running a Docker container of depicture open on port 80:
+
+`docker run -p 80:6465 alxl/depicture:latest`
 
 ## Custom prompts
 Currently, the program will poll the API hosted on my website. You can set up your own using my companion project, [PHP Line Spitter](https://github.com/ItsAlxl/PHP-Line-Spitter). Supply your prompt lists as `.txt` files in the `lists/` folder of the PHP Line Spitter, change the `APIHost` const located at the top of `game.js` in depicture, and you should be good to go.
