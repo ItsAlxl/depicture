@@ -27,4 +27,4 @@ Running a Docker container of depicture open on port 80:
 `docker run -p 80:6465 alxl/depicture:latest`
 
 ## Custom prompts
-Currently, the program will poll the API hosted on my website. You can set up your own using my companion project, [PHP Line Spitter](https://github.com/ItsAlxl/PHP-Line-Spitter). Supply your prompt lists as `.txt` files in the `lists/` folder of the PHP Line Spitter. Then, just provide your endpoint as the `Prompt Source` when hosting a game.
+Currently, the program will poll the API hosted on my website. You can set up your own using my companion project, [PHP Line Spitter](https://github.com/ItsAlxl/PHP-Line-Spitter). Supply your prompt lists as `.txt` files in the `lists/` folder of the PHP Line Spitter. Then, just provide your API root as the `Prompt Source` when hosting a game.

@@ -84,6 +84,18 @@ class Room {
         this.numPlrs = this.plrTurnOrder.length;
     }
 
+    shuffleTurnOrder() {
+        if (this.plrTurnOrder.length > 0) {
+            // Shuffle (Durstenfeld / Fisher-Yates)
+            for (var i = this.plrTurnOrder.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = this.plrTurnOrder[i];
+                this.plrTurnOrder[i] = this.plrTurnOrder[j];
+                this.plrTurnOrder[j] = temp;
+            }
+        }
+    }
+
     takeStorySeeds(seeds) {
         for (let i = 0; i < seeds.length; i++) {
             this.stories.push(new Story(seeds[i]));

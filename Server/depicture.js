@@ -100,6 +100,7 @@ io.on('connection', (socket) => {
     socket.on('begin restart', (gameId) => {
         let g = liveGames[gameId];
         g.restart();
+        g.shuffleTurnOrder();
         io.to(g.hostId).emit('take story seeds', g.getNumPlrs());
     });
 
