@@ -32,6 +32,13 @@ socket.on('take story content', function (c) {
     }
 });
 
+socket.on('set turn tickers', function (n, m) {
+    let tickers = document.getElementsByClassName('turn-counter');
+    for (let t in tickers) {
+        tickers[t].textContent = n + '/' + m;
+    }
+});
+
 
 // Lobbying
 

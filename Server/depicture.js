@@ -56,6 +56,7 @@ function advanceTurn(g) {
         let v = g.getCurrentView();
 
         io.to(g.id).emit('take view', v);
+        io.to(g.id).emit('set turn tickers', g.turns + 1, g.getNumPlrs());
         for (let p in g.plrs) {
             io.to(p).emit('take story content', g.getCurrentStory(p));
         }
