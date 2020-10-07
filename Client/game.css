@@ -2,11 +2,23 @@
     border: 1px solid #000000;
 }
 
-.view-hidden {
-    display: none;
+.game-table td {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
-.pen-column {
-    padding-right: 50px;
-    padding-left: 0px;
+.view {
+    display: inline-block;
+}
+
+.game-table h1, .game-table h2 {
+    margin: 0;
+}
+
+input[type=text]  {
+    width: 250px;
+}
+
+.invis-elm {
+    display: none;
 }

@@ -1,6 +1,6 @@
 var socket = io();
 
-const APIHost = 'https://itsalxl.com/depicture-words';
+var APIHost = '';
 
 // Views
 
@@ -11,12 +11,12 @@ function initViews() {
 
 function changeView(v) {
     if (currentView.length > 0) {
-        $('#view-' + currentView).addClass('view-hidden');
+        $('#view-' + currentView).addClass('invis-elm');
     }
     if (v == "draw") {
         resetDrawingOptions();
     }
-    $('#view-' + v).removeClass('view-hidden');
+    $('#view-' + v).removeClass('invis-elm');
     currentView = v;
 }
 
@@ -49,6 +49,7 @@ function validateName() {
 
 function hostGame() {
     if (validateName()) {
+        APIHost = $('#prompt-host').val();
         socket.emit('host game', plrName);
     }
 }
@@ -74,16 +75,16 @@ socket.on('go to lobby', function (roomId, asHost) {
     gameId = roomId;
     $('#lobby-name').html(roomId);
     if (asHost) {
-        $('#host-start-btn').removeClass('view-hidden');
-        $('#host-deck-selection').removeClass('view-hidden');
-        $('#restart-game-btn').removeClass('view-hidden');
+        $('#host-start-btn').removeClass('invis-elm');
+        $('#host-deck-selection').removeClass('invis-elm');
+        $('#restart-game-btn').removeClass('invis-elm');
 
         $('#host-deck-selection').empty();
         appendLists(APIHost);
     } else {
-        $('#host-start-btn').addClass('view-hidden');
-        $('#host-deck-selection').addClass('view-hidden');
-        $('#restart-game-btn').addClass('view-hidden');
+        $('#host-start-btn').addClass('invis-elm');
+        $('#host-deck-selection').addClass('invis-elm');
+        $('#restart-game-btn').addClass('invis-elm');
     }
     changeView('lobby');
 });
