@@ -42,7 +42,7 @@
     </div>
 
     <div id="view-draw" class="invis-elm view">
-        <h3 class="turn-counter">1/100</h3>
+        <h3 class="turn-counter"></h3>
         <table class="game-table">
             <tr>
                 <td>
@@ -82,7 +82,7 @@
     </div>
 
     <div id="view-caption" class="invis-elm view">
-        <h3 class="turn-counter">1/100</h3>
+        <h3 class="turn-counter"></h3>
         <h2>Say what you see:</h2>
         <img id="display-img" width="480" height="384" class="art">
         <br>
@@ -93,6 +93,11 @@
     <div id="view-end" class="invis-elm view">
         <h1>Game over!</h1>
         <div id="ending-scroll"></div>
+        <input type="checkbox" id="follow-ending-scroll" name="fes" checked>
+        <label for="follow-ending-scroll">Auto-scroll with reveals</label>
+        <br>
+        <button onclick="emitStoryReveal();" class="invis-elm" id="driver-reveal">Reveal Next</button>
+        <br><br>
         <button onclick="restartGame();" class="invis-elm" id="restart-game-btn">Play Again</button>
     </div>
 

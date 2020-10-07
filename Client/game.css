@@ -15,6 +15,10 @@
     margin: 0;
 }
 
+#story-stage {
+    display: none;
+}
+
 input[type=text]  {
     width: 250px;
 }

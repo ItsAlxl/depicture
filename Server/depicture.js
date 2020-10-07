@@ -103,6 +103,10 @@ io.on('connection', (socket) => {
         io.to(g.hostId).emit('take story seeds', g.getNumPlrs());
     });
 
+    socket.on('trigger story reveal', (gameId) => {
+        io.to(gameId).emit('reveal next story stage');
+    });
+
     socket.on('disconnecting', () => {
         const rooms = Object.keys(socket.rooms);
         for (let r in rooms) {

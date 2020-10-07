@@ -13,7 +13,7 @@ function changeView(v) {
     if (currentView.length > 0) {
         $('#view-' + currentView).addClass('invis-elm');
     }
-    if (v == "draw") {
+    if (v == 'draw') {
         resetDrawingOptions();
     }
     $('#view-' + v).removeClass('invis-elm');
@@ -78,20 +78,21 @@ socket.on('player movement', function (playerList) {
     }
 });
 
+const HOST_EXCLUSIVES = ['#host-start-btn', '#host-deck-selection', '#restart-game-btn', '#driver-reveal']
 socket.on('go to lobby', function (roomId, asHost) {
     gameId = roomId;
     $('#lobby-name').html(roomId);
     if (asHost) {
-        $('#host-start-btn').removeClass('invis-elm');
-        $('#host-deck-selection').removeClass('invis-elm');
-        $('#restart-game-btn').removeClass('invis-elm');
+        for (let HE in HOST_EXCLUSIVES) {
+            $(HOST_EXCLUSIVES[HE]).removeClass('invis-elm');
+        }
 
         $('#host-deck-selection').empty();
         appendLists(APIHost);
     } else {
-        $('#host-start-btn').addClass('invis-elm');
-        $('#host-deck-selection').addClass('invis-elm');
-        $('#restart-game-btn').addClass('invis-elm');
+        for (let HE in HOST_EXCLUSIVES) {
+            $(HOST_EXCLUSIVES[HE]).addClass('invis-elm');
+        }
     }
     changeView('lobby');
 });
@@ -218,19 +219,24 @@ socket.on('take completed stories', function (stories, plrNamesInOrder) {
         for (let j = 0; j < storyLength; j++) {
             let idx = Math.floor(j / 2);
 
-            scrollHtml += '<p>'
+            scrollHtml += '<span  id="story-stage"><p>'
             if (j % 2 == 0) {
                 if (j == 0) {
-                    scrollHtml += 'Starting prompt:<br>';
+                    scrollHtml += 'The story began with:<br>';
                 } else {
                     scrollHtml += plrNamesInOrder[pid] + ' wrote:<br>';
                 }
                 scrollHtml += s.captions[idx];
             } else {
                 scrollHtml += plrNamesInOrder[pid] + ' drew:<br>';
-                scrollHtml += '<img id="display-img" width="480" height="384" class="art" src="' + s.images[idx] + '">';
+                scrollHtml += '<img width="480" height="384" class="art" src="' + s.images[idx] + '">';
             }
-            scrollHtml += '</p>'
+            scrollHtml += '</p>';
+            if (j == storyLength - 1) {
+                scrollHtml += "<p>And that's how the story ended.</p>";
+            }
+            scrollHtml += '</span>';
+
             if (j > 0) {
                 pid = (pid + pidMax - 1) % pidMax;
             }
@@ -240,6 +246,24 @@ socket.on('take completed stories', function (stories, plrNamesInOrder) {
 
     $('#ending-scroll').html(scrollHtml);
 });
+
+function emitStoryReveal() {
+    socket.emit('trigger story reveal', gameId);
+}
+
+socket.on('reveal next story stage', function () {
+    revealNextStoryStage();
+});
+
+function revealNextStoryStage() {
+    let latestStage = $('#story-stage');
+    latestStage.fadeIn('slow');
+    latestStage.prop('id', '');
+
+    if (document.getElementById('follow-ending-scroll').checked) {
+        latestStage.get(0).scrollIntoView({ alignToTop: false, behavior: "smooth" });
+    }
+}
 
 function restartGame() {
     socket.emit('begin restart', gameId);
