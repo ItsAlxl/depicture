@@ -29,7 +29,8 @@ $(canvas).on('mousedown', function (e) {
     }
 });
 $(canvas).on('mouseleave', function () {
-    mousedown = false;
+    last_mouseX = -1;
+    last_mouseY = -1;
 });
 $(document).on('mouseup', function (e) {
     if (e.button == 0) {
@@ -46,10 +47,12 @@ $(canvas).on('mousemove', function (e) {
         ctx.strokeStyle = penColor;
         ctx.lineWidth = penWidth;
 
-        ctx.moveTo(last_mouseX, last_mouseY);
-        ctx.lineTo(mouseX, mouseY);
-        ctx.lineJoin = ctx.lineCap = 'round';
-        ctx.stroke();
+        if (last_mouseX >= 0 && last_mouseX >= 0) {
+            ctx.moveTo(last_mouseX, last_mouseY);
+            ctx.lineTo(mouseX, mouseY);
+            ctx.lineJoin = ctx.lineCap = 'round';
+            ctx.stroke();
+        }
     }
     last_mouseX = mouseX;
     last_mouseY = mouseY;
