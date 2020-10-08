@@ -10,22 +10,30 @@
 
 <body onload="initViews();">
     <div id="view-join" class="invis-elm view">
-        <div>
+        <div class="header" >
             <h1>depicture</h1>
         </div>
-        Name: <input id="nick-name" type="text" autocomplete="off" />
-        <br><br><br>
-        <div>
-            Join Code: <input id="join-code" type="text" autocomplete="off" />
+        <div class="inputs" >
+            <p>Name:</p>
+             <input id="nick-name" type="text" autocomplete="off" />
+            <br><br><br>
+            <div>
+                <p>Join Code:</p>
+                 <input id="join-code" type="text" autocomplete="off" />
+                <br><br>
+                <button onclick="joinGame();">Join Game</button>
+            </div>
+            <br><br><br>
+            <p>Prompt Source:</p>
+             <input id="prompt-host" type="text" autocomplete="off" value="https://itsalxl.com/depicture-words" />
             <br><br>
-            <button onclick="joinGame();">Join Game</button>
+            <button onclick="hostGame();">Host Game</button>
+            <br><br><br>
+            <p><a href="about.html">About</a></p>
+
         </div>
-        <br><br><br>
-        Prompt Source: <input id="prompt-host" type="text" autocomplete="off" value="https://itsalxl.com/depicture-words" />
-        <br><br>
-        <button onclick="hostGame();">Host Game</button>
-        <br><br><br>
-        <p><a href="about.html">About</a></p>
+        
+        
     </div>
     <div id="view-lobby" class="invis-elm view">
         <h1>Waiting on host</h1>

@@ -1,3 +1,23 @@
+body{
+    background-color: white;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+.header{
+    background-color: #FE654F;
+    color: white;
+    padding-left: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.inputs{
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
 .art {
     border: 1px solid #000000;
 }
@@ -5,6 +25,14 @@
 .game-table td {
     padding-left: 10px;
     padding-right: 10px;
+}
+
+#view-wait{
+    background-color: #FE654F;
+    color: white;
+    padding-left: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .view {
@@ -26,3 +54,21 @@ input[type=text]  {
 .invis-elm {
     display: none;
 }
+
+#view-lobby {
+    
+}
+#host-deck-selection:nth-child(1):hover{
+    color: #59b7f1;
+}
+
+
+button{
+    background-color: #D6EFFF;
+    border-style: solid;
+    border-color: rgb(49, 114, 235);
+}
+button:hover{
+    background-color: #59b7f1;
+}
+
