@@ -80,8 +80,10 @@ io.on('connection', (socket) => {
     socket.on('start hosted game', () => {
         let g = liveGames[hostIdToGameId(socket.id)];
         g.setupGame();
+        io.to(g.id).emit('set player mapping', g.plrs);
         io.to(socket.id).emit('take story seeds', g.getNumPlrs());
     });
+
     socket.on('give story seeds', (seeds) => {
         let g = liveGames[hostIdToGameId(socket.id)];
         g.takeStorySeeds(seeds);
@@ -91,7 +93,10 @@ io.on('connection', (socket) => {
     socket.on('give story content', (gameId, c) => {
         let g = liveGames[gameId];
         g.takeCurrentStory(socket.id, c);
-        g.uptickReady();
+        g.uptickReady(socket.id);
+
+        io.to(gameId).emit('player readiness update', g.plrReadiness);
+
         if (g.areAllReady()) {
             advanceTurn(g);
         }

@@ -45,7 +45,7 @@ class Room {
     plrTurnOrder = [];
     numPlrs = -1;
     turns;
-    numPlrsReady;
+    plrReadiness = {};
 
     constructor(id) {
         this.id = id;
@@ -54,7 +54,8 @@ class Room {
     restart() {
         this.stories.length = 0;
         this.turns = -1;
-        this.numPlrsReady = 0;
+
+        this.resetReady();
     }
 
     addPlr(id, nickname) {
@@ -102,16 +103,30 @@ class Room {
         }
     }
 
-    uptickReady() {
-        this.numPlrsReady++;
+    uptickReady(pid) {
+        this.plrReadiness[pid] = true;
+    }
+
+    resetReady() {
+        for (let p in this.plrs) {
+            delete this.plrReadiness[p];
+        }
+        for (let p in this.plrs) {
+            this.plrReadiness[p] = false;
+        }
     }
 
     areAllReady() {
-        return this.numPlrsReady >= this.numPlrs;
+        for (let p in this.plrReadiness) {
+            if (!this.plrReadiness[p]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     advanceTurn() {
-        this.numPlrsReady = 0;
+        this.resetReady();
         this.turns++;
         if (this.turns >= this.getNumPlrs()) {
             return true;

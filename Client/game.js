@@ -39,6 +39,22 @@ socket.on('set turn tickers', function (n, m) {
     }
 });
 
+var playerToNames = {};
+socket.on('set player mapping', function (ps) {
+    for (let p in ps) {
+        playerToNames[ps[p].id] = ps[p].nickname;
+    }
+});
+
+socket.on('player readiness update', function (pr) {
+    $('#list-of-waiters').empty();
+    for (let p in pr) {
+        if (!pr[p]) {
+            $('#list-of-waiters').append($('<li>').text(playerToNames[p]));
+        }
+    }
+});
+
 
 // Lobbying
 
@@ -49,7 +65,7 @@ function validateName() {
     if (p.length < 3) {
         return false;
     } else {
-        plrName = p.substring(0, Math.min(20, p.length));
+        plrName = p.substring(0, Math.min(25, p.length));
         return true;
     }
 }
