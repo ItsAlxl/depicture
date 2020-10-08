@@ -197,7 +197,7 @@ function submitDrawing() {
 function submitTitleGuess() {
     let caption = $('#picture-guess').val().trim();
     if (caption.length >= 3) {
-        caption = caption.substring(0, Math.min(50, caption.length));
+        caption = caption.substring(0, Math.min(100, caption.length));
         socket.emit('give story content', gameId, caption);
         changeView('wait');
         $('#picture-guess').val('');
