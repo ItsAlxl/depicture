@@ -21,7 +21,8 @@
             <button onclick="joinGame();">Join Game</button>
         </div>
         <br><br><br>
-        Prompt Source: <input id="prompt-host" type="text" autocomplete="off" value="https://itsalxl.com/depicture-words" />
+        Prompt Source: <input id="prompt-host" type="text" autocomplete="off"
+            value="https://itsalxl.com/depicture-words" />
         <br><br>
         <button onclick="hostGame();">Host Game</button>
         <br><br><br>
@@ -30,11 +31,17 @@
     <div id="view-lobby" class="invis-elm view">
         <h1>Waiting on host</h1>
         <h2 id="lobby-name"></h2>
-        <div id="host-deck-selection" class="invis-elm">
 
-        </div>
         <ul id="lobby-players"></ul>
-        <button onclick="startHostedGame();" class="invis-elm" id="host-start-btn">Begin!</button>
+        <div id="host-lobby-options" class="invis-elm">
+            <button onclick="startHostedGame();" id="host-start-btn">Begin!</button>
+            <br><br>
+            <div id="host-deck-selection">
+
+            </div>
+            <br><br>
+            Stage limit: <input id="stage-limit" type="number" min="0" value="6" />
+        </div>
     </div>
 
     <div id="view-wait" class="invis-elm view">

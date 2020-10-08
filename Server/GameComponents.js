@@ -46,6 +46,7 @@ class Room {
     numPlrs = -1;
     turns;
     plrReadiness = {};
+    stageLimit = 0;
 
     constructor(id) {
         this.id = id;
@@ -80,9 +81,10 @@ class Room {
         return this.getNumPlrs() >= 3;
     }
 
-    setupGame() {
+    setupGame(stageLimit) {
         this.plrTurnOrder = Object.keys(this.plrs);
         this.numPlrs = this.plrTurnOrder.length;
+        this.stageLimit = Math.min(stageLimit, this.getNumPlrs());
     }
 
     shuffleTurnOrder() {
@@ -128,7 +130,7 @@ class Room {
     advanceTurn() {
         this.resetReady();
         this.turns++;
-        if (this.turns >= this.getNumPlrs()) {
+        if ((this.stageLimit > 0 && this.turns >= this.stageLimit) || this.turns >= this.getNumPlrs()) {
             return true;
         } else {
             return false;

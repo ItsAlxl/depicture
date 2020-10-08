@@ -51,12 +51,12 @@ function advanceTurn(g) {
     let endNow = g.advanceTurn();
 
     if (endNow) {
-        io.to(g.id).emit('take completed stories', g.stories, g.getPlrNamesInOrder());
+        io.to(g.id).emit('take completed stories', g.stories, g.getPlrNamesInOrder(), g.stageLimit);
     } else {
         let v = g.getCurrentView();
 
         io.to(g.id).emit('take view', v);
-        io.to(g.id).emit('set turn tickers', g.turns + 1, g.getNumPlrs());
+        io.to(g.id).emit('set turn tickers', g.turns + 1, g.stageLimit);
         for (let p in g.plrs) {
             io.to(p).emit('take story content', g.getCurrentStory(p));
         }
@@ -77,9 +77,9 @@ io.on('connection', (socket) => {
         quitGame(socket, gameId);
     });
 
-    socket.on('start hosted game', () => {
+    socket.on('start hosted game', (stageLimit) => {
         let g = liveGames[hostIdToGameId(socket.id)];
-        g.setupGame();
+        g.setupGame(stageLimit);
         io.to(g.id).emit('set player mapping', g.plrs);
         io.to(socket.id).emit('take story seeds', g.getNumPlrs());
     });

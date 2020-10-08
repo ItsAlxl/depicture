@@ -84,7 +84,7 @@ function joinGame() {
 }
 
 function startHostedGame() {
-    socket.emit('start hosted game');
+    socket.emit('start hosted game', $('#stage-limit').val());
 }
 
 socket.on('player movement', function (playerList) {
@@ -94,7 +94,7 @@ socket.on('player movement', function (playerList) {
     }
 });
 
-const HOST_EXCLUSIVES = ['#host-start-btn', '#host-deck-selection', '#restart-game-btn', '#driver-reveal']
+const HOST_EXCLUSIVES = ['#host-lobby-options', '#restart-game-btn', '#driver-reveal']
 socket.on('go to lobby', function (roomId, asHost) {
     gameId = roomId;
     $('#lobby-name').html(roomId);
@@ -220,22 +220,23 @@ function submitTitleGuess() {
     }
 }
 
-socket.on('take completed stories', function (stories, plrNamesInOrder) {
+socket.on('take completed stories', function (stories, plrNamesInOrder, numStages) {
     $('#ending-scroll').empty();
     changeView('end');
 
+    // +1 for the beginning prompt
+    numStages++;
     let scrollHtml = '';
-    let storyLength = stories[0].images.length + stories[0].captions.length;
     let pidMax = plrNamesInOrder.length;
     for (let i = 0; i < stories.length; i++) {
         scrollHtml += '<div>'
 
         let s = stories[i];
         let pid = i;
-        for (let j = 0; j < storyLength; j++) {
+        for (let j = 0; j < numStages; j++) {
             let idx = Math.floor(j / 2);
 
-            scrollHtml += '<span  id="story-stage"><p>'
+            scrollHtml += '<span id="story-stage"><br><br><p>'
             if (j % 2 == 0) {
                 if (j == 0) {
                     scrollHtml += 'The story began with:<br>';
@@ -248,16 +249,17 @@ socket.on('take completed stories', function (stories, plrNamesInOrder) {
                 scrollHtml += '<img width="480" height="384" class="art" src="' + s.images[idx] + '">';
             }
             scrollHtml += '</p>';
-            if (j == storyLength - 1) {
-                scrollHtml += "<p>And that's how the story ended.</p>";
+            if (j == numStages - 1) {
+                scrollHtml += "<p>And that's how the story ended.</p><br><br><br>";
+            } else {
+                scrollHtml += '</span>';
             }
-            scrollHtml += '</span>';
 
             if (j > 0) {
                 pid = (pid + pidMax - 1) % pidMax;
             }
         }
-        scrollHtml += '</div><br><br><br><br><br>';
+        scrollHtml += '</div>';
     }
 
     $('#ending-scroll').html(scrollHtml);
