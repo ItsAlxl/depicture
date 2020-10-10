@@ -13,19 +13,19 @@
         <div>
             <h1>DEPICTURE</h1>
         </div>
-        <h2>Name: <input id="nick-name" type="text" autocomplete="off" oninput="nicknameInput()"/> </h2>
+        <h2>Name: <input id="nick-name" type="text" autocomplete="off" oninput="nicknameInput()" maxlength=25 style="width: 30%; text-align: center"/> </h2>
 		<div class="grid-container">
 			<div>
 				<h2 >Join</h2>
 				<div class="grid-box">
-					<h4 id="join-code-header"style="color:Gray">Join Code: <input id="join-code" type="text" autocomplete="off" disabled/> </h4>
+					<h4 id="join-code-header"style="color:Gray">Join Code: <input id="join-code" type="text" autocomplete="off" style="text-align: center" disabled/> </h4>
 					<button id="join-button" onclick="joinGame();" disabled>Join Game</button>
 				</div>
 			</div>			
 			<div>
 				<h2>Host</h2>
 				<div class="grid-box">
-					<h4 id="prompt-source-header" style="color:Gray">Prompt Source: <input id="prompt-host" type="text" autocomplete="off"
+					<h4 id="prompt-source-header" style="color:Gray">Prompt Source: <input id="prompt-host" type="text" autocomplete="off" style="text-align: center"
 					value="https://itsalxl.com/depicture-words" disabled/> </h4>
 					<button id="host-button" onclick="hostGame();" disabled>Host Game</button>
 				</div>

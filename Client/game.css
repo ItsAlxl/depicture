@@ -90,6 +90,10 @@ h5 {
 .grid-box {
 	margin-top: 5px;
 	border-style: solid;
+	border-image: url('/border.png');
+	border-image-slice: 34%;
+	border-image-width: 33px;
+	border-image-repeat: repeat;
 	border-width: 3px;
 	width: 400px;
 	height:190px;
