@@ -233,7 +233,7 @@ function submitDrawing() {
 function submitTitleGuess() {
     let caption = $('#picture-guess').val().trim();
     if (caption.length >= 3) {
-        caption = caption.substring(0, Math.min(100, caption.length));
+        caption = caption.substring(0, Math.min(150, caption.length));
         socket.emit('give story content', gameId, caption);
         changeView('wait');
         $('#picture-guess').val('');
@@ -256,7 +256,7 @@ socket.on('take completed stories', function (stories, plrNamesInOrder, numStage
         for (let j = 0; j < numStages; j++) {
             let idx = Math.floor(j / 2);
 
-            scrollHtml += '<span id="story-stage"><br><br><p>'
+            scrollHtml += '<span id="story-stage"><br><p>'
             if (j % 2 == 0) {
                 if (j == 0) {
                     scrollHtml += 'The story began with:<br>';

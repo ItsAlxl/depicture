@@ -23,6 +23,11 @@ ul {
     background-color: #fff;
 }
 
+.game-table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .game-table td {
     text-align: left;
     padding-left: 10px;
@@ -40,6 +45,10 @@ ul {
 
 #story-stage {
     display: none;
+}
+
+#ending-scroll p {
+    margin: 0px;
 }
 
 input[type=text] {
@@ -69,17 +78,10 @@ input[type=text] {
 body {
     font-family: "Roboto", sans-serif;
     display: block;
-    /*
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%;
-    */
     text-align: center;
     background-color: var(--background-color);
     color: var(--font-color);
 }
-
-/* Used for the title */
 
 h1 {
     font-size: 400%;
