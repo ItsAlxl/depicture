@@ -91,20 +91,18 @@ function hostIdToGameId(hostId) {
       hash = hash & hash;
     }
     hash = Math.abs(hash) + '';
-    
-    let code = '';
-    for (let i = 0; i < 5; i++) {
-        if (i % 2 == 0) {
-            code += hostId[i];
-        } else {
-            code += hash[i];
-        }
-    }
 
-    while (code in liveGames) {
-        code += hostId[0];
+    let code = hash.substr(hash.length - 4);
+    let idx = 0;
+    while (code in liveGames && idx < hostId.length) {
+        code += hostId[idx];
+        idx++;
     }
-    return code;
+    idx = 0;
+    while ((code + idx) in liveGames) {
+        idx++;
+    }
+    return code + idx;
 }
 
 function advanceTurn(g) {
