@@ -11,36 +11,46 @@
 <body onload="initViews();">
     <div id="view-join" class="invis-elm view">
         <div>
-            <h1>depicture</h1>
+            <h1>DEPICTURE</h1>
         </div>
-        Name: <input id="nick-name" type="text" autocomplete="off" />
-        <br><br><br>
-        <div>
-            Join Code: <input id="join-code" type="text" autocomplete="off" />
-            <br><br>
-            <button onclick="joinGame();">Join Game</button>
-        </div>
-        <br><br><br>
-        Prompt Source: <input id="prompt-host" type="text" autocomplete="off"
-            value="https://itsalxl.com/depicture-words" />
-        <br><br>
-        <button onclick="hostGame();">Host Game</button>
-        <br><br><br>
+        <h2>Name: <input id="nick-name" type="text" autocomplete="off" oninput="nicknameInput()" maxlength=25 style="width: 30%; text-align: center"/> </h2>
+		<div class="grid-container">
+			<div>
+				<h2 >Join</h2>
+				<div class="grid-box">
+					<h4 id="join-code-header"style="color:Gray">Join Code: <input id="join-code" type="text" autocomplete="off" style="text-align: center" disabled/> </h4>
+					<button id="join-button" onclick="joinGame();" disabled>Join Game</button>
+				</div>
+			</div>			
+			<div>
+				<h2>Host</h2>
+				<div class="grid-box">
+					<h4 id="prompt-source-header" style="color:Gray">Prompt Source: <input id="prompt-host" type="text" autocomplete="off" style="text-align: center"
+					value="https://itsalxl.com/depicture-words" disabled/> </h4>
+					<button id="host-button" onclick="hostGame();" disabled>Host Game</button>
+				</div>
+			</div>
+			<br><br><br>
+		</div>
         <p><a href="about.html">About</a></p>
     </div>
     <div id="view-lobby" class="invis-elm view">
-        <h1>Waiting on host</h1>
-        <h2 id="lobby-name"></h2>
-
-        <ul id="lobby-players"></ul>
+        <h1>Waiting on host...</h1>
+		<h4 style="margin-bottom: 8px;">Join Code</h4>
+		<h3 id="lobby-name" ></h3>
+		<div>
+			<h4 style="margin-bottom: 8px;">Players</h5>
+			<ul style="padding: 0 0 0 0px; margin: 0; list-style-type:none; text-align:center;" id="lobby-players"></ul>
+		</div>
         <div id="host-lobby-options" class="invis-elm">
-            <button onclick="startHostedGame();" id="host-start-btn">Begin!</button>
             <br><br>
             <div id="host-deck-selection">
 
             </div>
             <br><br>
             Stage limit: <input id="stage-limit" type="number" min="0" value="6" />
+			<br><br>
+			<button onclick="startHostedGame();" id="host-start-btn">Begin!</button>
         </div>
     </div>
 
