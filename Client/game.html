@@ -65,6 +65,10 @@
 
     <div id="view-draw" class="invis-elm view">
         <h3 class="turn-counter"></h3>
+        <div>
+            <h2>Draw this:</h2>
+            <h1 id="prompt-text">smiley face</h1>
+        </div>
         <table class="game-table">
             <tr>
                 <td>
@@ -90,10 +94,6 @@
                     <label for="pen-white">White</label>
                 </td>
                 <td>
-                    <div>
-                        <h2>Draw this:</h2>
-                        <h1 id="prompt-text">smiley face</h1>
-                    </div>
                     <canvas id="draw-canvas" width="480" height="384" class="art"></canvas>
                     <br>
                     <button onclick="clearCanvas();">Clear Canvas</button>

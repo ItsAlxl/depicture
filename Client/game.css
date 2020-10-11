@@ -14,12 +14,17 @@
     }
 }
 
+ul {
+    text-align: left;
+}
+
 .art {
     border: 1px solid #000;
     background-color: #fff;
 }
 
 .game-table td {
+    text-align: left;
     padding-left: 10px;
     padding-right: 10px;
     min-width: 100px;
