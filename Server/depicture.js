@@ -1,12 +1,12 @@
-const { Room } = require("./GameComponents.js");
+const { Room } = require('./GameComponents.js');
 
-var path = require("path");
+var path = require('path');
 var express = require('express');
 
 var app = require('express')();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
-var clientDir = path.join(__dirname, "../Client");
+var clientDir = path.join(__dirname, '../Client');
 
 
 // Serve public web files
@@ -65,7 +65,7 @@ function quitGame(socket, gameId) {
         socket.leave(gameId);
 
         let successorId = g.remPlr(socket.id);
-        if (successorId.length > 0) {
+        if (successorId && successorId.length > 0) {
             catchupPlayer(gameId, successorId);
         }
 
@@ -84,7 +84,27 @@ function updateGameInfoToPlrs(gameId) {
 }
 
 function hostIdToGameId(hostId) {
-    return 'game__' + hostId;
+    let hash = 0;
+    for (let i = 0; i < hostId.length; i++) {
+      let char = hostId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    hash = Math.abs(hash) + '';
+    
+    let code = '';
+    for (let i = 0; i < 5; i++) {
+        if (i % 2 == 0) {
+            code += hostId[i];
+        } else {
+            code += hash[i];
+        }
+    }
+
+    while (code in liveGames) {
+        code += hostId[0];
+    }
+    return code;
 }
 
 function advanceTurn(g) {
@@ -121,14 +141,14 @@ io.on('connection', (socket) => {
         quitGame(socket, gameId);
     });
 
-    socket.on('start hosted game', (stageLimit) => {
-        let g = liveGames[hostIdToGameId(socket.id)];
+    socket.on('start hosted game', (gameId, stageLimit) => {
+        let g = liveGames[gameId];
         g.setupGame(stageLimit);
         io.to(socket.id).emit('take story seeds', g.getNumActivePlrs());
     });
 
-    socket.on('give story seeds', (seeds) => {
-        let g = liveGames[hostIdToGameId(socket.id)];
+    socket.on('give story seeds', (gameId, seeds) => {
+        let g = liveGames[gameId];
         g.takeStorySeeds(seeds);
         advanceTurn(g);
     });

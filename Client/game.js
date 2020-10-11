@@ -33,10 +33,7 @@ socket.on('take story content', function (c) {
 });
 
 socket.on('set turn tickers', function (n, m) {
-    let tickers = document.getElementsByClassName('turn-counter');
-    for (let t in tickers) {
-        tickers[t].textContent = n + '/' + m;
-    }
+    $('#turn-counter').text(gameId + ' | ' + n + '/' + m);
 });
 
 var playerToNames = {};
@@ -106,7 +103,7 @@ function joinGame() {
 }
 
 function startHostedGame() {
-    socket.emit('start hosted game', $('#stage-limit').val());
+    socket.emit('start hosted game', gameId, $('#stage-limit').val());
 }
 
 const HOST_EXCLUSIVES = ['#host-lobby-options', '#restart-game-btn', '#driver-reveal']
@@ -207,7 +204,7 @@ function serveSeeds() {
     for (let i = 0; i < numPlrs; i++) {
         seeds.push(seedDeck.pop());
     }
-    socket.emit('give story seeds', seeds);
+    socket.emit('give story seeds', gameId, seeds);
 }
 
 

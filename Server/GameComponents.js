@@ -15,7 +15,7 @@ class Story {
         }
     }
 
-    takeCurrent(type, content, owner = "anonymous player") {
+    takeCurrent(type, content, owner = 'anonymous player') {
         if (type == 'caption') {
             this.captions.push(content);
         } else {
