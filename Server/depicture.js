@@ -98,6 +98,10 @@ function hostIdToGameId(hostId) {
         code += hostId[idx];
         idx++;
     }
+    if (!(code in liveGames)) {
+        return code;
+    }
+    
     idx = 0;
     while ((code + idx) in liveGames) {
         idx++;
