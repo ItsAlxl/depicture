@@ -60,27 +60,26 @@ socket.on('player readiness update', function (pr) {
 
 
 function nicknameInput() {
-	let nam = $('#nick-name').val();
-	let jcin = $('#join-code');
-	let prin = $('#prompt-host');
-	if (nam.length > 0){
-		document.getElementById("join-code").removeAttribute("disabled");
-		document.getElementById("prompt-host").removeAttribute("disabled");
-		document.getElementById("join-button").removeAttribute("disabled");
-		document.getElementById("host-button").removeAttribute("disabled");	
-		document.getElementById("join-code-header").setAttribute("style", "color:rgb(255, 182, 0)");
-		document.getElementById("prompt-source-header").setAttribute("style", "color:rgb(255, 182, 0)");
-	}
-	else
-	{
-		document.getElementById("join-code").setAttribute("disabled", "");
-		document.getElementById("prompt-host").setAttribute("disabled", "");
-		document.getElementById("join-button").setAttribute("disabled", "");
-		document.getElementById("host-button").setAttribute("disabled", "");
-		document.getElementById("join-code-header").setAttribute("style", "color:Gray");
-		document.getElementById("prompt-source-header").setAttribute("style", "color:Gray");
-	}
-	
+    let nam = $('#nick-name').val();
+    let jcin = $('#join-code');
+    let prin = $('#prompt-host');
+    if (nam.length > 0) {
+        document.getElementById('join-code').removeAttribute('disabled');
+        document.getElementById('prompt-host').removeAttribute('disabled');
+        document.getElementById('join-button').removeAttribute('disabled');
+        document.getElementById('host-button').removeAttribute('disabled');
+        document.getElementById('join-code-header').setAttribute('style', 'color:rgb(255, 182, 0)');
+        document.getElementById('prompt-source-header').setAttribute('style', 'color:rgb(255, 182, 0)');
+    }
+    else {
+        document.getElementById('join-code').setAttribute('disabled', '');
+        document.getElementById('prompt-host').setAttribute('disabled', '');
+        document.getElementById('join-button').setAttribute('disabled', '');
+        document.getElementById('host-button').setAttribute('disabled', '');
+        document.getElementById('join-code-header').setAttribute('style', 'color:Gray');
+        document.getElementById('prompt-source-header').setAttribute('style', 'color:Gray');
+    }
+
 }
 
 var gameId;
@@ -275,7 +274,7 @@ socket.on('take completed stories', function (stories, plrNamesInOrder, numStage
             }
             scrollHtml += '</p>';
             if (j == numStages - 1) {
-                scrollHtml += "<p>And that's how the story ended.</p><br><br><br>";
+                scrollHtml += '<p>And that\'s how the story ended.</p><br><br><br>';
             } else {
                 scrollHtml += '</span>';
             }
@@ -304,7 +303,7 @@ function revealNextStoryStage() {
     latestStage.prop('id', '');
 
     if (document.getElementById('follow-ending-scroll').checked) {
-        latestStage.get(0).scrollIntoView({ alignToTop: false, behavior: "smooth" });
+        latestStage.get(0).scrollIntoView({ alignToTop: false, behavior: 'smooth' });
     }
 }
 
