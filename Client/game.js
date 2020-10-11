@@ -40,18 +40,20 @@ socket.on('set turn tickers', function (n, m) {
 });
 
 var playerToNames = {};
-socket.on('set player mapping', function (ps) {
+socket.on('set room info', function (gid, ps, waitOnDc) {
+    gameId = gid;
+    $('#lobby-name').html(gid);
+    $('#lobby-players').empty();
+    $('#list-of-waiters').empty();
     for (let p in ps) {
         playerToNames[ps[p].id] = ps[p].nickname;
-    }
-});
-
-socket.on('player readiness update', function (pr) {
-    $('#list-of-waiters').empty();
-    for (let p in pr) {
-        if (!pr[p]) {
-            $('#list-of-waiters').append($('<li>').text(playerToNames[p]));
+        $('#lobby-players').append($('<li>').text(ps[p].nickname));
+        if (!ps[p].spectator && !ps[p].stageDone) {
+            $('#list-of-waiters').append($('<li>').text(ps[p].nickname));
         }
+    }
+    if (waitOnDc) {
+        $('#list-of-waiters').append($('<li>').text('A player has disconnected and must be replaced before continuing...'));
     }
 });
 
@@ -107,17 +109,8 @@ function startHostedGame() {
     socket.emit('start hosted game', $('#stage-limit').val());
 }
 
-socket.on('player movement', function (playerList) {
-    $('#lobby-players').empty();
-    for (let p in playerList) {
-        $('#lobby-players').append($('<li>').text(playerList[p].nickname));
-    }
-});
-
 const HOST_EXCLUSIVES = ['#host-lobby-options', '#restart-game-btn', '#driver-reveal']
-socket.on('go to lobby', function (roomId, asHost) {
-    gameId = roomId;
-    $('#lobby-name').html(roomId);
+socket.on('set as host', function (asHost) {
     if (asHost) {
         for (let HE in HOST_EXCLUSIVES) {
             $(HOST_EXCLUSIVES[HE]).removeClass('invis-elm');
@@ -130,7 +123,6 @@ socket.on('go to lobby', function (roomId, asHost) {
             $(HOST_EXCLUSIVES[HE]).addClass('invis-elm');
         }
     }
-    changeView('lobby');
 });
 
 function getListCheckboxHTML(listName) {
@@ -156,6 +148,7 @@ function appendLists(fromHost) {
     });
 }
 
+var fullSeedDeck = [];
 var seedDeck = [];
 var numPlrs = -1;
 function populateSeeds(fromHost, nameArray) {
@@ -171,7 +164,7 @@ function populateSeeds(fromHost, nameArray) {
 
     $.getJSON(fromHost + 'lists.php' + query, function (seeds) {
         for (let s in seeds) {
-            seedDeck.push(seeds[s]);
+            fullSeedDeck.push(seeds[s]);
         }
     })
         .done(finishSeedSetup);
@@ -180,7 +173,7 @@ function populateSeeds(fromHost, nameArray) {
 socket.on('take story seeds', function (nPlrs) {
     numPlrs = nPlrs;
 
-    if (seedDeck.length == 0) {
+    if (fullSeedDeck.length == 0) {
         let deckCheckboxes = document.getElementsByName('deck-cbox');
         let grabNames = [];
         for (let i = 0; i < deckCheckboxes.length; i++) {
@@ -189,12 +182,16 @@ socket.on('take story seeds', function (nPlrs) {
             }
         }
         populateSeeds(APIHost, grabNames);
+    } else if (seedDeck.length == 0) {
+        finishSeedSetup();
     } else {
         serveSeeds();
     }
 });
 
 function finishSeedSetup() {
+    // Copy full deck
+    seedDeck = fullSeedDeck.slice();
     // Shuffle (Durstenfeld / Fisher-Yates)
     for (var i = seedDeck.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
@@ -240,19 +237,17 @@ function submitTitleGuess() {
     }
 }
 
-socket.on('take completed stories', function (stories, plrNamesInOrder, numStages) {
+socket.on('take completed stories', function (stories, numStages) {
     $('#ending-scroll').empty();
     changeView('end');
 
     // +1 for the beginning prompt
     numStages++;
     let scrollHtml = '';
-    let pidMax = plrNamesInOrder.length;
     for (let i = 0; i < stories.length; i++) {
         scrollHtml += '<div>'
 
         let s = stories[i];
-        let pid = i;
         for (let j = 0; j < numStages; j++) {
             let idx = Math.floor(j / 2);
 
@@ -261,11 +256,11 @@ socket.on('take completed stories', function (stories, plrNamesInOrder, numStage
                 if (j == 0) {
                     scrollHtml += 'The story began with:<br>';
                 } else {
-                    scrollHtml += plrNamesInOrder[pid] + ' wrote:<br>';
+                    scrollHtml += s.owners[j - 1] + ' wrote:<br>';
                 }
                 scrollHtml += s.captions[idx];
             } else {
-                scrollHtml += plrNamesInOrder[pid] + ' drew:<br>';
+                scrollHtml += s.owners[j - 1] + ' drew:<br>';
                 scrollHtml += '<img width="480" height="384" class="art" src="' + s.images[idx] + '">';
             }
             scrollHtml += '</p>';
@@ -273,10 +268,6 @@ socket.on('take completed stories', function (stories, plrNamesInOrder, numStage
                 scrollHtml += '<p>And that\'s how the story ended.</p><br><br><br>';
             } else {
                 scrollHtml += '</span>';
-            }
-
-            if (j > 0) {
-                pid = (pid + pidMax - 1) % pidMax;
             }
         }
         scrollHtml += '</div>';
@@ -295,11 +286,13 @@ socket.on('reveal next story stage', function () {
 
 function revealNextStoryStage() {
     let latestStage = $('#story-stage');
-    latestStage.fadeIn('slow');
-    latestStage.prop('id', '');
+    if (latestStage) {
+        latestStage.fadeIn('slow');
+        latestStage.prop('id', '');
 
-    if (document.getElementById('follow-ending-scroll').checked) {
-        latestStage.get(0).scrollIntoView({ alignToTop: false, behavior: 'smooth' });
+        if (document.getElementById('follow-ending-scroll').checked) {
+            latestStage.get(0).scrollIntoView({ alignToTop: false, behavior: 'smooth' });
+        }
     }
 }
 

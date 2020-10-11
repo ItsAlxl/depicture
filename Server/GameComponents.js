@@ -1,13 +1,10 @@
 class Story {
     images = [];
     captions = [];
+    owners = [];
 
     constructor(seed) {
         this.captions.push(seed);
-    }
-
-    getPair(idx) {
-        return [this.captions[idx], this.images[idx]];
     }
 
     getCurrent(type) {
@@ -18,22 +15,43 @@ class Story {
         }
     }
 
-    takeCurrent(type, content) {
+    takeCurrent(type, content, owner = "anonymous player") {
         if (type == 'caption') {
             this.captions.push(content);
         } else {
             this.images.push(content);
         }
+        this.owners.push(owner);
+    }
+
+    getNumStages() {
+        return this.owners.length;
     }
 }
 
 class Player {
     id;
     nickname;
+    stageDone = false;
+    spectator = true;
 
     constructor(id, name) {
         this.id = id;
         this.nickname = name;
+    }
+
+    setReady(r) {
+        this.stageDone = r;
+    }
+    isReady() {
+        return this.stageDone;
+    }
+
+    setActive(a) {
+        this.spectator = !a;
+    }
+    isActive() {
+        return !this.spectator;
     }
 }
 
@@ -43,10 +61,12 @@ class Room {
     plrs = {};
     hostId;
     plrTurnOrder = [];
-    numPlrs = -1;
+    numActivePlrs;
     turns;
     plrReadiness = {};
     stageLimit = 0;
+    stagesRevealed;
+    currentState;
 
     constructor(id) {
         this.id = id;
@@ -55,47 +75,135 @@ class Room {
     restart() {
         this.stories.length = 0;
         this.turns = -1;
-
+        this.stagesRevealed = 0;
+        this.numActivePlrs = -1;
+        this.setState('lobby');
+        this.upgradeSpectators();
         this.resetReady();
     }
 
+    setState(s) {
+        this.currentState = s;
+    }
+    getState() {
+        return this.currentState;
+    }
+    isLive() {
+        return ['ingame'].includes(this.getState());
+    }
+    isJoinable() {
+        return !['ingame'].includes(this.getState());
+    }
+
     addPlr(id, nickname) {
-        if (this.getNumPlrs() == 0) {
+        if (this.getNumTotalPlrs() == 0) {
             this.hostId = id;
         }
-        this.plrs[id] = new Player(id, nickname);
-    }
-    remPlr(id) {
-        delete this.plrs[id];
-    }
 
-    getNumPlrs() {
-        if (this.numPlrs < 0) {
-            return Object.keys(this.plrs).length;
+        let p = new Player(id, nickname);
+
+        if (this.isJoinable()) {
+            p.setActive(true);
         } else {
-            return this.numPlrs;
-        }
-    }
-
-    validToStart() {
-        return this.getNumPlrs() >= 3;
-    }
-
-    setupGame(stageLimit) {
-        this.plrTurnOrder = Object.keys(this.plrs);
-        this.numPlrs = this.plrTurnOrder.length;
-        this.stageLimit = Math.min(stageLimit, this.getNumPlrs());
-    }
-
-    shuffleTurnOrder() {
-        if (this.plrTurnOrder.length > 0) {
-            // Shuffle (Durstenfeld / Fisher-Yates)
-            for (var i = this.plrTurnOrder.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
-                var temp = this.plrTurnOrder[i];
-                this.plrTurnOrder[i] = this.plrTurnOrder[j];
-                this.plrTurnOrder[j] = temp;
+            let fillSeat = this.getOpenTurnOrder();
+            if (fillSeat >= 0) {
+                this.plrTurnOrder[fillSeat] = id;
+                p.setActive(true);
+                p.setReady(this.hasStorySubmitted(this.plrToStory(id)));
             }
+        }
+
+        this.plrs[id] = p;
+    }
+
+    remPlr(id) {
+        let turnOrderIdx = this.plrTurnOrder.indexOf(id);
+        if (turnOrderIdx > -1) {
+            let successor = this.activeSuccession(id);
+            if (successor == null) {
+                this.plrTurnOrder[turnOrderIdx] = '';
+            } else {
+                successor.setActive(true);
+                this.plrTurnOrder[turnOrderIdx] = successor.id;
+            }
+        }
+        if (id == this.hostId) {
+            this.hostId = this.hostSuccession();
+        }
+
+        delete this.plrs[id];
+        return this.plrTurnOrder[turnOrderIdx];
+    }
+
+    activeSuccession(excludeId) {
+        for (let p in this.plrs) {
+            if (p != excludeId && !this.getPlr(p).isActive()) {
+                return this.getPlr(p);
+            }
+        }
+        return null;
+    }
+
+    hostSuccession() {
+        let apks = this.getActivePlrKeys();
+        for (let i = 0; i < apks.length; i++) {
+            if (apks[i] != this.hostId) {
+                return apks[i];
+            }
+        }
+        return '';
+    }
+
+    getPlr(id) {
+        return this.plrs[id];
+    }
+
+    getOpenTurnOrder() {
+        return this.plrTurnOrder.indexOf('');
+    }
+
+    getNumTotalPlrs() {
+        return Object.keys(this.plrs).length;
+    }
+
+    getNumActivePlrs() {
+        return this.numActivePlrs;
+    }
+
+    getActivePlrKeys() {
+        let apks = [];
+        for (let p in this.plrs) {
+            if (this.getPlr(p).isActive()) {
+                apks.push(p);
+            }
+        }
+        return apks;
+    }
+
+    getUnreadyPlrKeys() {
+        let upks = [];
+        for (let p in this.plrs) {
+            if (!this.getPlr(p).isReady()) {
+                upks.push(p);
+            }
+        }
+        return upks;
+    }
+
+    setupGame(stageLimit = -1) {
+        this.plrTurnOrder = this.getActivePlrKeys();
+        this.numActivePlrs = this.plrTurnOrder.length;
+        if (stageLimit >= 0) {
+            this.stageLimit = stageLimit;
+        }
+        this.setState('ingame');
+
+        // Shuffle (Durstenfeld / Fisher-Yates)
+        for (var i = this.plrTurnOrder.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = this.plrTurnOrder[i];
+            this.plrTurnOrder[i] = this.plrTurnOrder[j];
+            this.plrTurnOrder[j] = temp;
         }
     }
 
@@ -106,35 +214,46 @@ class Room {
     }
 
     uptickReady(pid) {
-        this.plrReadiness[pid] = true;
+        this.getPlr(pid).setReady(true);
     }
 
     resetReady() {
         for (let p in this.plrs) {
-            delete this.plrReadiness[p];
-        }
-        for (let p in this.plrs) {
-            this.plrReadiness[p] = false;
+            this.getPlr(p).setReady(false);
         }
     }
 
     areAllReady() {
-        for (let p in this.plrReadiness) {
-            if (!this.plrReadiness[p]) {
+        let apks = this.getActivePlrKeys();
+        for (let p in apks) {
+            if (!this.getPlr(apks[p]).isReady()) {
                 return false;
             }
         }
         return true;
     }
 
+    upgradeSpectators() {
+        for (let p in this.plrs) {
+            this.getPlr(p).setActive(true);
+        }
+    }
+
     advanceTurn() {
         this.resetReady();
         this.turns++;
-        if ((this.stageLimit > 0 && this.turns >= this.stageLimit) || this.turns >= this.getNumPlrs()) {
+
+        let sl = this.getStageLimit();
+        if ((sl > 0 && this.turns >= sl) || this.turns >= this.getNumActivePlrs()) {
+            this.setState('story-rollout');
             return true;
         } else {
             return false;
         }
+    }
+
+    getStageLimit() {
+        return Math.min(this.stageLimit, this.getNumActivePlrs());
     }
 
     getCurrentView() {
@@ -151,20 +270,16 @@ class Room {
         return this.stories[idx];
     }
 
+    hasStorySubmitted(s) {
+        return s.owners.length == this.turns + 1;
+    }
+
     getCurrentStory(plrId) {
         return this.plrToStory(plrId).getCurrent(this.getCurrentView());
     }
 
     takeCurrentStory(plrId, content) {
-        this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content);
-    }
-
-    getPlrNamesInOrder() {
-        let pnio = [];
-        for (let p in this.plrTurnOrder) {
-            pnio.push(this.plrs[this.plrTurnOrder[p]].nickname);
-        }
-        return pnio;
+        this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname);
     }
 }
 
