@@ -167,7 +167,7 @@ io.on('connection', (socket) => {
     socket.on('give story content', (gameId, c) => {
         let g = liveGames[gameId];
 
-        if (typeof c === 'string') {
+        if (g.getCurrentView() == 'caption') {
             c = c.substring(0, INPUT_RESTRICTIONS['prompt']);
         }
         g.takeCurrentStory(socket.id, c);

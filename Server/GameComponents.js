@@ -16,12 +16,13 @@ class Story {
     }
 
     takeCurrent(type, content, owner = 'anonymous player', idx) {
+        let halfIdx = Math.floor(idx / 2);
         if (type == 'caption') {
-            this.captions[idx] = content;
+            this.captions[halfIdx + 1] = content;
         } else {
-            this.images[idx] = content;
+            this.images[halfIdx] = content;
         }
-        this.owners.push(owner);
+        this.owners[idx] = owner;
     }
 
     getNumStages() {
@@ -208,8 +209,10 @@ class Room {
     }
 
     takeStorySeeds(seeds) {
-        for (let i = 0; i < seeds.length; i++) {
-            this.stories.push(new Story(seeds[i]));
+        if (this.stories.length == 0) {
+            for (let i = 0; i < seeds.length; i++) {
+                this.stories.push(new Story(seeds[i]));
+            }
         }
     }
 
@@ -281,7 +284,7 @@ class Room {
     }
 
     takeCurrentStory(plrId, content) {
-        this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname, Math.floor(this.turns / 2));
+        this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname, this.turns);
     }
 }
 
