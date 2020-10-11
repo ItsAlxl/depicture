@@ -3,15 +3,27 @@
     --font-color: #000;
     --title-color: #fb0;
     --disabled-color: #aaa;
+    --link-color: #00e;
+    --visited-link-color: #529;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --background-color: #225;
-        --font-color: #99f;
+        --background-color: #002;
+        --font-color: #eef;
         --title-color: #fb0;
         --disabled-color: #aaa;
+        --link-color: #9fe;
+        --visited-link-color: #df9;
     }
+}
+
+a {
+    color: var(--link-color);
+}
+
+a:visited {
+    color: var(--visited-link-color);
 }
 
 ul {

@@ -79,12 +79,20 @@ function nicknameInput() {
 
 var gameId;
 var plrName;
+var INPUT_RESTRICTIONS;
+
+socket.on('apply input restrictions', function (IR) {
+    INPUT_RESTRICTIONS = IR;
+    $('#nick-name').attr('maxlength', IR['username']);
+    $('#picture-guess').attr('maxlength', IR['prompt']);
+});
+
 function validateName() {
     let p = $('#nick-name').val().trim();
     if (p.length < 3) {
         return false;
     } else {
-        plrName = p.substring(0, Math.min(25, p.length));
+        plrName = p.substring(0, INPUT_RESTRICTIONS['username']);
         return true;
     }
 }
@@ -227,7 +235,7 @@ function submitDrawing() {
 function submitTitleGuess() {
     let caption = $('#picture-guess').val().trim();
     if (caption.length >= 3) {
-        caption = caption.substring(0, Math.min(150, caption.length));
+        caption = caption.substring(0, INPUT_RESTRICTIONS['prompt']);
         socket.emit('give story content', gameId, caption);
         changeView('wait');
         $('#picture-guess').val('');

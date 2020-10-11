@@ -20,11 +20,15 @@ app.get('/', (req, res) => {
 // Game logic/events
 
 var liveGames = {};
+const INPUT_RESTRICTIONS = {
+    'username': 25,
+    'prompt': 150
+};
 
 function joinGame(socket, nickname, gameId) {
     if (gameId in liveGames) {
         let g = liveGames[gameId];
-        g.addPlr(socket.id, nickname);
+        g.addPlr(socket.id, nickname.substring(0, INPUT_RESTRICTIONS['username']));
         socket.join(gameId);
 
         catchupPlayer(gameId, socket.id);
@@ -92,7 +96,7 @@ function hostIdToGameId(hostId) {
     }
     hash = Math.abs(hash) + '';
 
-    let code = hash.substr(hash.length - 4);
+    let code = hash.substring(hash.length - 4);
     let idx = 0;
     while (code in liveGames && idx < hostId.length) {
         code += hostId[idx];
@@ -109,8 +113,11 @@ function hostIdToGameId(hostId) {
     return code + idx;
 }
 
-function advanceTurn(g) {
-    let endNow = g.advanceTurn();
+function advanceTurn(g, gt = -2) {
+    if (gt < -1) {
+        gt = g.turns;
+    }
+    let endNow = g.advanceTurn(gt);
 
     if (endNow) {
         io.to(g.id).emit('take completed stories', g.stories, g.getStageLimit());
@@ -130,6 +137,8 @@ function servePlrStoryContent(plrId, game) {
 }
 
 io.on('connection', (socket) => {
+    io.to(socket.id).emit('apply input restrictions', INPUT_RESTRICTIONS);
+
     socket.on('host game', (nick) => {
         let gameId = hostIdToGameId(socket.id);
         let g = new Room(gameId);
@@ -152,11 +161,15 @@ io.on('connection', (socket) => {
     socket.on('give story seeds', (gameId, seeds) => {
         let g = liveGames[gameId];
         g.takeStorySeeds(seeds);
-        advanceTurn(g);
+        advanceTurn(g, -1);
     });
 
     socket.on('give story content', (gameId, c) => {
         let g = liveGames[gameId];
+
+        if (typeof c === 'string') {
+            c = c.substring(0, INPUT_RESTRICTIONS['prompt']);
+        }
         g.takeCurrentStory(socket.id, c);
         g.uptickReady(socket.id);
 

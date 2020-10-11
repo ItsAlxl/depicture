@@ -15,11 +15,11 @@ class Story {
         }
     }
 
-    takeCurrent(type, content, owner = 'anonymous player') {
+    takeCurrent(type, content, owner = 'anonymous player', idx) {
         if (type == 'caption') {
-            this.captions.push(content);
+            this.captions[idx] = content;
         } else {
-            this.images.push(content);
+            this.images[idx] = content;
         }
         this.owners.push(owner);
     }
@@ -239,16 +239,18 @@ class Room {
         }
     }
 
-    advanceTurn() {
-        this.resetReady();
-        this.turns++;
+    advanceTurn(fromTurn) {
+        if (this.turns == fromTurn) {
+            this.resetReady();
 
-        let sl = this.getStageLimit();
-        if ((sl > 0 && this.turns >= sl) || this.turns >= this.getNumActivePlrs()) {
-            this.setState('story-rollout');
-            return true;
-        } else {
-            return false;
+            let sl = this.getStageLimit();
+            this.turns++;
+            if ((sl > 0 && this.turns >= sl) || this.turns >= this.getNumActivePlrs()) {
+                this.setState('story-rollout');
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -279,7 +281,7 @@ class Room {
     }
 
     takeCurrentStory(plrId, content) {
-        this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname);
+        this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname, Math.floor(this.turns / 2));
     }
 }
 
