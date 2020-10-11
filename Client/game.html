@@ -14,20 +14,21 @@
             <h1>depicture</h1>
         </div>
         <h2>Name</h2>
-        <input id="nick-name" type="text" autocomplete="off" oninput="nicknameInput()" maxlength=25 style="width: 30%; text-align: center"/>
+        <input id="nick-name" type="text" autocomplete="off" oninput="nicknameInput()" maxlength=25/>
         <div class="grid-container">
             <div>
-                <h2 >Join</h2>
+                <h2>Join</h2>
                 <div class="grid-box">
-                    <h4 id="join-code-header"style="color:Gray">Join Code: <input id="join-code" type="text" autocomplete="off" style="text-align: center" disabled/> </h4>
+                    <h4 id="join-code-header" class="disabled">Join Code</h4>
+                    <input id="join-code" type="text" autocomplete="off" disabled/>
                     <button id="join-button" onclick="joinGame();" disabled>Join Game</button>
                 </div>
             </div>            
             <div>
                 <h2>Host</h2>
                 <div class="grid-box">
-                    <h4 id="prompt-source-header" style="color:Gray">Prompt Source: <input id="prompt-host" type="text" autocomplete="off" style="text-align: center"
-                    value="https://itsalxl.com/depicture-words" disabled/> </h4>
+                    <h4 id="prompt-source-header" class="disabled">Prompt Source</h4>
+                    <input id="prompt-host" type="text" autocomplete="off" value="https://itsalxl.com/depicture-words" disabled/>
                     <button id="host-button" onclick="hostGame();" disabled>Host Game</button>
                 </div>
             </div>
@@ -37,11 +38,11 @@
     </div>
     <div id="view-lobby" class="invis-elm view">
         <h1>Waiting on host...</h1>
-        <h4 style="margin-bottom: 8px;">Join Code</h4>
+        <h4>Join Code</h4>
         <h3 id="lobby-name" ></h3>
         <div>
-            <h4 style="margin-bottom: 8px;">Players</h5>
-            <ul style="padding: 0 0 0 0px; margin: 0; list-style-type:none; text-align:center;" id="lobby-players"></ul>
+            <h4>Players</h5>
+            <ul id="lobby-players"></ul>
         </div>
         <div id="host-lobby-options" class="invis-elm">
             <br><br>

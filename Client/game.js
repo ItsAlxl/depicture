@@ -58,28 +58,24 @@ socket.on('player readiness update', function (pr) {
 
 // Lobbying
 
-
+const DISABLE_ATTR_BADNAME = ['join-code', 'prompt-host', 'join-button', 'host-button'];
+const DISABLE_CLASS_BADNAME = ['#join-code-header', '#prompt-source-header'];
 function nicknameInput() {
-    let nam = $('#nick-name').val();
-    let jcin = $('#join-code');
-    let prin = $('#prompt-host');
-    if (nam.length > 0) {
-        document.getElementById('join-code').removeAttribute('disabled');
-        document.getElementById('prompt-host').removeAttribute('disabled');
-        document.getElementById('join-button').removeAttribute('disabled');
-        document.getElementById('host-button').removeAttribute('disabled');
-        document.getElementById('join-code-header').setAttribute('style', 'color:rgb(255, 182, 0)');
-        document.getElementById('prompt-source-header').setAttribute('style', 'color:rgb(255, 182, 0)');
+    if (validateName()) {
+        for (let AB in DISABLE_ATTR_BADNAME) {
+            document.getElementById(DISABLE_ATTR_BADNAME[AB]).removeAttribute('disabled');
+        }
+        for (let CB in DISABLE_CLASS_BADNAME) {
+            $(DISABLE_CLASS_BADNAME[CB]).removeClass('disabled');
+        }
+    } else {
+        for (let AB in DISABLE_ATTR_BADNAME) {
+            document.getElementById(DISABLE_ATTR_BADNAME[AB]).setAttribute('disabled', '');
+        }
+        for (let CB in DISABLE_CLASS_BADNAME) {
+            $(DISABLE_CLASS_BADNAME[CB]).addClass('disabled');
+        }
     }
-    else {
-        document.getElementById('join-code').setAttribute('disabled', '');
-        document.getElementById('prompt-host').setAttribute('disabled', '');
-        document.getElementById('join-button').setAttribute('disabled', '');
-        document.getElementById('host-button').setAttribute('disabled', '');
-        document.getElementById('join-code-header').setAttribute('style', 'color:Gray');
-        document.getElementById('prompt-source-header').setAttribute('style', 'color:Gray');
-    }
-
 }
 
 var gameId;

@@ -1,6 +1,22 @@
+:root {
+    --background-color: #bef;
+    --font-color: #000;
+    --title-color: #fb0;
+    --disabled-color: #aaa;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #225;
+        --font-color: #99f;
+        --title-color: #fb0;
+        --disabled-color: #aaa;
+    }
+}
+
 .art {
-    border: 1px solid #000000;
-    background-color: White;
+    border: 1px solid #000;
+    background-color: #fff;
 }
 
 .game-table td {
@@ -24,8 +40,20 @@ input[type=text] {
     display: block;
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
     width: 80%;
     -webkit-text-stroke-width: 0px;
+}
+
+#nick-name {
+    width: 30%;
+}
+
+#lobby-players {
+    padding: 0 0 0 0px;
+    margin: 0;
+    list-style-type: none;
+    text-align: center;
 }
 
 .invis-elm {
@@ -35,11 +63,14 @@ input[type=text] {
 body {
     font-family: "Comic Sans MS", cursive, sans-serif;
     display: block;
-    /* margin-left: auto; */
-    /* margin-right: auto; */
-    /* width: 50%; */
+    /*
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    */
     text-align: center;
-    background-color: rgb(212, 244, 255)
+    background-color: var(--background-color);
+    color: var(--font-color);
 }
 
 /* Used for the title */
@@ -50,7 +81,7 @@ h1 {
 
 h2 {
     text-align: center;
-    color: rgb(255, 182, 0);
+    color: var(--title-color);
     font-size: 175%;
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: black;
@@ -59,7 +90,7 @@ h2 {
 
 h4 {
     text-align: center;
-    color: rgb(255, 182, 0);
+    color: var(--title-color);
     font-size: 140%;
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: black;
@@ -67,11 +98,15 @@ h4 {
 
 h5 {
     text-align: center;
-    color: rgb(255, 182, 0);
+    color: var(--title-color);
     font-size: 140%;
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: black;
     margin-bottom: 8px;
+}
+
+.disabled {
+    color: var(--disabled-color);
 }
 
 .grid-container {
