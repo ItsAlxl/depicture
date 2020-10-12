@@ -291,16 +291,22 @@ socket.on('reveal next story stage', function () {
 
 function revealNextStoryStage() {
     let latestStage = $('#story-stage');
-    if (latestStage) {
+    let stageChild = latestStage.get(0);
+    if (stageChild) {
         latestStage.fadeIn('slow');
         latestStage.prop('id', '');
 
         if (document.getElementById('follow-ending-scroll').checked) {
-            latestStage.get(0).scrollIntoView({ alignToTop: false, behavior: 'smooth' });
+            stageChild.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
+        }
+
+        if (!$('#story-stage').get(0)) {
+            document.getElementById('driver-reveal').setAttribute('disabled', '');
         }
     }
 }
 
 function restartGame() {
+    document.getElementById('driver-reveal').removeAttribute('disabled');
     socket.emit('begin restart', gameId);
 }

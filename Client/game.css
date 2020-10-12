@@ -34,6 +34,9 @@ ul {
     border: 1px solid #000;
     background-color: #fff;
 }
+canvas.art {
+    touch-action: none;
+}
 
 .game-table {
     margin-left: auto;

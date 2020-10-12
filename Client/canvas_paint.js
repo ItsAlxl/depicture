@@ -2,12 +2,12 @@
 var canvas = document.getElementById('draw-canvas');
 var ctx = canvas.getContext('2d');
 
-// Mouse tracking
-var last_mouseX = last_mouseY = 0;
-var mouseX = mouseY = 0;
-var mousedown = false;
+// Pen tracking
+var last_penX = last_penY = 0;
+var penX = penY = 0;
+var penDrawing = false;
 
-// Pen
+// Pen properties
 var penColor = 'white';
 var penWidth = 0;
 function setPenWidth(w) {
@@ -23,37 +23,64 @@ function clearCanvas() {
 
 $(canvas).on('mousedown', function (e) {
     if (e.button == 0) {
-        last_mouseX = mouseX = parseInt(e.clientX - canvas.getBoundingClientRect().left);
-        last_mouseY = mouseY = parseInt(e.clientY - canvas.getBoundingClientRect().top);
-        mousedown = true;
+        startDrawing(e.clientX, e.clientY);
     }
 });
 $(canvas).on('mouseleave', function () {
-    last_mouseX = -1;
-    last_mouseY = -1;
+    resetPenPosition();
 });
 $(document).on('mouseup', function (e) {
     if (e.button == 0) {
-        mousedown = false;
+        stopDrawing();
     }
 });
-
 $(canvas).on('mousemove', function (e) {
-    mouseX = parseInt(e.clientX - canvas.getBoundingClientRect().left);
-    mouseY = parseInt(e.clientY - canvas.getBoundingClientRect().top);
-    if (mousedown) {
+    movePen(e.clientX, e.clientY);
+});
+
+$(canvas).on('touchstart', function (e) {
+    let t = (e.touches || [])[0] || {};
+    startDrawing(t.clientX, t.clientY);
+});
+$(document).on('touchend', function (e) {
+    stopDrawing();
+});
+$(canvas).on('touchmove', function (e) {
+    let t = (e.touches || [])[0] || {};
+    movePen(t.clientX, t.clientY);
+});
+
+function startDrawing(atX, atY) {
+    last_penX = penX = parseInt(atX - canvas.getBoundingClientRect().left);
+    last_penY = penY = parseInt(atY - canvas.getBoundingClientRect().top);
+    penDrawing = true;
+}
+
+function stopDrawing() {
+    penDrawing = false;
+}
+
+function resetPenPosition() {
+    last_penX = -1;
+    last_penY = -1;
+}
+
+function movePen(toX, toY) {
+    penX = parseInt(toX - canvas.getBoundingClientRect().left);
+    penY = parseInt(toY - canvas.getBoundingClientRect().top);
+    if (penDrawing) {
         ctx.beginPath();
 
         ctx.strokeStyle = penColor;
         ctx.lineWidth = penWidth;
 
-        if (last_mouseX >= 0 && last_mouseX >= 0) {
-            ctx.moveTo(last_mouseX, last_mouseY);
-            ctx.lineTo(mouseX, mouseY);
+        if (last_penX >= 0 && last_penX >= 0) {
+            ctx.moveTo(last_penX, last_penY);
+            ctx.lineTo(penX, penY);
             ctx.lineJoin = ctx.lineCap = 'round';
             ctx.stroke();
         }
     }
-    last_mouseX = mouseX;
-    last_mouseY = mouseY;
-});
+    last_penX = penX;
+    last_penY = penY;
+}
