@@ -116,7 +116,9 @@
         <br>
         <input type="checkbox" id="follow-ending-scroll" name="fes" checked>
         <label for="follow-ending-scroll">Auto-scroll with reveals</label>
-        <br>
+        <br><br>
+        <button onclick="saveGameFile();">Save to file</button>
+        <br><br>
         <button onclick="emitStoryReveal();" class="invis-elm" id="driver-reveal">Reveal Next</button>
         <br><br>
         <button onclick="restartGame();" class="invis-elm" id="restart-game-btn">Play Again</button>
@@ -124,6 +126,7 @@
 
     <script src="canvas_paint.js"></script>
     <script src="game.js"></script>
+    <script src="save-game.js"></script>
 </body>
 
 </html>
