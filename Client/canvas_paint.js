@@ -54,6 +54,7 @@ function startDrawing(atX, atY) {
     last_penX = penX = parseInt(atX - canvas.getBoundingClientRect().left);
     last_penY = penY = parseInt(atY - canvas.getBoundingClientRect().top);
     penDrawing = true;
+    movePen(atX, atY);
 }
 
 function stopDrawing() {
