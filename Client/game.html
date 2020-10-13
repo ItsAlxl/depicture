@@ -3,7 +3,17 @@
 
 <head>
     <title>depicture</title>
+    <meta name="Description" content="An online drawing game to play with your friends" />
+
+    <meta property="og:title" content="depicture - Online Drawing Game" />
+    <meta property="og:description" content="An online drawing game about mixed messages and ambiguous scribbles" />
+    <meta property="og:image" content="logo.png" />
+    <meta property="og:image:width" content="1066" />
+    <meta property="og:image:height" content="558" />
+
+    <link rel="icon" type="image/png" href="depicture.ico" />
     <link rel="stylesheet" href="game.css" />
+
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 </head>
@@ -11,24 +21,25 @@
 <body onload="initViews();">
     <div id="view-join" class="invis-elm view">
         <div>
-            <h1>depicture</h1>
+            <img width=400 src="logo.png">
         </div>
         <h2>Name</h2>
-        <input id="nick-name" type="text" autocomplete="off" oninput="nicknameInput()"/>
+        <input id="nick-name" type="text" autocomplete="off" oninput="nicknameInput()" />
         <div class="grid-container">
             <div>
                 <h2>Join</h2>
                 <div class="grid-box">
                     <h4 id="join-code-header" class="disabled">Join Code</h4>
-                    <input id="join-code" type="text" autocomplete="off" disabled/>
+                    <input id="join-code" type="text" autocomplete="off" disabled />
                     <button id="join-button" onclick="joinGame();" disabled>Join Game</button>
                 </div>
-            </div>            
+            </div>
             <div>
                 <h2>Host</h2>
                 <div class="grid-box">
                     <h4 id="prompt-source-header" class="disabled">Prompt Source</h4>
-                    <input id="prompt-host" type="text" autocomplete="off" value="https://itsalxl.com/depicture-words" disabled/>
+                    <input id="prompt-host" type="text" autocomplete="off" value="https://itsalxl.com/depicture-words"
+                        disabled />
                     <button id="host-button" onclick="hostGame();" disabled>Host Game</button>
                 </div>
             </div>
@@ -39,10 +50,10 @@
     <div id="view-lobby" class="invis-elm view">
         <h1>Waiting on host...</h1>
         <h4>Join Code</h4>
-        <h3 id="lobby-name" ></h3>
+        <h3 id="lobby-name"></h3>
         <div>
             <h4>Players</h5>
-            <ul id="lobby-players"></ul>
+                <ul id="lobby-players"></ul>
         </div>
         <div id="host-lobby-options" class="invis-elm">
             <br><br>
