@@ -43,11 +43,18 @@ canvas.art {
     margin-right: auto;
 }
 
-.game-table td {
+.game-table {
     text-align: left;
+}
+
+.game-table td {
     padding-left: 10px;
     padding-right: 10px;
     min-width: 100px;
+}
+
+.rightRadioCell  {
+    text-align: right;
 }
 
 .view {

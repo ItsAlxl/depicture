@@ -81,15 +81,29 @@
         </div>
         <table class="game-table">
             <tr>
-                <td>
+                <td colspan="2">
+                    <canvas id="draw-canvas" width="480" height="384" class="art"></canvas>
+                    <br>
+                    <button onclick="clearCanvas();">Clear Canvas</button>
+                    <button onclick="submitDrawing();" style="float: right;">DONE</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="rightRadioCell">
+                    <label for="pen-small">Small</label>
                     <input type="radio" id="pen-small" name="pw" onclick="setPenWidth(7);">
-                    <label for="pen-small">Small</label><br>
-                    <input type="radio" id="pen-med" name="pw" onclick="setPenWidth(12);">
-                    <label for="pen-med">Medium</label><br>
-                    <input type="radio" id="pen-large" name="pw" onclick="setPenWidth(17);">
-                    <label for="pen-large">Large</label><br>
-                    <input type="radio" id="pen-huge" name="pw" onclick="setPenWidth(22);">
-                    <label for="pen-huge">Big Chungus</label>
+                    <br>
+                    <label for="pen-med">Medium</label>
+                    <input type="radio" id="pen-med" name="pw" onclick="setPenWidth(11);">
+                    <br>
+                    <label for="pen-large">Large</label>
+                    <input type="radio" id="pen-large" name="pw" onclick="setPenWidth(18);">
+                    <br>
+                    <label for="pen-huge">Huge</label>
+                    <input type="radio" id="pen-huge" name="pw" onclick="setPenWidth(28);">
+                    <br>
+                    <label for="pen-chungus">Big Chungus</label>
+                    <input type="radio" id="pen-chungus" name="pw" onclick="setPenWidth(75);">
                 </td>
                 <td>
                     <input type="radio" id="pen-black" name="pc" onclick="setPenColor('black');">
@@ -102,12 +116,6 @@
                     <label for="pen-blue">Blue</label><br>
                     <input type="radio" id="pen-white" name="pc" onclick="setPenColor('white');">
                     <label for="pen-white">Eraser</label>
-                </td>
-                <td>
-                    <canvas id="draw-canvas" width="480" height="384" class="art"></canvas>
-                    <br>
-                    <button onclick="clearCanvas();">Clear Canvas</button>
-                    <button onclick="submitDrawing();" style="float: right;">DONE</button>
                 </td>
             </tr>
         </table>
