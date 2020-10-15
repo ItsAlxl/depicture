@@ -129,6 +129,7 @@ h4 {
     font-size: 140%;
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: black;
+    margin-bottom: 5px;
 }
 
 h5 {
@@ -161,5 +162,10 @@ h5 {
     border-image-repeat: repeat;
     border-width: 3px;
     width: 400px;
-    height: 190px;
+    padding-bottom: 30px;
+}
+
+.grid-box input {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }

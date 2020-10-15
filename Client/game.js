@@ -7,6 +7,7 @@ var APIHost = '';
 var currentView = '';
 function initViews() {
     changeView('join');
+    nicknameInput();
 }
 
 function changeView(v) {
