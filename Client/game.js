@@ -58,23 +58,13 @@ socket.on('set room info', function (gid, ps, waitOnDc) {
 
 // Lobbying
 
-const DISABLE_ATTR_BADNAME = ['join-code', 'prompt-host', 'join-button', 'host-button'];
-const DISABLE_CLASS_BADNAME = ['#join-code-header', '#prompt-source-header'];
 function nicknameInput() {
     if (validateName()) {
-        for (let AB in DISABLE_ATTR_BADNAME) {
-            document.getElementById(DISABLE_ATTR_BADNAME[AB]).removeAttribute('disabled');
-        }
-        for (let CB in DISABLE_CLASS_BADNAME) {
-            $(DISABLE_CLASS_BADNAME[CB]).removeClass('disabled');
-        }
+        $('#pre-lobby-controls input, #pre-lobby-controls button').removeAttr('disabled');
+        $('#pre-lobby-controls h4').removeClass('disabled');
     } else {
-        for (let AB in DISABLE_ATTR_BADNAME) {
-            document.getElementById(DISABLE_ATTR_BADNAME[AB]).setAttribute('disabled', '');
-        }
-        for (let CB in DISABLE_CLASS_BADNAME) {
-            $(DISABLE_CLASS_BADNAME[CB]).addClass('disabled');
-        }
+        $('#pre-lobby-controls input, #pre-lobby-controls button').attr('disabled', '');
+        $('#pre-lobby-controls h4').addClass('disabled');
     }
 }
 
