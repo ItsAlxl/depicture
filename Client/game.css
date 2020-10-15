@@ -30,10 +30,16 @@ ul {
     text-align: left;
 }
 
+.updates-list ul {
+    width: 33%;
+    margin: auto;
+}
+
 .art {
     border: 1px solid #000;
     background-color: #fff;
 }
+
 canvas.art {
     touch-action: none;
 }
@@ -54,7 +60,7 @@ canvas.art {
     min-width: 100px;
 }
 
-td.rightCell  {
+td.rightCell {
     text-align: right;
 }
 
@@ -85,6 +91,17 @@ input[type=text] {
     text-align: center;
     width: 80%;
     -webkit-text-stroke-width: 0px;
+}
+
+.pen-list input {
+    display: inline;
+    width: 35%;
+    margin: 5px;
+    text-align: left;
+}
+
+.pen-list input[type=color] {
+    vertical-align: bottom;
 }
 
 #nick-name {
@@ -130,6 +147,7 @@ h4 {
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: black;
     margin-bottom: 5px;
+    margin-top: 15px;
 }
 
 h5 {
@@ -163,6 +181,7 @@ h5 {
     border-width: 3px;
     width: 400px;
     padding-bottom: 30px;
+    padding-top: 30px;
 }
 
 .grid-box input {

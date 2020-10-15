@@ -7,6 +7,17 @@ var APIHost = '';
 var currentView = '';
 function initViews() {
     changeView('join');
+
+    addPenColorToList('Red', '#ff0000');
+    addPenColorToList('Green', '#008000');
+    addPenColorToList('Blue', '#0000ff');
+
+    addPenWidthToList('Small', 7);
+    addPenWidthToList('Medium', 11);
+    addPenWidthToList('Large', 18);
+    addPenWidthToList('Huge', 28);
+    addPenWidthToList('Big Chungus', 75);
+
     nicknameInput();
 }
 
@@ -55,6 +66,69 @@ socket.on('set room info', function (gid, ps, waitOnDc) {
     }
 });
 
+// Pre-Lobby
+
+function getPenColorChoiceHtml(name, lbl, value) {
+    return `
+    <input type="radio" id="pen-clr-${name}" name="pc" onclick="setPenColor('${value}');">
+    <label for="pen-clr-${name}">${lbl}</label>`
+}
+function getPenWidthChoiceHtml(name, value) {
+    return `
+    <label for="pen-width-${value}">${name}</label>
+    <input type="radio" id="pen-width-${value}" name="pw" onclick="setPenWidth(${value});">`
+}
+
+socket.on('take pen restrictions', function (penWidths, penColors, defWidth) {
+    console.log(penColors);
+    let clrListHtml = getPenColorChoiceHtml('black', 'black', '#000');
+    for (let cName in penColors) {
+        let lbl = cName.replace('_', ' ');
+        let c = penColors[cName];
+
+        if (clrListHtml.length > 0) {
+            clrListHtml += '\n<br>';
+        }
+        clrListHtml += getPenColorChoiceHtml(cName, lbl, c);
+    }
+    clrListHtml += '\n<br>' + getPenColorChoiceHtml('white', 'eraser', '#fff');
+    $('#pen-color-list').html(clrListHtml);
+    console.log(clrListHtml);
+
+    let widthListHtml = '';
+    for (let w in penWidths) {
+        let wName = penWidths[w];
+        if (w == defWidth) {
+            defaultPenWidthId = '#pen-width-' + w;
+        }
+
+        if (widthListHtml.length > 0) {
+            widthListHtml += '\n<br>';
+        }
+        widthListHtml += getPenWidthChoiceHtml(wName, w);
+    }
+    $('#pen-size-list').html(widthListHtml);
+});
+
+function generatePenList(name, valueType, value) {
+    return `
+    <li><input type="text" value="${name}"/> : <input type="${valueType}" value="${value}"/> <button onclick='removeFromPenList(this);'>X</button></li>`
+}
+
+function addPenColorToList(name = 'Yellow', value = '#e6e600') {
+    $('#pen-color-define').append(generatePenList(name, 'color', value));
+}
+
+function addPenWidthToList(name = 'Fine', value = 5) {
+    $('#pen-width-define').append(generatePenList(name, 'number', value));
+}
+
+function removeFromPenList(e) {
+    let p = e.parentNode;
+    p.parentNode.removeChild(p);
+}
+
+
 
 // Lobbying
 
@@ -91,7 +165,30 @@ function validateName() {
 function hostGame() {
     if (validateName()) {
         APIHost = $('#prompt-host').val();
-        socket.emit('host game', plrName);
+
+        let penClrs = {};
+        let colorList = document.getElementById('pen-color-define').children;
+        for (let i = 0; i < colorList.length; i++) {
+            let ins = colorList[i].getElementsByTagName('input');
+            if (ins.length > 0) {
+                let key = ins[0].value;
+                key = key.replace(' ', '_').toLowerCase();
+                penClrs[key] = ins[1].value;
+            }
+        }
+
+        let penWidths = {};
+        let widthList = document.getElementById('pen-width-define').children;
+        for (let i = 0; i < widthList.length; i++) {
+            let ins = widthList[i].getElementsByTagName('input');
+            if (ins.length > 0) {
+                penWidths[ins[1].value] = ins[0].value;
+            }
+        }
+
+        console.log(penClrs);
+        console.log(penWidths);
+        socket.emit('host game', plrName, penClrs, penWidths);
     }
 }
 
@@ -206,47 +303,6 @@ function serveSeeds() {
     socket.emit('give story seeds', gameId, seeds);
 }
 
-function getPenColorChoiceHtml(name, lbl, value) {
-    return `
-    <input type="radio" id="pen-clr-${name}" name="pc" onclick="setPenColor('${value}');">
-    <label for="pen-clr-${name}">${lbl}</label>`
-}
-function getPenWidthChoiceHtml(name, value) {
-    return `
-    <label for="pen-width-${value}">${name}</label>
-    <input type="radio" id="pen-width-${value}" name="pw" onclick="setPenWidth(${value});">`
-}
-
-socket.on('take pen restrictions', function (penWidths, penColors, defWidth) {
-    let clrListHtml = getPenColorChoiceHtml('black', 'black', '#000');
-    for (let cName in penColors) {
-        let lbl = cName.replace('-', ' ');
-        lbl = lbl.replace('_', ' ');
-        let c = penColors[cName];
-
-        if (clrListHtml.length > 0) {
-            clrListHtml += '\n<br>';
-        }
-        clrListHtml += getPenColorChoiceHtml(cName, lbl, c);
-    }
-    clrListHtml += '\n<br>' + getPenColorChoiceHtml('white', 'eraser', '#fff');
-    $('#pen-color-list').html(clrListHtml);
-
-    let widthListHtml = '';
-    for (let w in penWidths) {
-        let wName = penWidths[w];
-        if (w == defWidth) {
-            defaultPenWidthId = '#pen-width-' + w;
-        }
-
-        if (widthListHtml.length > 0) {
-            widthListHtml += '\n<br>';
-        }
-        widthListHtml += getPenWidthChoiceHtml(wName, w);
-    }
-    $('#pen-size-list').html(widthListHtml);
-});
-
 // Playing the game
 
 var defaultPenWidthId = '';
@@ -322,16 +378,16 @@ socket.on('reveal next story stage', function () {
 
 function revealNextStoryStage() {
     let latestStage = $('#story-stage');
-    let stageChild = latestStage.get(0);
-    if (stageChild) {
+    let stageDOM = latestStage.get(0);
+    if (stageDOM) {
         latestStage.fadeIn('slow');
         latestStage.prop('id', '');
 
         if (document.getElementById('follow-ending-scroll').checked) {
-            stageChild.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
+            stageDOM.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
         }
 
-        if (!$('#story-stage').get(0)) {
+        if (!document.getElementById('story-stage')) {
             document.getElementById('driver-reveal').setAttribute('disabled', '');
         }
     }

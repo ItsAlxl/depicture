@@ -22,6 +22,7 @@
     <div id="view-join" class="invis-elm view">
         <div>
             <img width=400 src="logo.png">
+            <p><a href="about.html">About</a></p>
         </div>
         <h2>Name</h2>
         <input id="nick-name" type="text" autocomplete="off" oninput="nicknameInput()" />
@@ -29,26 +30,32 @@
             <div>
                 <h2>Join</h2>
                 <div class="grid-box">
-                    <h4 id="join-code-header" class="disabled">Join Code</h4>
-                    <input id="join-code" type="text" autocomplete="off" disabled />
+                    <h4>Join Code</h4>
+                    <input id="join-code" type="text" autocomplete="off" />
                     <br>
-                    <button id="join-button" onclick="joinGame();" disabled>Join Game</button>
+                    <button id="join-button" onclick="joinGame();">Join Game</button>
                 </div>
             </div>
             <div>
                 <h2>Host</h2>
                 <div class="grid-box">
-                    <h4 id="prompt-source-header" class="disabled">Prompt Source</h4>
-                    <input id="prompt-host" type="text" autocomplete="off" value="https://itsalxl.com/depicture-words"
-                        disabled />
                     <br>
-                    <h4></h4>
-                    <button id="host-button" onclick="hostGame();" disabled>Host Game</button>
+                    <button id="host-button" onclick="hostGame();">Host Game</button>
+                    <h4>Prompt Source</h4>
+                    <input id="prompt-host" type="text" autocomplete="off"
+                        value="https://itsalxl.com/depicture-words" />
+                    <h4>Pen Colors</h4>
+                    <button onclick="addPenColorToList();">Add New Color</button>
+                    <ul id="pen-color-define" class="pen-list">
+                        <li>Black</li>
+                        <li>Eraser</li>
+                    </ul>
+                    <h4>Pen Sizes</h4>
+                    <button onclick="addPenWidthToList();">Add New Size</button>
+                    <ul id="pen-width-define" class="pen-list"></ul>
                 </div>
             </div>
         </div>
-        <br><br><br>
-        <p><a href="about.html">About</a></p>
     </div>
     <div id="view-lobby" class="invis-elm view">
         <h1>Waiting on host...</h1>

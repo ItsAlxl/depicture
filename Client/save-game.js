@@ -14,8 +14,8 @@ function saveGameFile() {
     let style = '\n';
     let sheet = document.styleSheets[0];
     sheet = sheet.cssRules || sheet.rules;
-    
-    $.each(sheet, function(idx, rule) {
+
+    $.each(sheet, function (idx, rule) {
         let id = rule.selectorText || rule.conditionText;
         if (COPY_CSS_TAGS_ON_SAVE.includes(id)) {
             style += rule.cssText + '\n';
@@ -41,7 +41,7 @@ function saveGameFile() {
 
     // create file
     let filename = 'depicture-save.html';
-    let file = new Blob([data], {type: 'text/html'});
+    let file = new Blob([data], { type: 'text/html' });
 
     // offer file
     if (window.navigator.msSaveOrOpenBlob) { // for IE10+
@@ -53,9 +53,9 @@ function saveGameFile() {
         a.download = filename;
         document.body.appendChild(a);
         a.click();
-        setTimeout(function() {
+        setTimeout(function () {
             document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);  
-        }, 0); 
+            window.URL.revokeObjectURL(url);
+        }, 0);
     }
 }

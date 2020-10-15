@@ -91,9 +91,9 @@ function updateGameInfoToPlrs(gameId) {
 function hostIdToGameId(hostId) {
     let hash = 0;
     for (let i = 0; i < hostId.length; i++) {
-      let char = hostId.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
+        let char = hostId.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
     }
     hash = Math.abs(hash) + '';
 
@@ -106,7 +106,7 @@ function hostIdToGameId(hostId) {
     if (!(code in liveGames)) {
         return code;
     }
-    
+
     idx = 0;
     while ((code + idx) in liveGames) {
         idx++;
@@ -140,10 +140,10 @@ function servePlrStoryContent(plrId, game) {
 io.on('connection', (socket) => {
     io.to(socket.id).emit('apply input restrictions', INPUT_RESTRICTIONS);
 
-    socket.on('host game', (nick) => {
+    socket.on('host game', (nick, penClrs, penWidths) => {
         if (nick.length >= 3) {
             let gameId = hostIdToGameId(socket.id);
-            let g = new Room(gameId);
+            let g = new Room(gameId, penClrs, penWidths);
             liveGames[gameId] = g;
             joinGame(socket, nick, gameId);
         }
