@@ -141,13 +141,17 @@ io.on('connection', (socket) => {
     io.to(socket.id).emit('apply input restrictions', INPUT_RESTRICTIONS);
 
     socket.on('host game', (nick) => {
-        let gameId = hostIdToGameId(socket.id);
-        let g = new Room(gameId);
-        liveGames[gameId] = g;
-        joinGame(socket, nick, gameId);
+        if (nick.length >= 3) {
+            let gameId = hostIdToGameId(socket.id);
+            let g = new Room(gameId);
+            liveGames[gameId] = g;
+            joinGame(socket, nick, gameId);
+        }
     });
     socket.on('join game', (gameId, nick) => {
-        joinGame(socket, nick, gameId);
+        if (nick.length >= 3) {
+            joinGame(socket, nick, gameId);
+        }
     });
     socket.on('quit game', (gameId) => {
         quitGame(socket, gameId);
