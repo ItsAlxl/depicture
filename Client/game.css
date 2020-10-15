@@ -58,6 +58,10 @@ td.rightCell  {
     text-align: right;
 }
 
+.game-table td label {
+    text-transform: capitalize;
+}
+
 .view {
     display: inline-block;
 }

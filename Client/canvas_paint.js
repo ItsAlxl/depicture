@@ -189,6 +189,5 @@ function strokesToDataUrl(strokes) {
     c.height = drawCanvas.height;
     drawFromStrokes(c, strokes);
     let d = c.toDataURL();
-    console.log(d);
     return d;
 }

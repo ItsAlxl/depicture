@@ -14,7 +14,7 @@ function saveGameFile() {
     let style = '\n';
     let sheet = document.styleSheets[0];
     sheet = sheet.cssRules || sheet.rules;
-    console.log(sheet);
+    
     $.each(sheet, function(idx, rule) {
         let id = rule.selectorText || rule.conditionText;
         if (COPY_CSS_TAGS_ON_SAVE.includes(id)) {

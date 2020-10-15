@@ -91,34 +91,8 @@
                     <br>
                     <button onclick="clearDrawCanvas();">Clear Canvas</button>
                 </td>
-                <td class="rightCell">
-                    <label for="pen-small">Small</label>
-                    <input type="radio" id="pen-small" name="pw" onclick="setPenWidth(7);">
-                    <br>
-                    <label for="pen-med">Medium</label>
-                    <input type="radio" id="pen-med" name="pw" onclick="setPenWidth(11);">
-                    <br>
-                    <label for="pen-large">Large</label>
-                    <input type="radio" id="pen-large" name="pw" onclick="setPenWidth(18);">
-                    <br>
-                    <label for="pen-huge">Huge</label>
-                    <input type="radio" id="pen-huge" name="pw" onclick="setPenWidth(28);">
-                    <br>
-                    <label for="pen-chungus">Big Chungus</label>
-                    <input type="radio" id="pen-chungus" name="pw" onclick="setPenWidth(75);">
-                </td>
-                <td>
-                    <input type="radio" id="pen-black" name="pc" onclick="setPenColor('black');">
-                    <label for="pen-black">Black</label><br>
-                    <input type="radio" id="pen-red" name="pc" onclick="setPenColor('red');">
-                    <label for="pen-red">Red</label><br>
-                    <input type="radio" id="pen-green" name="pc" onclick="setPenColor('green');">
-                    <label for="pen-green">Green</label><br>
-                    <input type="radio" id="pen-blue" name="pc" onclick="setPenColor('blue');">
-                    <label for="pen-blue">Blue</label><br>
-                    <input type="radio" id="pen-white" name="pc" onclick="setPenColor('white');">
-                    <label for="pen-white">Eraser</label>
-                </td>
+                <td id="pen-size-list" class="rightCell"></td>
+                <td id="pen-color-list"></td>
                 <td class="rightCell">
                     <button onclick="submitDrawing();">DONE</button>
                 </td>

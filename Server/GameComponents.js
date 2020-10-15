@@ -72,8 +72,34 @@ class Room {
     stagesRevealed;
     currentState;
 
-    constructor(id) {
+    allowedPenWidths;
+    allowedPenClrs = {};
+    defaultPenWidth;
+    colorRestrictor;
+
+    constructor(id,
+        penClrMap = {
+            red: '#f00',
+            green: '#008000',
+            blue: '#00f'
+        },
+        penWidthMap = {
+            7: 'Small',
+            11: 'Medium',
+            18: 'Large',
+            28: 'Huge',
+            75: 'Big Chungus'
+        }) {
         this.id = id;
+
+        Object.assign(this.allowedPenClrs, penClrMap);
+        this.allowedPenWidths = penWidthMap;
+        this.defaultPenWidth = this.getNearestWidth(10);
+
+        penClrMap['black'] = '#000';
+        penClrMap['white'] = '#fff';
+        this.colorRestrictor = require('nearest-color').from(penClrMap);
+
         this.restart();
     }
     restart() {
@@ -286,7 +312,32 @@ class Room {
         return this.plrToStory(plrId).getCurrent(this.getCurrentView());
     }
 
+    getNearestWidth(to) {
+        let prevDistance = -1;
+        let prevW = -1;
+        for (let w in this.allowedPenWidths) {
+            let d = Math.abs(to - w);
+
+            if (d == 0) {
+                return w;
+            }
+            if (prevDistance < d && prevDistance >= 0) {
+                return prevW;
+            }
+
+            prevDistance = d;
+            prevW = w;
+        }
+        return prevW;
+    }
+
     takeCurrentStory(plrId, content) {
+        if (this.getCurrentView() == 'draw') {
+            for (let i in content) {
+                content[i].color = this.colorRestrictor(content[i].color).value;
+                content[i].width = this.getNearestWidth(content[i].width);
+            }
+        }
         this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname, this.turns);
     }
 }

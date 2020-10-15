@@ -32,6 +32,7 @@ function joinGame(socket, nickname, gameId) {
         socket.join(gameId);
 
         catchupPlayer(gameId, socket.id);
+        io.to(socket.id).emit('take pen restrictions', g.allowedPenWidths, g.allowedPenClrs, g.defaultPenWidth);
     }
 }
 
