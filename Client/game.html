@@ -81,15 +81,17 @@
         </div>
         <table class="game-table">
             <tr>
-                <td colspan="2">
+                <td colspan="4">
                     <canvas id="draw-canvas" width="480" height="384" class="art"></canvas>
-                    <br>
-                    <button onclick="clearCanvas();">Clear Canvas</button>
-                    <button onclick="submitDrawing();" style="float: right;">DONE</button>
                 </td>
             </tr>
             <tr>
-                <td class="rightRadioCell">
+                <td>
+                    <button onclick="drawUndo();">Undo</button>
+                    <br>
+                    <button onclick="clearDrawCanvas();">Clear Canvas</button>
+                </td>
+                <td class="rightCell">
                     <label for="pen-small">Small</label>
                     <input type="radio" id="pen-small" name="pw" onclick="setPenWidth(7);">
                     <br>
@@ -117,8 +119,12 @@
                     <input type="radio" id="pen-white" name="pc" onclick="setPenColor('white');">
                     <label for="pen-white">Eraser</label>
                 </td>
+                <td class="rightCell">
+                    <button onclick="submitDrawing();">DONE</button>
+                </td>
             </tr>
         </table>
+        <br><br><br>
     </div>
 
     <div id="view-caption" class="invis-elm view">

@@ -17,12 +17,15 @@ class Story {
 
     takeCurrent(type, content, owner = 'anonymous player', idx) {
         let halfIdx = Math.floor(idx / 2);
-        if (type == 'caption') {
-            this.captions[halfIdx + 1] = content;
-        } else {
-            this.images[halfIdx] = content;
+
+        if (this.getNumStages() == idx) {
+            if (type == 'caption') {
+                this.captions[halfIdx + 1] = content;
+            } else {
+                this.images[halfIdx] = content;
+            }
+            this.owners[idx] = owner;
         }
-        this.owners[idx] = owner;
     }
 
     getNumStages() {
@@ -200,9 +203,9 @@ class Room {
         this.setState('ingame');
 
         // Shuffle (Durstenfeld / Fisher-Yates)
-        for (var i = this.plrTurnOrder.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var temp = this.plrTurnOrder[i];
+        for (let i = this.plrTurnOrder.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            let temp = this.plrTurnOrder[i];
             this.plrTurnOrder[i] = this.plrTurnOrder[j];
             this.plrTurnOrder[j] = temp;
         }

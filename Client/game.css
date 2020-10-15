@@ -48,12 +48,13 @@ canvas.art {
 }
 
 .game-table td {
+    vertical-align: top;
     padding-left: 10px;
     padding-right: 10px;
     min-width: 100px;
 }
 
-.rightRadioCell  {
+td.rightCell  {
     text-align: right;
 }
 

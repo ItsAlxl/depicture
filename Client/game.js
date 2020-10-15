@@ -26,7 +26,7 @@ socket.on('take view', function (v) {
 
 socket.on('take story content', function (c) {
     if (currentView == 'caption') {
-        $('#display-img').attr('src', c);
+        $('#display-img').attr('src', strokesToDataUrl(c));
     } else {
         $('#prompt-text').html(c);
     }
@@ -198,9 +198,9 @@ function finishSeedSetup() {
     // Copy full deck
     seedDeck = fullSeedDeck.slice();
     // Shuffle (Durstenfeld / Fisher-Yates)
-    for (var i = seedDeck.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = seedDeck[i];
+    for (let i = seedDeck.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        let temp = seedDeck[i];
         seedDeck[i] = seedDeck[j];
         seedDeck[j] = temp;
     }
@@ -226,10 +226,9 @@ function resetDrawingOptions() {
 }
 
 function submitDrawing() {
-    var canvasData = document.getElementById('draw-canvas').toDataURL();
-    socket.emit('give story content', gameId, canvasData);
+    socket.emit('give story content', gameId, strokeHistory);
     changeView('wait');
-    clearCanvas();
+    clearDrawCanvas(true);
 }
 
 function submitTitleGuess() {
@@ -266,7 +265,7 @@ socket.on('take completed stories', function (stories, numStages) {
                 scrollHtml += s.captions[idx];
             } else {
                 scrollHtml += s.owners[j - 1] + ' drew:<br>';
-                scrollHtml += '<img width="480" height="384" class="art" src="' + s.images[idx] + '">';
+                scrollHtml += '<img width="480" height="384" class="art" src="' + strokesToDataUrl(s.images[idx]) + '">';
             }
             scrollHtml += '</p>';
             if (j == numStages - 1) {

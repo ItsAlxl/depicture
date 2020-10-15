@@ -47,7 +47,7 @@ function saveGameFile() {
     if (window.navigator.msSaveOrOpenBlob) { // for IE10+
         window.navigator.msSaveOrOpenBlob(file, filename);
     } else { // for everybody else
-        let a = document.createElement("a");
+        let a = document.createElement('a');
         let url = URL.createObjectURL(file);
         a.href = url;
         a.download = filename;
