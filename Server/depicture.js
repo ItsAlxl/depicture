@@ -31,14 +31,19 @@ function joinGame(socket, nickname, gameId) {
         g.addPlr(socket.id, nickname.substring(0, INPUT_RESTRICTIONS['username']));
         socket.join(gameId);
 
-        catchupPlayer(gameId, socket.id);
         io.to(socket.id).emit('take pen restrictions', g.allowedPenWidths, g.allowedPenClrs, g.defaultPenWidth);
+        catchupPlayer(gameId, socket.id);
     }
 }
 
 function catchupPlayer(gameId, plrId) {
     let g = liveGames[gameId];
     let p = g.getPlr(plrId);
+
+    for (let i = 0; i < g.communalStrokes.length; i++) {
+        io.to(plrId).emit('take communal stroke', g.communalStrokes[i]);
+    }
+
     switch (g.getState()) {
         case 'ingame':
             if (p.isActive()) {
@@ -167,6 +172,11 @@ io.on('connection', (socket) => {
         let g = liveGames[gameId];
         g.takeStorySeeds(seeds);
         advanceTurn(g, -1);
+    });
+
+    socket.on('give communal stroke', (gameId, s) => {
+        liveGames[gameId].communalStrokes.push(s);
+        io.to(gameId).emit('take communal stroke', s);
     });
 
     socket.on('give story content', (gameId, c) => {

@@ -25,11 +25,12 @@ function changeView(v) {
     if (currentView.length > 0) {
         $('#view-' + currentView).addClass('invis-elm');
     }
+    $('#view-' + v).removeClass('invis-elm');
+    currentView = v;
+
     if (v == 'draw') {
         resetDrawingOptions();
     }
-    $('#view-' + v).removeClass('invis-elm');
-    currentView = v;
 }
 
 socket.on('take view', function (v) {
@@ -45,6 +46,9 @@ socket.on('take story content', function (c) {
 });
 
 socket.on('set turn tickers', function (n, m) {
+    if (n == 1) {
+        groupDrawBoard.clearBoard();
+    }
     $('#turn-counter').text(gameId + ' | ' + n + '/' + m);
 });
 
@@ -70,17 +74,16 @@ socket.on('set room info', function (gid, ps, waitOnDc) {
 
 function getPenColorChoiceHtml(name, lbl, value) {
     return `
-    <input type="radio" id="pen-clr-${name}" name="pc" onclick="setPenColor('${value}');">
+    <input type="radio" id="pen-clr-${name}" name="pc" onclick="myDrawBoard.setPenColor('${value}');">
     <label for="pen-clr-${name}">${lbl}</label>`
 }
 function getPenWidthChoiceHtml(name, value) {
     return `
     <label for="pen-width-${value}">${name}</label>
-    <input type="radio" id="pen-width-${value}" name="pw" onclick="setPenWidth(${value});">`
+    <input type="radio" id="pen-width-${value}" name="pw" onclick="myDrawBoard.setPenWidth(${value});">`
 }
 
 socket.on('take pen restrictions', function (penWidths, penColors, defWidth) {
-    console.log(penColors);
     let clrListHtml = getPenColorChoiceHtml('black', 'black', '#000');
     for (let cName in penColors) {
         let lbl = cName.replace('_', ' ');
@@ -93,7 +96,6 @@ socket.on('take pen restrictions', function (penWidths, penColors, defWidth) {
     }
     clrListHtml += '\n<br>' + getPenColorChoiceHtml('white', 'eraser', '#fff');
     $('#pen-color-list').html(clrListHtml);
-    console.log(clrListHtml);
 
     let widthListHtml = '';
     for (let w in penWidths) {
@@ -186,8 +188,6 @@ function hostGame() {
             }
         }
 
-        console.log(penClrs);
-        console.log(penWidths);
         socket.emit('host game', plrName, penClrs, penWidths);
     }
 }
@@ -314,9 +314,9 @@ function resetDrawingOptions() {
 }
 
 function submitDrawing() {
-    socket.emit('give story content', gameId, strokeHistory);
+    socket.emit('give story content', gameId, myDrawBoard.strokeHistory);
     changeView('wait');
-    clearDrawCanvas(true);
+    myDrawBoard.wipe(true);
 }
 
 function submitTitleGuess() {
@@ -328,6 +328,10 @@ function submitTitleGuess() {
         $('#picture-guess').val('');
     }
 }
+
+socket.on('take communal stroke', function (stroke) {
+    drawStrokeOnCtx(groupDrawBoard.drawCtx, stroke);
+});
 
 socket.on('take completed stories', function (stories, numStages) {
     $('#ending-scroll').empty();
@@ -364,6 +368,8 @@ socket.on('take completed stories', function (stories, numStages) {
         }
         scrollHtml += '</div>';
     }
+    scrollHtml += '<div id="story-stage">As a community, we made this:<br>';
+    scrollHtml += '<img width="720" height="576" class="art" src="' + groupDrawBoard.drawCanvas.toDataURL() + '"></div>';
 
     $('#ending-scroll').html(scrollHtml);
 });
@@ -389,11 +395,13 @@ function revealNextStoryStage() {
 
         if (!document.getElementById('story-stage')) {
             document.getElementById('driver-reveal').setAttribute('disabled', '');
+            document.getElementById('restart-game-btn').removeAttribute('disabled');
         }
     }
 }
 
 function restartGame() {
     document.getElementById('driver-reveal').removeAttribute('disabled');
+    document.getElementById('restart-game-btn').setAttribute('disabled', '');
     socket.emit('begin restart', gameId);
 }

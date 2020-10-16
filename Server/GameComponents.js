@@ -77,6 +77,8 @@ class Room {
     defaultPenWidth;
     colorRestrictor;
 
+    communalStrokes = [];
+
     constructor(id,
         penClrMap = {
             red: '#f00',
@@ -103,6 +105,7 @@ class Room {
         this.restart();
     }
     restart() {
+        this.communalStrokes.length = 0;
         this.stories.length = 0;
         this.turns = -1;
         this.stagesRevealed = 0;

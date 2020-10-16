@@ -79,9 +79,24 @@
     <h3 id="turn-counter"></h3>
     <div id="view-wait" class="invis-elm view">
         <h1>Waiting on other players...</h1>
-        <ul id="list-of-waiters">
-
-        </ul>
+        <table>
+            <tr>
+                <td>
+                    <canvas id="communal-canvas" width="720" height="576" class="art"></canvas>
+                </td>
+                <td>
+                    Waiting on:
+                    <ul id="list-of-waiters"></ul>
+                </td>
+            </tr>
+            <tr id="communal-draw-controls">
+                <td>
+                    <input type="color" value="#000000" id="group-pen-color" />
+                    <input type="number" value="15" min="1" id="group-pen-width" />
+                </td>
+                <td></td>
+            </tr>
+        </table>
     </div>
 
     <div id="view-draw" class="invis-elm view">
@@ -95,11 +110,11 @@
                     <canvas id="draw-canvas" width="480" height="384" class="art"></canvas>
                 </td>
             </tr>
-            <tr>
+            <tr id="my-draw-controls">
                 <td>
-                    <button onclick="drawUndo();">Undo</button>
+                    <button onclick="myDrawBoard.undo();">Undo</button>
                     <br>
-                    <button onclick="clearDrawCanvas();">Clear Canvas</button>
+                    <button onclick="myDrawBoard.wipe();">Clear Canvas</button>
                 </td>
                 <td id="pen-size-list" class="rightCell"></td>
                 <td id="pen-color-list"></td>
@@ -108,7 +123,6 @@
                 </td>
             </tr>
         </table>
-        <br><br><br>
     </div>
 
     <div id="view-caption" class="invis-elm view">
@@ -130,8 +144,9 @@
         <br><br>
         <button onclick="emitStoryReveal();" class="invis-elm" id="driver-reveal">Reveal Next</button>
         <br><br>
-        <button onclick="restartGame();" class="invis-elm" id="restart-game-btn">Play Again</button>
+        <button onclick="restartGame();" class="invis-elm" id="restart-game-btn" disabled>Play Again</button>
     </div>
+    <br><br><br>
 
     <script src="canvas_paint.js"></script>
     <script src="game.js"></script>

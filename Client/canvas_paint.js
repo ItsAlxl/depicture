@@ -16,118 +16,195 @@ class PenStroke {
     }
 }
 
-// Canvas
-var drawCanvas = document.getElementById('draw-canvas');
-var drawCtx = drawCanvas.getContext('2d');
+class DrawBoard {
+    drawCanvas;
+    drawCtx;
 
-// Pen tracking
-var last_penX = last_penY = 0;
-var penX = penY = 0;
-var penDrawing = false;
-
-// Pen properties
-var penColor = 'white';
-var penWidth = 0;
-function setPenWidth(w) {
-    penWidth = w;
-}
-function setPenColor(c) {
-    penColor = c;
-}
-
-function clearDrawCanvas(deepHistoryCleanse = false) {
-    clearCanvas(drawCanvas);
-    resetStrokeHistory(deepHistoryCleanse);
-}
-
-function clearCanvas(clearCanvas) {
-    drawCtx.clearRect(0, 0, clearCanvas.width, clearCanvas.height);
-}
-
-function resetStrokeHistory(deep = false) {
-    if (deep) {
-        strokeHistory.length = 0;
-        strokeHistoryHistory.length = 0;
-    } else {
-        strokeHistoryHistory.push(strokeHistory);
-        strokeHistory = [];
-    }
-}
-
-$(drawCanvas).on('mousedown', function (e) {
-    if (e.button == 0) {
-        startDrawing(e.clientX, e.clientY);
-    }
-});
-$(drawCanvas).on('mouseleave', function () {
-    resetPenPosition();
-});
-$(document).on('mouseup', function (e) {
-    if (e.button == 0) {
-        stopDrawing();
-    }
-});
-$(drawCanvas).on('mousemove', function (e) {
-    movePen(e.clientX, e.clientY);
-});
-
-$(drawCanvas).on('touchstart', function (e) {
-    let t = (e.touches || [])[0] || {};
-    startDrawing(t.clientX, t.clientY);
-});
-$(document).on('touchend', function (e) {
-    stopDrawing();
-});
-$(drawCanvas).on('touchmove', function (e) {
-    let t = (e.touches || [])[0] || {};
-    movePen(t.clientX, t.clientY);
-});
-
-var strokeHistory = [];
-var strokeHistoryHistory = [];
-
-function getLatestStroke() {
-    return strokeHistory[strokeHistory.length - 1];
-}
-
-function startDrawing(atX, atY) {
-    strokeHistory.push(new PenStroke(penWidth, penColor));
-
-    last_penX = penX = correctCanvasX(drawCanvas, atX);
-    last_penY = penY = correctCanvasY(drawCanvas, atY);
-    penDrawing = true;
-    movePen(atX, atY);
-}
-
-function stopDrawing() {
+    last_penX = 0;
+    last_penY = 0;
+    penX = 0;
+    penY = 0;
     penDrawing = false;
-}
 
-function resetPenPosition() {
-    last_penX = -1;
-    last_penY = -1;
+    penColor = 'black';
+    penWidth = 15;
 
-    let latestStroke = getLatestStroke();
-    if (latestStroke) {
-        latestStroke.addPoint(last_penX, last_penY);
+    currentStroke = null;
+
+    constructor(canvas) {
+        this.drawCanvas = canvas;
+        this.drawCtx = this.drawCanvas.getContext('2d');
     }
-}
 
-function drawUndo() {
-    if (strokeHistory.length > 0) {
-        strokeHistory.pop();
-    } else {
-        if (strokeHistoryHistory.length > 0) {
-            strokeHistory = strokeHistoryHistory.pop();
-        } else {
-            return;
+    setPenWidth(w) {
+        this.penWidth = w;
+    }
+    setPenColor(c) {
+        this.penColor = c;
+    }
+
+    correctCanvasX(x) {
+        return x - this.drawCanvas.getBoundingClientRect().left;
+    }
+    correctCanvasY(y) {
+        return y - this.drawCanvas.getBoundingClientRect().top;
+    }
+
+    clearBoard() {
+        this.drawCtx.clearRect(0, 0, this.drawCanvas.width, this.drawCanvas.height);
+    }
+
+    startDrawing(atX, atY) {
+        this.currentStroke = new PenStroke(this.penWidth, this.penColor);
+
+        this.last_penX = this.penX = this.correctCanvasX(atX);
+        this.last_penY = this.penY = this.correctCanvasY(atY);
+        this.penDrawing = true;
+        this.movePen(atX, atY);
+    }
+
+    stopDrawing() {
+        this.penDrawing = false;
+        this.currentStroke = null;
+    }
+
+    resetPenPosition() {
+        this.last_penX = -1;
+        this.last_penY = -1;
+
+        if (this.currentStroke) {
+            this.currentStroke.addPoint(-1, -1);
         }
     }
-    clearCanvas(drawCanvas);
-    drawFromStrokes(drawCanvas, strokeHistory);
+
+    movePen(toX, toY) {
+        this.penX = this.correctCanvasX(toX);
+        this.penY = this.correctCanvasY(toY);
+        if (this.penDrawing) {
+            this.drawCtx.lineWidth = this.currentStroke.width;
+            this.drawCtx.strokeStyle = this.currentStroke.color;
+
+            if (this.last_penX >= 0 && this.last_penX >= 0) {
+                this.drawLineOnCtx(this.last_penX, this.last_penY, this.penX, this.penY);
+                this.currentStroke.addPoint(this.penX, this.penY);
+            }
+        }
+        this.last_penX = this.penX;
+        this.last_penY = this.penY;
+    }
+
+    drawLineOnCtx(aX, aY, bX, bY) {
+        this.drawCtx.beginPath();
+        this.drawCtx.moveTo(aX, aY);
+        this.drawCtx.lineTo(bX, bY);
+        this.drawCtx.lineJoin = this.drawCtx.lineCap = 'round';
+        this.drawCtx.stroke();
+    }
 }
 
-function _drawLineOnCtx(ctx, aX, aY, bX, bY) {
+class HistoryDrawBoard extends DrawBoard {
+    strokeHistory = [];
+    strokeHistoryHistory = [];
+
+    undo() {
+        if (this.strokeHistory.length > 0) {
+            this.strokeHistory.pop();
+        } else {
+            if (this.strokeHistoryHistory.length > 0) {
+                this.strokeHistory = this.strokeHistoryHistory.pop();
+            } else {
+                return;
+            }
+        }
+        this.clearBoard();
+        drawFromStrokes(this.drawCanvas, this.strokeHistory);
+    }
+
+    stopDrawing() {
+        if (this.currentStroke) {
+            let latest = {};
+            Object.assign(latest, this.currentStroke);
+            this.strokeHistory.push(latest);
+        }
+        super.stopDrawing();
+    }
+
+    wipe(deepHistoryCleanse = false) {
+        this.clearBoard();
+        this.resetStrokeHistory(deepHistoryCleanse);
+    }
+
+    resetStrokeHistory(deep = false) {
+        if (deep) {
+            this.strokeHistory.length = 0;
+            this.strokeHistoryHistory.length = 0;
+        } else {
+            this.strokeHistoryHistory.push(this.strokeHistory);
+            this.strokeHistory = [];
+        }
+    }
+}
+
+class PipedDrawBoard extends DrawBoard {
+    strokeCallback;
+
+    stopDrawing() {
+        if (this.currentStroke) {
+            let latest = {};
+            Object.assign(latest, this.currentStroke);
+            this.strokeCallback(latest);
+        }
+        super.stopDrawing();
+    }
+}
+
+var myDrawBoard = new HistoryDrawBoard(document.getElementById('draw-canvas'));
+var groupDrawBoard = new PipedDrawBoard(document.getElementById('communal-canvas'));
+connectDrawBoardEvents(myDrawBoard);
+connectDrawBoardEvents(groupDrawBoard);
+groupDrawBoard.strokeCallback = function (stroke) {
+    socket.emit('give communal stroke', gameId, stroke);
+}
+
+document.getElementById('group-pen-color').addEventListener('change', function (e) {
+    groupDrawBoard.setPenColor(e.target.value);
+});
+document.getElementById('group-pen-width').addEventListener('change', function (e) {
+    groupDrawBoard.setPenWidth(e.target.value);
+});
+
+function connectDrawBoardEvents(drawboard) {
+    $(drawboard.drawCanvas).on('mousedown', function (e) {
+        if (e.button == 0) {
+            drawboard.startDrawing(e.clientX, e.clientY);
+        }
+    });
+    $(drawboard.drawCanvas).on('mouseleave', function () {
+        drawboard.resetPenPosition();
+    });
+    $(document).on('mouseup', function (e) {
+        if (e.button == 0) {
+            drawboard.stopDrawing();
+        }
+    });
+    $(drawboard.drawCanvas).on('mousemove', function (e) {
+        drawboard.movePen(e.clientX, e.clientY);
+    });
+
+    $(drawboard.drawCanvas).on('touchstart', function (e) {
+        let t = (e.touches || [])[0] || {};
+        drawboard.startDrawing(t.clientX, t.clientY);
+    });
+    $(document).on('touchend', function (e) {
+        drawboard.stopDrawing();
+    });
+    $(drawboard.drawCanvas).on('touchmove', function (e) {
+        let t = (e.touches || [])[0] || {};
+        drawboard.movePen(t.clientX, t.clientY);
+    });
+}
+
+function drawLineOnCtx(ctx, aX, aY, bX, bY) {
     ctx.beginPath();
     ctx.moveTo(aX, aY);
     ctx.lineTo(bX, bY);
@@ -135,58 +212,35 @@ function _drawLineOnCtx(ctx, aX, aY, bX, bY) {
     ctx.stroke();
 }
 
-function correctCanvasX(canvas, x) {
-    return x - canvas.getBoundingClientRect().left;
-}
-function correctCanvasY(canvas, y) {
-    return y - canvas.getBoundingClientRect().top;
-}
+function drawStrokeOnCtx(ctx, stroke) {
+    ctx.lineWidth = stroke.width;
+    ctx.strokeStyle = stroke.color;
 
-function movePen(toX, toY) {
-    penX = correctCanvasX(drawCanvas, toX);
-    penY = correctCanvasY(drawCanvas, toY);
-    if (penDrawing) {
-        let latestStroke = getLatestStroke();
-
-        drawCtx.lineWidth = latestStroke.width;
-        drawCtx.strokeStyle = latestStroke.color;
-
-        if (last_penX >= 0 && last_penX >= 0) {
-            _drawLineOnCtx(drawCtx, last_penX, last_penY, penX, penY);
-            latestStroke.addPoint(penX, penY);
+    let lastPoint = null;
+    for (let j in stroke.points) {
+        let p = stroke.points[j];
+        if (p.x >= 0 && p.y >= 0) {
+            if (lastPoint == null) {
+                drawLineOnCtx(ctx, p.x, p.y, p.x, p.y);
+            } else if (lastPoint.x >= 0 && lastPoint.y >= 0) {
+                drawLineOnCtx(ctx, lastPoint.x, lastPoint.y, p.x, p.y);
+            }
         }
+        lastPoint = p;
     }
-    last_penX = penX;
-    last_penY = penY;
 }
 
 function drawFromStrokes(canvas, strokes) {
     let ctx = canvas.getContext('2d');
     for (let i in strokes) {
-        let s = strokes[i];
-
-        ctx.lineWidth = s.width;
-        ctx.strokeStyle = s.color;
-
-        let lastPoint = null;
-        for (let j in s.points) {
-            let p = s.points[j];
-            if (p.x >= 0 && p.y >= 0) {
-                if (lastPoint == null) {
-                    _drawLineOnCtx(ctx, p.x, p.y, p.x, p.y);
-                } else if (lastPoint.x >= 0 && lastPoint.y >= 0) {
-                    _drawLineOnCtx(ctx, lastPoint.x, lastPoint.y, p.x, p.y);
-                }
-            }
-            lastPoint = p;
-        }
+        drawStrokeOnCtx(ctx, strokes[i]);
     }
 }
 
 function strokesToDataUrl(strokes) {
     let c = document.createElement('canvas');
-    c.width = drawCanvas.width;
-    c.height = drawCanvas.height;
+    c.width = myDrawBoard.drawCanvas.width;
+    c.height = myDrawBoard.drawCanvas.height;
     drawFromStrokes(c, strokes);
     let d = c.toDataURL();
     return d;
