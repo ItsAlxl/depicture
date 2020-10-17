@@ -25,6 +25,24 @@ const INPUT_RESTRICTIONS = {
     'prompt': 150
 };
 
+function logNumGames() {
+    console.log('Number of running games: ' + getNumLiveGames());
+}
+
+function getNumLiveGames() {
+    return Object.keys(liveGames).length;
+}
+
+function makeNewGame(gameId, game) {
+    liveGames[gameId] = game;
+    logNumGames();
+}
+
+function deleteGame(gameId) {
+    delete liveGames[gameId];
+    logNumGames();
+}
+
 function getGame(gameId) {
     return liveGames[gameId];
 }
@@ -89,7 +107,7 @@ function quitGame(socket, gameId) {
         updateGameInfoToPlrs(gameId);
 
         if (g.hostId == '') {
-            delete liveGames[gameId];
+            deleteGame(gameId);
         }
     }
 }
@@ -156,8 +174,7 @@ io.on('connection', (socket) => {
     socket.on('host game', (nick, penClrs, penWidths) => {
         if (nick.length >= 3) {
             let gameId = hostIdToGameId(socket.id);
-            let g = new Room(gameId, penClrs, penWidths);
-            liveGames[gameId] = g;
+            makeNewGame(gameId, new Room(gameId, penClrs, penWidths));
             joinGame(socket, nick, gameId);
         }
     });
@@ -250,4 +267,5 @@ io.on('connection', (socket) => {
 const port = 6465;
 http.listen(port, () => {
     console.log('depicture open on port :' + port);
+    logNumGames();
 });
