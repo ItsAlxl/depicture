@@ -8,6 +8,13 @@ class PenStroke {
         this.color = color;
     }
 
+    verifyPrevPoint(x, y) {
+        let pp = this.points[this.points.length - 1];
+        if (pp == null || pp.x != x || pp.y != y) {
+            this.addPoint(x, y);
+        }
+    }
+
     addPoint(x, y) {
         this.points.push({
             'x': x,
@@ -40,6 +47,9 @@ class DrawBoard {
         this.penWidth = w;
     }
     setPenColor(c) {
+        if (c.charAt(0) != '#') {
+            c = colorToHex(c);
+        }
         this.penColor = c;
     }
 
@@ -71,10 +81,6 @@ class DrawBoard {
     resetPenPosition() {
         this.last_penX = -1;
         this.last_penY = -1;
-
-        if (this.currentStroke) {
-            this.currentStroke.addPoint(-1, -1);
-        }
     }
 
     movePen(toX, toY) {
@@ -84,9 +90,11 @@ class DrawBoard {
             this.drawCtx.lineWidth = this.currentStroke.width;
             this.drawCtx.strokeStyle = this.currentStroke.color;
 
+            this.currentStroke.verifyPrevPoint(this.last_penX, this.last_penY);
             if (this.last_penX >= 0 && this.last_penX >= 0) {
-                this.drawLineOnCtx(this.last_penX, this.last_penY, this.penX, this.penY);
                 this.currentStroke.addPoint(this.penX, this.penY);
+                
+                this.drawLineOnCtx(this.last_penX, this.last_penY, this.penX, this.penY);
             }
         }
         this.last_penX = this.penX;
@@ -102,9 +110,43 @@ class DrawBoard {
     }
 }
 
-class HistoryDrawBoard extends DrawBoard {
+
+class PipedDrawBoard extends DrawBoard {
+    strokeCallbacks = [];
+
+    addCallback(f) {
+        this.strokeCallbacks.push(f);
+    }
+
+    stopDrawing() {
+        if (this.currentStroke) {
+            let latest = {};
+            Object.assign(latest, this.currentStroke);
+            this.handleCallbacks(latest);
+        }
+        super.stopDrawing();
+    }
+
+    handleCallbacks(stroke) {
+        for (let cb in this.strokeCallbacks) {
+            let f = this.strokeCallbacks[cb];
+            f(stroke);
+        }
+    }
+}
+
+class HistoryDrawBoard extends PipedDrawBoard {
     strokeHistory = [];
     strokeHistoryHistory = [];
+
+    constructor(canvas) {
+        super(canvas);
+    }
+
+    handleCallbacks(stroke) {
+        this.strokeHistory.push(stroke);
+        super.handleCallbacks(stroke);
+    }
 
     undo() {
         if (this.strokeHistory.length > 0) {
@@ -116,17 +158,12 @@ class HistoryDrawBoard extends DrawBoard {
                 return;
             }
         }
-        this.clearBoard();
-        drawFromStrokes(this.drawCanvas, this.strokeHistory);
+        this.drawFromHistory();
     }
 
-    stopDrawing() {
-        if (this.currentStroke) {
-            let latest = {};
-            Object.assign(latest, this.currentStroke);
-            this.strokeHistory.push(latest);
-        }
-        super.stopDrawing();
+    drawFromHistory() {
+        this.clearBoard();
+        drawFromStrokes(this.drawCanvas, this.strokeHistory);
     }
 
     wipe(deepHistoryCleanse = false) {
@@ -144,34 +181,6 @@ class HistoryDrawBoard extends DrawBoard {
         }
     }
 }
-
-class PipedDrawBoard extends DrawBoard {
-    strokeCallback;
-
-    stopDrawing() {
-        if (this.currentStroke) {
-            let latest = {};
-            Object.assign(latest, this.currentStroke);
-            this.strokeCallback(latest);
-        }
-        super.stopDrawing();
-    }
-}
-
-var myDrawBoard = new HistoryDrawBoard(document.getElementById('draw-canvas'));
-var groupDrawBoard = new PipedDrawBoard(document.getElementById('communal-canvas'));
-connectDrawBoardEvents(myDrawBoard);
-connectDrawBoardEvents(groupDrawBoard);
-groupDrawBoard.strokeCallback = function (stroke) {
-    socket.emit('give communal stroke', gameId, stroke);
-}
-
-document.getElementById('group-pen-color').addEventListener('change', function (e) {
-    groupDrawBoard.setPenColor(e.target.value);
-});
-document.getElementById('group-pen-width').addEventListener('change', function (e) {
-    groupDrawBoard.setPenWidth(e.target.value);
-});
 
 function connectDrawBoardEvents(drawboard) {
     $(drawboard.drawCanvas).on('mousedown', function (e) {
@@ -219,12 +228,8 @@ function drawStrokeOnCtx(ctx, stroke) {
     let lastPoint = null;
     for (let j in stroke.points) {
         let p = stroke.points[j];
-        if (p.x >= 0 && p.y >= 0) {
-            if (lastPoint == null) {
-                drawLineOnCtx(ctx, p.x, p.y, p.x, p.y);
-            } else if (lastPoint.x >= 0 && lastPoint.y >= 0) {
-                drawLineOnCtx(ctx, lastPoint.x, lastPoint.y, p.x, p.y);
-            }
+        if (lastPoint != null && lastPoint.x >= 0 && lastPoint.y >= 0 && p.x >= 0 && p.y >= 0) {
+            drawLineOnCtx(ctx, lastPoint.x, lastPoint.y, p.x, p.y);
         }
         lastPoint = p;
     }
@@ -244,4 +249,26 @@ function strokesToDataUrl(strokes) {
     drawFromStrokes(c, strokes);
     let d = c.toDataURL();
     return d;
+}
+
+function colorToRGBA(color) {
+    let cvs = document.createElement('canvas');
+    cvs.height = 1;
+    cvs.width = 1;
+    let ctx = cvs.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    return ctx.getImageData(0, 0, 1, 1).data;
+}
+
+function byteToHex(num) {
+    return ('0'+num.toString(16)).slice(-2);
+}
+
+function colorToHex(color) {
+    let rgba = colorToRGBA(color);
+    let hex = [0,1,2].map(
+        function(idx) { return byteToHex(rgba[idx]); }
+        ).join('');
+    return "#"+hex;
 }

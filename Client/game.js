@@ -2,6 +2,26 @@ var socket = io();
 
 var APIHost = '';
 
+var myDrawBoard = new HistoryDrawBoard(document.getElementById('draw-canvas'));
+var groupDrawBoard = new PipedDrawBoard(document.getElementById('communal-canvas'));
+
+connectDrawBoardEvents(myDrawBoard);
+connectDrawBoardEvents(groupDrawBoard);
+
+groupDrawBoard.addCallback(function (stroke) {
+    socket.emit('give communal stroke', gameId, stroke);
+});
+myDrawBoard.addCallback(function () {
+    lockDrawSubmit(true);
+});
+
+document.getElementById('group-pen-color').addEventListener('change', function (e) {
+    groupDrawBoard.setPenColor(e.target.value);
+});
+document.getElementById('group-pen-width').addEventListener('change', function (e) {
+    groupDrawBoard.setPenWidth(e.target.value);
+});
+
 // Views
 
 var currentView = '';
@@ -30,6 +50,7 @@ function changeView(v) {
 
     if (v == 'draw') {
         resetDrawingOptions();
+        lockDrawSubmit(true);
     }
 }
 
@@ -314,6 +335,23 @@ function resetDrawingOptions() {
     $('#pen-clr-black').prop('checked', true);
     $('#pen-clr-black').click();
 }
+
+function lockDrawSubmit(l) {
+    if (l) {
+        document.getElementById('submit-drawing-btn').setAttribute('disabled', '');
+    } else {
+        document.getElementById('submit-drawing-btn').removeAttribute('disabled');
+    }
+}
+
+function verifyDrawing() {
+    socket.emit('correct my strokes', gameId, myDrawBoard.strokeHistory);
+}
+socket.on('take corrected strokes', function (strokes) {
+    myDrawBoard.strokeHistory = strokes;
+    myDrawBoard.drawFromHistory();
+    lockDrawSubmit(false);
+});
 
 function submitDrawing() {
     socket.emit('give story content', gameId, myDrawBoard.strokeHistory);

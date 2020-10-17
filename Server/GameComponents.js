@@ -79,19 +79,9 @@ class Room {
 
     communalStrokes = [];
 
-    constructor(id,
-        penClrMap = {
-            red: '#f00',
-            green: '#008000',
-            blue: '#00f'
-        },
-        penWidthMap = {
-            7: 'Small',
-            11: 'Medium',
-            18: 'Large',
-            28: 'Huge',
-            75: 'Big Chungus'
-        }) {
+    // penClrMap is {clrName: '#hexval'}
+    // penWidthMap is {intval: 'Width Name'}
+    constructor(id, penClrMap, penWidthMap) {
         this.id = id;
 
         Object.assign(this.allowedPenClrs, penClrMap);
@@ -338,13 +328,17 @@ class Room {
         return prevW;
     }
 
+    correctStrokes(strokes) {
+        for (let i in strokes) {
+            strokes[i].color = this.colorRestrictor(strokes[i].color).value;
+            strokes[i].width = this.getNearestWidth(strokes[i].width);
+        }
+    }
+
     takeCurrentStory(plrId, content) {
         if (this.hasPlr(plrId)) {
             if (this.getCurrentView() == 'draw') {
-                for (let i in content) {
-                    content[i].color = this.colorRestrictor(content[i].color).value;
-                    content[i].width = this.getNearestWidth(content[i].width);
-                }
+                this.correctStrokes(content);
             }
             this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname, this.turns);
             this.uptickReady(plrId);

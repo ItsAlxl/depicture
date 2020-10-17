@@ -194,6 +194,14 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('correct my strokes', (gameId, strokes) => {
+        let g = getGame(gameId);
+        if (g) {
+            g.correctStrokes(strokes);
+            io.to(socket.id).emit('take corrected strokes', strokes);
+        }
+    });
+
     socket.on('give story content', (gameId, c) => {
         let g = getGame(gameId);
         if (g) {

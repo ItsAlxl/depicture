@@ -80,22 +80,22 @@
     <h3 id="turn-counter"></h3>
     <div id="view-wait" class="invis-elm view">
         <h1>Waiting on other players...</h1>
-        <table>
+        <p>Draw with other players while you wait! You can see who you're waiting on at the bottom.</p>
+        <table class="game-table">
             <tr>
-                <td>
+                <td colspan="2">
                     <canvas id="communal-canvas" width="720" height="576" class="art"></canvas>
-                </td>
-                <td>
-                    Waiting on:
-                    <ul id="list-of-waiters"></ul>
                 </td>
             </tr>
             <tr id="communal-draw-controls">
                 <td>
-                    <input type="color" value="#000000" id="group-pen-color" />
-                    <input type="number" value="15" min="1" id="group-pen-width" />
+                    Waiting on:
+                    <ul id="list-of-waiters"></ul>
                 </td>
-                <td></td>
+                <td class="rightCell">
+                    <input type="number" value="15" min="1" id="group-pen-width" />
+                    <input type="color" value="#000000" id="group-pen-color" />
+                </td>
             </tr>
         </table>
     </div>
@@ -120,7 +120,9 @@
                 <td id="pen-size-list" class="rightCell"></td>
                 <td id="pen-color-list"></td>
                 <td class="rightCell">
-                    <button onclick="submitDrawing();">DONE</button>
+                    <button onclick="verifyDrawing();">Verify</button>
+                    <br>
+                    <button onclick="submitDrawing();" id="submit-drawing-btn" disabled>DONE</button>
                 </td>
             </tr>
         </table>

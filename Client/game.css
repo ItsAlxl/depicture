@@ -60,6 +60,17 @@ canvas.art {
     min-width: 100px;
 }
 
+.game-table button {
+    padding: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-bottom: 6px;
+}
+
+.game-table input {
+    width: 15%;
+}
+
 td.rightCell {
     text-align: right;
 }
