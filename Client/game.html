@@ -32,9 +32,9 @@
                 <h2>Join</h2>
                 <div class="grid-box">
                     <h4>Join Code</h4>
-                    <input id="join-code" type="text" autocomplete="off" />
+                    <input id="tline-join-code" type="text" autocomplete="off" />
                     <br>
-                    <button id="join-button" onclick="joinGame();">Join Game</button>
+                    <button id="btn-join" onclick="joinGame();">Join Game</button>
                 </div>
             </div>
             <div>
@@ -103,7 +103,7 @@
     <div id="view-draw" class="invis-elm view">
         <div>
             <h2>Draw this:</h2>
-            <h1 id="prompt-text">smiley face</h1>
+            <h1 id="prompt-text"></h1>
         </div>
         <table class="game-table">
             <tr>
@@ -133,8 +133,8 @@
         <h2>Say what you see:</h2>
         <img id="display-img" width="480" height="384" class="art">
         <br>
-        <input id="picture-guess" type="text" autocomplete="off" />
-        <button onclick="submitTitleGuess();">Submit</button>
+        <input id="tline-picture-guess" type="text" autocomplete="off" />
+        <button id="btn-picture-guess" onclick="submitTitleGuess();">Submit</button>
     </div>
 
     <div id="view-end" class="invis-elm view">

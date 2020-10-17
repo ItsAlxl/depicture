@@ -39,7 +39,23 @@ function initViews() {
     addPenWidthToList('Big Chungus', 75);
 
     nicknameInput();
+
+    linkInputToButtonByIds('tline-join-code', 'btn-join');
+    linkInputToButtonByIds('tline-picture-guess', 'btn-picture-guess');
 }
+
+function linkInputToButtonByIds(inputId, btnId) {
+    linkInputToButton(document.getElementById(inputId), document.getElementById(btnId));
+}
+function linkInputToButton(input, btn) {
+    input.addEventListener('keyup', e => {
+        if (e.key == 'Enter') {
+            btn.click();
+            e.preventDefault();
+        }
+    });
+}
+
 
 function changeView(v) {
     if (currentView.length > 0) {
@@ -173,7 +189,7 @@ var INPUT_RESTRICTIONS;
 socket.on('apply input restrictions', function (IR) {
     INPUT_RESTRICTIONS = IR;
     $('#nick-name').attr('maxlength', IR['username']);
-    $('#picture-guess').attr('maxlength', IR['prompt']);
+    $('#tline-picture-guess').attr('maxlength', IR['prompt']);
 });
 
 function validateName() {
@@ -216,7 +232,7 @@ function hostGame() {
 
 function joinGame() {
     if (validateName()) {
-        socket.emit('join game', $('#join-code').val(), plrName);
+        socket.emit('join game', $('#tline-join-code').val(), plrName);
     }
 }
 
@@ -361,12 +377,12 @@ function submitDrawing() {
 }
 
 function submitTitleGuess() {
-    let caption = $('#picture-guess').val().trim();
+    let caption = $('#tline-picture-guess').val().trim();
     if (caption.length >= 3) {
         caption = caption.substring(0, INPUT_RESTRICTIONS['prompt']);
         socket.emit('give story content', gameId, caption);
         changeView('wait');
-        $('#picture-guess').val('');
+        $('#tline-picture-guess').val('');
     }
 }
 
