@@ -93,7 +93,7 @@ class DrawBoard {
             this.currentStroke.verifyPrevPoint(this.last_penX, this.last_penY);
             if (this.last_penX >= 0 && this.last_penX >= 0) {
                 this.currentStroke.addPoint(this.penX, this.penY);
-                
+
                 this.drawLineOnCtx(this.last_penX, this.last_penY, this.penX, this.penY);
             }
         }
@@ -211,7 +211,26 @@ function connectDrawBoardEvents(drawboard) {
         let t = (e.touches || [])[0] || {};
         drawboard.movePen(t.clientX, t.clientY);
     });
+
+    preventSelectionBoards.push(drawboard);
 }
+
+// Prevent highlighting/selecting html elements while drawing
+var preventSelectionBoards = [];
+function areAnyBoardsDrawing() {
+    for (let i = 0; i < preventSelectionBoards.length; i++) {
+        if (preventSelectionBoards[i].penDrawing) {
+            return true;
+        }
+    }
+    return false;
+}
+document.onselectstart = function (e) {
+    if (areAnyBoardsDrawing()) {
+        e.preventDefault();
+        return false;
+    }
+};
 
 function drawLineOnCtx(ctx, aX, aY, bX, bY) {
     ctx.beginPath();
@@ -262,13 +281,13 @@ function colorToRGBA(color) {
 }
 
 function byteToHex(num) {
-    return ('0'+num.toString(16)).slice(-2);
+    return ('0' + num.toString(16)).slice(-2);
 }
 
 function colorToHex(color) {
     let rgba = colorToRGBA(color);
-    let hex = [0,1,2].map(
-        function(idx) { return byteToHex(rgba[idx]); }
-        ).join('');
-    return "#"+hex;
+    let hex = [0, 1, 2].map(
+        function (idx) { return byteToHex(rgba[idx]); }
+    ).join('');
+    return "#" + hex;
 }
