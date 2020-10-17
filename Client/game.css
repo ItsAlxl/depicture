@@ -67,16 +67,23 @@ canvas.art {
     margin-bottom: 6px;
 }
 
-.game-table input {
-    width: 15%;
+.game-table input[type=checkbox] {
+    margin-bottom: 12px;
 }
 
-td.rightCell {
-    text-align: right;
+.game-table input[type=color], .game-table input[type=number] {
+    width: 75px;
 }
 
 .game-table td label {
     text-transform: capitalize;
+}
+
+td.centerCell {
+    text-align: center;
+}
+td.rightCell {
+    text-align: right;
 }
 
 .view {

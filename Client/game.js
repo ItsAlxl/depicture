@@ -87,7 +87,7 @@ socket.on('set room info', function (gid, ps, waitOnDc) {
         }
     }
     if (waitOnDc) {
-        $('#list-of-waiters').append($('<li>').text('A player has disconnected and must be replaced before continuing...'));
+        $('#list-of-waiters').append($('<li>').html('A player has disconnected and<br>must be replaced before continuing...'));
     }
 });
 
@@ -337,6 +337,7 @@ function resetDrawingOptions() {
 }
 
 function lockDrawSubmit(l) {
+    document.getElementById('cbox-verify-drawing').checked = !l;
     if (l) {
         document.getElementById('submit-drawing-btn').setAttribute('disabled', '');
     } else {

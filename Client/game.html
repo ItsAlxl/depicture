@@ -83,7 +83,7 @@
         <p>Draw with other players while you wait! You can see who you're waiting on at the bottom.</p>
         <table class="game-table">
             <tr>
-                <td colspan="2">
+                <td class="centerCell" colspan="2">
                     <canvas id="communal-canvas" width="720" height="576" class="art"></canvas>
                 </td>
             </tr>
@@ -107,7 +107,7 @@
         </div>
         <table class="game-table">
             <tr>
-                <td colspan="4">
+                <td colspan="4" class="centerCell">
                     <canvas id="draw-canvas" width="480" height="384" class="art"></canvas>
                 </td>
             </tr>
@@ -120,7 +120,8 @@
                 <td id="pen-size-list" class="rightCell"></td>
                 <td id="pen-color-list"></td>
                 <td class="rightCell">
-                    <button onclick="verifyDrawing();">Verify</button>
+                    <input onclick="verifyDrawing();" type="checkbox" id="cbox-verify-drawing">
+                    <label for="cbox-verify-drawing">Verify</label>
                     <br>
                     <button onclick="submitDrawing();" id="submit-drawing-btn" disabled>DONE</button>
                 </td>
