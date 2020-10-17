@@ -14,8 +14,8 @@ RUN npm install
 RUN apk del git
 
 # Bundle source
-COPY Client ./Client
 COPY Server ./Server
+COPY Client ./Client
 
 EXPOSE 6465
 CMD ["npm",  "start"]
