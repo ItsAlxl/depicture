@@ -25,9 +25,13 @@ const INPUT_RESTRICTIONS = {
     'prompt': 150
 };
 
+function getGame(gameId) {
+    return liveGames[gameId];
+}
+
 function joinGame(socket, nickname, gameId) {
-    if (gameId in liveGames) {
-        let g = liveGames[gameId];
+    let g = getGame(gameId);
+    if (g) {
         g.addPlr(socket.id, nickname.substring(0, INPUT_RESTRICTIONS['username']));
         socket.join(gameId);
 
@@ -37,41 +41,43 @@ function joinGame(socket, nickname, gameId) {
 }
 
 function catchupPlayer(gameId, plrId) {
-    let g = liveGames[gameId];
-    let p = g.getPlr(plrId);
+    let g = getGame(gameId);
+    if (g) {
+        let p = g.getPlr(plrId);
 
-    for (let i = 0; i < g.communalStrokes.length; i++) {
-        io.to(plrId).emit('take communal stroke', g.communalStrokes[i]);
-    }
+        for (let i = 0; i < g.communalStrokes.length; i++) {
+            io.to(plrId).emit('take communal stroke', g.communalStrokes[i]);
+        }
 
-    switch (g.getState()) {
-        case 'ingame':
-            if (p.isActive()) {
-                if (p.isReady()) {
-                    io.to(plrId).emit('take view', 'wait');
+        switch (g.getState()) {
+            case 'ingame':
+                if (p.isActive()) {
+                    if (p.isReady()) {
+                        io.to(plrId).emit('take view', 'wait');
+                    } else {
+                        servePlrStoryContent(plrId, g);
+                    }
                 } else {
-                    servePlrStoryContent(plrId, g);
+                    io.to(plrId).emit('take view', 'wait');
                 }
-            } else {
-                io.to(plrId).emit('take view', 'wait');
-            }
-            break;
-        case 'story-rollout':
-            io.to(plrId).emit('take completed stories', g.stories, g.getStageLimit());
-            for (let i = 0; i < g.stagesRevealed; i++) {
-                io.to(plrId).emit('reveal next story stage');
-            }
-            break;
-        default:
-            io.to(plrId).emit('take view', 'lobby');
+                break;
+            case 'story-rollout':
+                io.to(plrId).emit('take completed stories', g.stories, g.getStageLimit());
+                for (let i = 0; i < g.stagesRevealed; i++) {
+                    io.to(plrId).emit('reveal next story stage');
+                }
+                break;
+            default:
+                io.to(plrId).emit('take view', 'lobby');
+        }
+        io.to(plrId).emit('set as host', g.hostId == plrId);
+        updateGameInfoToPlrs(gameId);
     }
-    io.to(plrId).emit('set as host', g.hostId == plrId);
-    updateGameInfoToPlrs(gameId);
 }
 
 function quitGame(socket, gameId) {
-    if (gameId in liveGames) {
-        let g = liveGames[gameId];
+    let g = getGame(gameId);
+    if (g) {
         socket.leave(gameId);
 
         let successorId = g.remPlr(socket.id);
@@ -89,8 +95,10 @@ function quitGame(socket, gameId) {
 }
 
 function updateGameInfoToPlrs(gameId) {
-    let g = liveGames[gameId];
-    io.to(gameId).emit('set room info', gameId, g.plrs, g.getOpenTurnOrder() >= 0);
+    let g = getGame(gameId);
+    if (g) {
+        io.to(gameId).emit('set room info', gameId, g.plrs, g.getOpenTurnOrder() >= 0);
+    }
 }
 
 function hostIdToGameId(hostId) {
@@ -163,48 +171,60 @@ io.on('connection', (socket) => {
     });
 
     socket.on('start hosted game', (gameId, stageLimit) => {
-        let g = liveGames[gameId];
-        g.setupGame(stageLimit);
-        io.to(socket.id).emit('take story seeds', g.getNumActivePlrs());
+        let g = getGame(gameId);
+        if (g) {
+            g.setupGame(stageLimit);
+            io.to(socket.id).emit('take story seeds', g.getNumActivePlrs());
+        }
     });
 
     socket.on('give story seeds', (gameId, seeds) => {
-        let g = liveGames[gameId];
-        g.takeStorySeeds(seeds);
-        advanceTurn(g, -1);
+        let g = getGame(gameId);
+        if (g) {
+            g.takeStorySeeds(seeds);
+            advanceTurn(g, -1);
+        }
     });
 
     socket.on('give communal stroke', (gameId, s) => {
-        liveGames[gameId].communalStrokes.push(s);
-        io.to(gameId).emit('take communal stroke', s);
+        let g = getGame(gameId);
+        if (g) {
+            g.communalStrokes.push(s);
+            io.to(gameId).emit('take communal stroke', s);
+        }
     });
 
     socket.on('give story content', (gameId, c) => {
-        let g = liveGames[gameId];
+        let g = getGame(gameId);
+        if (g) {
+            if (g.getCurrentView() == 'caption') {
+                c = c.substring(0, INPUT_RESTRICTIONS['prompt']);
+            }
+            g.takeCurrentStory(socket.id, c);
 
-        if (g.getCurrentView() == 'caption') {
-            c = c.substring(0, INPUT_RESTRICTIONS['prompt']);
-        }
-        g.takeCurrentStory(socket.id, c);
-        g.uptickReady(socket.id);
+            updateGameInfoToPlrs(gameId);
 
-        updateGameInfoToPlrs(gameId);
-
-        if (g.areAllReady()) {
-            advanceTurn(g);
+            if (g.areAllReady()) {
+                advanceTurn(g);
+            }
         }
     });
 
     socket.on('begin restart', (gameId) => {
-        let g = liveGames[gameId];
-        g.restart();
-        g.setupGame();
-        io.to(g.hostId).emit('take story seeds', g.getNumActivePlrs());
+        let g = getGame(gameId);
+        if (g) {
+            g.restart();
+            g.setupGame();
+            io.to(g.hostId).emit('take story seeds', g.getNumActivePlrs());
+        }
     });
 
     socket.on('trigger story reveal', (gameId) => {
-        liveGames[gameId].stagesRevealed++;
-        io.to(gameId).emit('reveal next story stage');
+        let g = getGame(gameId);
+        if (g) {
+            g.stagesRevealed++;
+            io.to(gameId).emit('reveal next story stage');
+        }
     });
 
     socket.on('disconnecting', () => {

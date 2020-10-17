@@ -70,6 +70,7 @@ socket.on('set room info', function (gid, ps, waitOnDc) {
     }
 });
 
+
 // Pre-Lobby
 
 function getPenColorChoiceHtml(name, lbl, value) {
@@ -302,6 +303,7 @@ function serveSeeds() {
     }
     socket.emit('give story seeds', gameId, seeds);
 }
+
 
 // Playing the game
 

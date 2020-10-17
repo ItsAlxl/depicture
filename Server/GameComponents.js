@@ -191,6 +191,10 @@ class Room {
         return this.plrs[id];
     }
 
+    hasPlr(id) {
+        return (id in this.plrs);
+    }
+
     getOpenTurnOrder() {
         return this.plrTurnOrder.indexOf('');
     }
@@ -335,13 +339,16 @@ class Room {
     }
 
     takeCurrentStory(plrId, content) {
-        if (this.getCurrentView() == 'draw') {
-            for (let i in content) {
-                content[i].color = this.colorRestrictor(content[i].color).value;
-                content[i].width = this.getNearestWidth(content[i].width);
+        if (this.hasPlr(plrId)) {
+            if (this.getCurrentView() == 'draw') {
+                for (let i in content) {
+                    content[i].color = this.colorRestrictor(content[i].color).value;
+                    content[i].width = this.getNearestWidth(content[i].width);
+                }
             }
+            this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname, this.turns);
+            this.uptickReady(plrId);
         }
-        this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname, this.turns);
     }
 }
 
