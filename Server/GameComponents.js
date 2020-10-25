@@ -348,11 +348,14 @@ class Room {
 
     takeCurrentStory(plrId, content) {
         if (this.hasPlr(plrId) && content != undefined && content != null) {
-            if (this.getCurrentView() == 'draw') {
-                this.correctStrokes(content);
+            let plrName = this.getPlr(plrId).nickname;
+            if (plrName != null && plrName != undefined) {
+                if (this.getCurrentView() == 'draw') {
+                    this.correctStrokes(content);
+                }
+                this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, plrName, this.turns);
+                this.uptickReady(plrId);
             }
-            this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, this.getPlr(plrId).nickname, this.turns);
-            this.uptickReady(plrId);
         }
     }
 }
