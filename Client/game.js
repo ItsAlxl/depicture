@@ -180,7 +180,17 @@ function removeFromPenList(e) {
     p.parentNode.removeChild(p);
 }
 
+function getServerTupleHTML(gameId, hostName, extraBtnAttrs) {
+    return `<button onclick='joinGameId(${gameId});' ${extraBtnAttrs}>Join</button> ${gameId} hosted by ${hostName}`;
+}
 
+socket.on('take pubgame list', function (pubGames) {
+    $('#public-server-list').empty();
+    let disableButton = document.getElementById('btn-join').disabled ? 'disabled' : '';
+    for (let i = 0; i < pubGames.length; i++) {
+        $('#public-server-list').append($('<li>').html(getServerTupleHTML(pubGames[i].gameId, pubGames[i].hostName, disableButton)));
+    }
+});
 
 // Lobbying
 
@@ -238,13 +248,17 @@ function hostGame() {
             }
         }
 
-        socket.emit('host game', plrName, penClrs, penWidths);
+        socket.emit('host game', plrName, penClrs, penWidths, document.getElementById('cbox-host-public').checked);
     }
 }
 
 function joinGame() {
+    joinGameId($('#tline-join-code').val());
+}
+
+function joinGameId(gameId) {
     if (validateName()) {
-        socket.emit('join game', $('#tline-join-code').val(), plrName);
+        socket.emit('join game', gameId, plrName);
     }
 }
 

@@ -35,6 +35,8 @@
                     <input id="tline-join-code" type="text" autocomplete="off" />
                     <br>
                     <button id="btn-join" onclick="joinGame();">Join Game</button>
+                    <br><br>
+                    <ul id="public-server-list"></ul>
                 </div>
             </div>
             <div>
@@ -42,6 +44,10 @@
                 <div class="grid-box">
                     <br>
                     <button id="host-button" onclick="hostGame();">Host Game</button>
+                    <br>
+                    <input type="checkbox" id="cbox-host-public" name="hpg" onclick="togglePublicGame();">
+                    <label for="cbox-host-public">Public Game</label>
+                    <br>
                     <h4>Prompt Source</h4>
                     <input id="prompt-host" type="text" autocomplete="off"
                         value="https://itsalxl.com/depicture-words" />

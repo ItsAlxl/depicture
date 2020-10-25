@@ -61,13 +61,14 @@ class Player {
 
 class Room {
     id;
+    isPublic;
+
     stories = [];
     plrs = {};
     hostId;
     plrTurnOrder = [];
     numActivePlrs;
     turns;
-    plrReadiness = {};
     stageLimit = 0;
     stagesRevealed;
     currentState;
@@ -81,8 +82,9 @@ class Room {
 
     // penClrMap is {clrName: '#hexval'}
     // penWidthMap is {intval: 'Width Name'}
-    constructor(id, penClrMap, penWidthMap) {
+    constructor(id, penClrMap, penWidthMap, isPubGame) {
         this.id = id;
+        this.isPublic = isPubGame;
 
         Object.assign(this.allowedPenClrs, penClrMap);
         this.allowedPenWidths = penWidthMap;
@@ -104,6 +106,13 @@ class Room {
         this.resetReady();
     }
 
+    getPublicInfo() {
+        return {
+            hostName: this.getPlr(this.hostId).nickname,
+            gameId: this.id
+        };
+    }
+
     setState(s) {
         this.currentState = s;
     }
@@ -118,30 +127,32 @@ class Room {
     }
 
     addPlr(id, nickname) {
-        if (this.getNumTotalPlrs() == 0) {
-            this.hostId = id;
-        }
+        if (!(id in this.plrs)) {
+            if (this.getNumTotalPlrs() == 0) {
+                this.hostId = id;
+            }
 
-        let p = new Player(id, nickname);
+            let p = new Player(id, nickname);
 
-        switch (this.getState()) {
-            case 'lobby':
-                p.setActive(true);
-                break;
-            case 'ingame':
-                let fillSeat = this.getOpenTurnOrder();
-                if (fillSeat >= 0) {
-                    this.plrTurnOrder[fillSeat] = id;
+            switch (this.getState()) {
+                case 'lobby':
                     p.setActive(true);
-                    p.setReady(this.hasStorySubmitted(this.plrToStory(id)));
-                }
-                break;
-            default:
-                p.setActive(false);
-                break;
-        }
+                    break;
+                case 'ingame':
+                    let fillSeat = this.getOpenTurnOrder();
+                    if (fillSeat >= 0) {
+                        this.plrTurnOrder[fillSeat] = id;
+                        p.setActive(true);
+                        p.setReady(this.hasStorySubmitted(this.plrToStory(id)));
+                    }
+                    break;
+                default:
+                    p.setActive(false);
+                    break;
+            }
 
-        this.plrs[id] = p;
+            this.plrs[id] = p;
+        }
     }
 
     remPlr(id) {

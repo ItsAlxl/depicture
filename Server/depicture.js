@@ -25,7 +25,19 @@ const INPUT_RESTRICTIONS = {
     'prompt': 150
 };
 
+function givePubServerList(socketRoom = 'unjoined-super-lobby') {
+    let pubGames = [];
+    for (let gid in liveGames) {
+        let g = liveGames[gid];
+        if (g.isPublic) {
+            pubGames.push(g.getPublicInfo());
+        }
+    }
+    io.to(socketRoom).emit('take pubgame list', pubGames);
+}
+
 function logNumGames() {
+    givePubServerList();
     console.log('Number of running games: ' + getNumLiveGames());
 }
 
@@ -51,6 +63,7 @@ function joinGame(socket, nickname, gameId) {
     let g = getGame(gameId);
     if (g) {
         g.addPlr(socket.id, nickname.substring(0, INPUT_RESTRICTIONS['username']));
+        socket.leave('unjoined-super-lobby');
         socket.join(gameId);
 
         io.to(socket.id).emit('take pen restrictions', g.allowedPenWidths, g.allowedPenClrs, g.defaultPenWidth);
@@ -171,12 +184,18 @@ function servePlrStoryContent(plrId, game) {
 }
 
 io.on('connection', (socket) => {
+    socket.join('unjoined-super-lobby');
+    givePubServerList(socket.id);
     io.to(socket.id).emit('apply input restrictions', INPUT_RESTRICTIONS);
 
-    socket.on('host game', (nick, penClrs, penWidths) => {
+    socket.on('host game', (nick, penClrs, penWidths, isPublic) => {
         if (nick.length >= 3) {
             let gameId = hostIdToGameId(socket.id);
-            makeNewGame(gameId, new Room(gameId, penClrs, penWidths));
+
+            let g = new Room(gameId, penClrs, penWidths, isPublic);
+            g.addPlr(socket.id, nick.substring(0, INPUT_RESTRICTIONS['username']));
+            makeNewGame(gameId, g);
+
             joinGame(socket, nick, gameId);
         }
     });
