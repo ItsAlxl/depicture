@@ -141,14 +141,18 @@
         <h1>Game over!</h1>
         <div id="ending-scroll"></div>
         <br>
-        <input type="checkbox" id="follow-ending-scroll" name="fes" checked>
-        <label for="follow-ending-scroll">Auto-scroll with reveals</label>
+        <input type="checkbox" id="cbox-follow-end-scroll" name="fes" checked>
+        <label for="cbox-follow-end-scroll">Auto-scroll with reveals</label>
         <br><br>
         <button onclick="saveGameFile();">Save to file</button>
         <br><br>
+        <input type="checkbox" id="cbox-keep-playing" name="kp" onclick="togglePlayAgain();">
+        <label for="cbox-keep-playing">Play in next game</label>
+        <p id='restart-plrs-list'></p>
+        <br>
         <button onclick="emitStoryReveal();" class="invis-elm" id="driver-reveal">Reveal Next</button>
         <br><br>
-        <button onclick="restartGame();" class="invis-elm" id="restart-game-btn" disabled>Play Again</button>
+        <button onclick="restartGame();" class="invis-elm" id="restart-game-btn" disabled>Start Next Game</button>
     </div>
     <br><br><br>
 

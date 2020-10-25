@@ -101,7 +101,6 @@ class Room {
         this.stagesRevealed = 0;
         this.numActivePlrs = -1;
         this.setState('lobby');
-        this.upgradeSpectators();
         this.resetReady();
     }
 
@@ -125,15 +124,21 @@ class Room {
 
         let p = new Player(id, nickname);
 
-        if (this.isJoinable()) {
-            p.setActive(true);
-        } else {
-            let fillSeat = this.getOpenTurnOrder();
-            if (fillSeat >= 0) {
-                this.plrTurnOrder[fillSeat] = id;
+        switch (this.getState()) {
+            case 'lobby':
                 p.setActive(true);
-                p.setReady(this.hasStorySubmitted(this.plrToStory(id)));
-            }
+                break;
+            case 'ingame':
+                let fillSeat = this.getOpenTurnOrder();
+                if (fillSeat >= 0) {
+                    this.plrTurnOrder[fillSeat] = id;
+                    p.setActive(true);
+                    p.setReady(this.hasStorySubmitted(this.plrToStory(id)));
+                }
+                break;
+            default:
+                p.setActive(false);
+                break;
         }
 
         this.plrs[id] = p;
@@ -262,9 +267,15 @@ class Room {
         return true;
     }
 
-    upgradeSpectators() {
+    downgradePlayers() {
         for (let p in this.plrs) {
-            this.getPlr(p).setActive(true);
+            this.getPlr(p).setActive(false);
+        }
+    }
+
+    setPlayAgain(plrId, playAgain) {
+        if (plrId in this.plrs && this.isJoinable()) {
+            this.getPlr(plrId).setActive(playAgain);
         }
     }
 
@@ -336,7 +347,7 @@ class Room {
     }
 
     takeCurrentStory(plrId, content) {
-        if (this.hasPlr(plrId)) {
+        if (this.hasPlr(plrId) && content != undefined && content != null) {
             if (this.getCurrentView() == 'draw') {
                 this.correctStrokes(content);
             }

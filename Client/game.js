@@ -95,12 +95,24 @@ socket.on('set room info', function (gid, ps, waitOnDc) {
     $('#lobby-name').html(gid);
     $('#lobby-players').empty();
     $('#list-of-waiters').empty();
+    $('#restart-plrs-list').empty();
     for (let p in ps) {
         playerToNames[ps[p].id] = ps[p].nickname;
         $('#lobby-players').append($('<li>').text(ps[p].nickname));
-        if (!ps[p].spectator && !ps[p].stageDone) {
-            $('#list-of-waiters').append($('<li>').text(ps[p].nickname));
+
+        if (!ps[p].spectator) {
+            let waitText = ' (...)';
+            if (ps[p].stageDone) {
+                waitText = ' (done!)';
+            }
+            $('#list-of-waiters').append($('<li>').text(ps[p].nickname + waitText));
         }
+
+        let playAgainText = ' will play';
+        if (ps[p].spectator) {
+            playAgainText = ' will spectate';
+        }
+        $('#restart-plrs-list').append($('<div>').text(ps[p].nickname + playAgainText));
     }
     if (waitOnDc) {
         $('#list-of-waiters').append($('<li>').html('A player has disconnected and<br>must be replaced before continuing...'));
@@ -362,6 +374,7 @@ function lockDrawSubmit(l) {
 }
 
 function verifyDrawing() {
+    document.getElementById('cbox-verify-drawing').checked = false;
     socket.emit('correct my strokes', gameId, myDrawBoard.strokeHistory);
 }
 socket.on('take corrected strokes', function (strokes) {
@@ -393,6 +406,7 @@ socket.on('take communal stroke', function (stroke) {
 socket.on('take completed stories', function (stories, numStages) {
     $('#ending-scroll').empty();
     changeView('end');
+    document.getElementById('cbox-keep-playing').checked = false;
 
     // +1 for the beginning prompt
     numStages++;
@@ -446,7 +460,7 @@ function revealNextStoryStage() {
         latestStage.fadeIn('slow');
         latestStage.prop('id', '');
 
-        if (document.getElementById('follow-ending-scroll').checked) {
+        if (document.getElementById('cbox-follow-end-scroll').checked) {
             stageDOM.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
         }
 
@@ -455,6 +469,10 @@ function revealNextStoryStage() {
             document.getElementById('restart-game-btn').removeAttribute('disabled');
         }
     }
+}
+
+function togglePlayAgain() {
+    socket.emit('plr keeps playing', gameId, document.getElementById('cbox-keep-playing').checked);
 }
 
 function restartGame() {

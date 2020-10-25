@@ -152,6 +152,8 @@ function advanceTurn(g, gt = -2) {
     let endNow = g.advanceTurn(gt);
 
     if (endNow) {
+        g.downgradePlayers();
+        updateGameInfoToPlrs(g.id);
         io.to(g.id).emit('take completed stories', g.stories, g.getStageLimit());
     } else {
         io.to(g.id).emit('set turn tickers', g.turns + 1, g.getStageLimit());
@@ -200,6 +202,11 @@ io.on('connection', (socket) => {
         if (g) {
             g.takeStorySeeds(seeds);
             advanceTurn(g, -1);
+            for (let p in g.plrs) {
+                if (!g.plrs[p].isActive()) {
+                    io.to(socket.id).emit('take view', 'wait');
+                }
+            }
         }
     });
 
@@ -232,6 +239,14 @@ io.on('connection', (socket) => {
             if (g.areAllReady()) {
                 advanceTurn(g);
             }
+        }
+    });
+
+    socket.on('plr keeps playing', (gameId, playAgain) => {
+        let g = getGame(gameId);
+        if (g) {
+            g.setPlayAgain(socket.id, playAgain);
+            updateGameInfoToPlrs(gameId);
         }
     });
 
