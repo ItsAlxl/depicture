@@ -186,6 +186,8 @@ function connectDrawBoardEvents(drawboard) {
     $(drawboard.drawCanvas).on('mousedown', function (e) {
         if (e.button == 0) {
             drawboard.startDrawing(e.clientX, e.clientY);
+        } else {
+            drawboard.stopDrawing();
         }
     });
     $(drawboard.drawCanvas).on('mouseleave', function () {
