@@ -255,8 +255,11 @@ io.on('connection', (socket) => {
 
             updateGameInfoToPlrs(gameId);
 
-            if (g.areAllReady()) {
+            let lastPlrId = g.getLastUnreadyPlrId();
+            if (lastPlrId == null) {
                 advanceTurn(g);
+            } else if (lastPlrId.length > 0) {
+                io.to(lastPlrId).emit('ding ding');
             }
         }
     });

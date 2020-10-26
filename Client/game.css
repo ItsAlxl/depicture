@@ -90,10 +90,6 @@ td.rightCell {
     display: inline-block;
 }
 
-.view h3 {
-    margin: 0;
-}
-
 #story-stage {
     display: none;
 }
@@ -147,6 +143,8 @@ body {
 
 h1 {
     font-size: 400%;
+    margin-bottom: 15px;
+    margin-top: 15px;
 }
 
 h2 {
@@ -156,6 +154,10 @@ h2 {
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: black;
     margin-bottom: 5px;
+}
+
+h3 {
+    margin: 0;
 }
 
 h4 {

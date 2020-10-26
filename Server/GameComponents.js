@@ -267,15 +267,20 @@ class Room {
             this.getPlr(p).setReady(false);
         }
     }
-
-    areAllReady() {
+    
+    getLastUnreadyPlrId() {
         let apks = this.getActivePlrKeys();
+        let lastUnready = null;
         for (let p in apks) {
             if (!this.getPlr(apks[p]).isReady()) {
-                return false;
+                if (lastUnready == null) {
+                    lastUnready = apks[p];
+                } else {
+                    return "";
+                }
             }
         }
-        return true;
+        return lastUnready;
     }
 
     downgradePlayers() {

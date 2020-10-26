@@ -56,7 +56,7 @@ function linkInputToButton(input, btn) {
     });
 }
 
-
+socket.on('take view', changeView);
 function changeView(v) {
     if (currentView.length > 0) {
         $('#view-' + currentView).addClass('invis-elm');
@@ -68,11 +68,8 @@ function changeView(v) {
         resetDrawingOptions();
         lockDrawSubmit(true);
     }
+    document.getElementById('last-plr-warning').innerHTML = '---';
 }
-
-socket.on('take view', function (v) {
-    changeView(v);
-});
 
 socket.on('take story content', function (c) {
     if (currentView == 'caption') {
@@ -367,7 +364,6 @@ function serveSeeds() {
     socket.emit('give story seeds', gameId, seeds);
 }
 
-
 // Playing the game
 
 var defaultPenWidthId = '';
@@ -395,6 +391,12 @@ socket.on('take corrected strokes', function (strokes) {
     myDrawBoard.strokeHistory = strokes;
     myDrawBoard.drawFromHistory();
     lockDrawSubmit(false);
+});
+
+var dingdingSound = new Audio('ding_ding.ogg');
+socket.on('ding ding', function () {
+    document.getElementById('last-plr-warning').innerHTML = 'You are the last player to finish!';
+    dingdingSound.play();
 });
 
 function submitDrawing() {
