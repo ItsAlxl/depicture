@@ -83,8 +83,13 @@
             <button onclick="startHostedGame();" id="host-start-btn">Begin!</button>
         </div>
     </div>
-    <h3 id="turn-counter"></h3>
-    <h3 id="last-plr-warning"></h3>
+    <div id="ingame-header" class="invis-elm">
+        <h3 id="turn-counter"></h3>
+        <label for="slider-master-vol">Master Volume</label><br>
+        <input type="range" min="0" max="1" value="0.3" step="0.05" id="slider-master-vol"
+            oninput="applyMasterVolume();">
+        <h3 id="last-plr-warning"></h3>
+    </div>
     <div id="view-wait" class="invis-elm view">
         <h1>Waiting on other players...</h1>
         <p>Draw with other players while you wait! You can see who you're waiting on at the bottom.</p>

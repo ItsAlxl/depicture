@@ -39,6 +39,7 @@ function initViews() {
     addPenWidthToList('Big Chungus', 75);
 
     nicknameInput();
+    applyMasterVolume();
 
     linkInputToButtonByIds('tline-join-code', 'btn-join');
     linkInputToButtonByIds('tline-picture-guess', 'btn-picture-guess');
@@ -64,16 +65,16 @@ function changeView(v) {
     $('#view-' + v).removeClass('invis-elm');
     currentView = v;
 
-    switch (v) {
-        case 'draw':
+    if (v == 'draw' || v == 'caption') {
+        if (v == 'draw') {
             resetDrawingOptions();
             lockDrawSubmit(true);
-        case 'caption':
-            document.getElementById('last-plr-warning').innerHTML = '---';
-            break;
-        default:
-            document.getElementById('last-plr-warning').innerHTML = '';
-            break;
+        }
+
+        $('#ingame-header').removeClass('invis-elm');
+        document.getElementById('last-plr-warning').innerHTML = '---';
+    } else {
+        $('#ingame-header').addClass('invis-elm');
     }
 }
 
@@ -92,6 +93,8 @@ socket.on('set turn tickers', function (n, m) {
         if (n == 1) {
             groupDrawBoard.clearBoard();
         }
+    } else {
+
     }
 });
 
@@ -124,6 +127,10 @@ socket.on('set room info', function (gid, ps, waitOnDc) {
     }
 });
 
+var dingdingSound = new Audio('ding_ding.ogg');
+function applyMasterVolume() {
+    dingdingSound.volume = document.getElementById('slider-master-vol').value;
+}
 
 // Pre-Lobby
 
@@ -401,7 +408,6 @@ socket.on('take corrected strokes', function (strokes) {
     lockDrawSubmit(false);
 });
 
-var dingdingSound = new Audio('ding_ding.ogg');
 socket.on('ding ding', function () {
     document.getElementById('last-plr-warning').innerHTML = 'You are the last player to finish!';
     dingdingSound.play();
