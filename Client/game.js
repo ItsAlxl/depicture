@@ -64,11 +64,17 @@ function changeView(v) {
     $('#view-' + v).removeClass('invis-elm');
     currentView = v;
 
-    if (v == 'draw') {
-        resetDrawingOptions();
-        lockDrawSubmit(true);
+    switch (v) {
+        case 'draw':
+            resetDrawingOptions();
+            lockDrawSubmit(true);
+        case 'caption':
+            document.getElementById('last-plr-warning').innerHTML = '---';
+            break;
+        default:
+            document.getElementById('last-plr-warning').innerHTML = '';
+            break;
     }
-    document.getElementById('last-plr-warning').innerHTML = '---';
 }
 
 socket.on('take story content', function (c) {
@@ -415,14 +421,22 @@ function submitTitleGuess() {
     }
 }
 
-socket.on('take communal stroke', function (stroke) {
-    drawStrokeOnCtx(groupDrawBoard.drawCtx, stroke);
-});
+socket.on('take communal stroke', drawCommunalStroke);
+function drawCommunalStroke(s) {
+    drawStrokeOnCtx(groupDrawBoard.drawCtx, s);
+}
 
-socket.on('take completed stories', function (stories, numStages) {
+socket.on('take completed stories', function (stories, numStages, commStrokes = []) {
     $('#ending-scroll').empty();
     changeView('end');
     document.getElementById('cbox-keep-playing').checked = false;
+
+    if (commStrokes.length > 0) {
+        groupDrawBoard.clearBoard();
+        for (let i = 0; i < commStrokes.length; i++) {
+            drawCommunalStroke(commStrokes[i]);
+        }
+    }
 
     // +1 for the beginning prompt
     numStages++;

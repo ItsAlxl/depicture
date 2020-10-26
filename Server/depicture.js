@@ -76,6 +76,8 @@ function catchupPlayer(gameId, plrId) {
     if (g) {
         let p = g.getPlr(plrId);
 
+        io.to(plrId).emit('set turn tickers', g.turns + 1, g.getStageLimit());
+
         for (let i = 0; i < g.communalStrokes.length; i++) {
             io.to(plrId).emit('take communal stroke', g.communalStrokes[i]);
         }
@@ -167,7 +169,7 @@ function advanceTurn(g, gt = -2) {
     if (endNow) {
         g.downgradePlayers();
         updateGameInfoToPlrs(g.id);
-        io.to(g.id).emit('take completed stories', g.stories, g.getStageLimit());
+        io.to(g.id).emit('take completed stories', g.stories, g.getStageLimit(), g.communalStrokes);
     } else {
         io.to(g.id).emit('set turn tickers', g.turns + 1, g.getStageLimit());
         for (let p in g.plrTurnOrder) {
