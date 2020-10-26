@@ -227,12 +227,14 @@ function areAnyBoardsDrawing() {
     }
     return false;
 }
-document.onselectstart = function (e) {
+document.oncontextmenu = preventEventDuringDraw;
+document.onselectstart = preventEventDuringDraw;
+function preventEventDuringDraw(e) {
     if (areAnyBoardsDrawing()) {
         e.preventDefault();
         return false;
     }
-};
+}
 
 function drawLineOnCtx(ctx, aX, aY, bX, bY) {
     ctx.beginPath();
