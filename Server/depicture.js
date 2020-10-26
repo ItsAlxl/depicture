@@ -154,7 +154,7 @@ function hostIdToGameId(hostId) {
             pfx = code;
         }
     } while (code in liveGames);
-     
+
     return code;
 }
 

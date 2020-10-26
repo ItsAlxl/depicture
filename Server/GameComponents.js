@@ -267,7 +267,7 @@ class Room {
             this.getPlr(p).setReady(false);
         }
     }
-    
+
     getLastUnreadyPlrId() {
         let apks = this.getActivePlrKeys();
         let lastUnready = null;
