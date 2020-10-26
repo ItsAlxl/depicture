@@ -5,14 +5,14 @@
     --disabled-color: #aaa;
     --link-color: #00e;
     --visited-link-color: #529;
+    --good: #080;
+    --bad: #d00;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
         --background-color: #002;
         --font-color: #eef;
-        --title-color: #fb0;
-        --disabled-color: #aaa;
         --link-color: #9fe;
         --visited-link-color: #df9;
     }

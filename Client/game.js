@@ -114,11 +114,10 @@ socket.on('set room info', function (gid, ps, waitOnDc) {
             $('#list-of-waiters').append($('<li>').text(ps[p].nickname + waitText));
         }
 
-        let playAgainText = ' will play';
-        if (ps[p].spectator) {
-            playAgainText = ' will spectate';
-        }
-        $('#restart-plrs-list').append($('<div>').text(ps[p].nickname + playAgainText));
+        let spectateNext = ps[p].spectator;
+        let playAgainText = spectateNext ? ' will spectate' : ' will play';
+        let playAgainColor = spectateNext ? 'bad' : 'good';
+        $('#restart-plrs-list').append($('<div>').text(ps[p].nickname + playAgainText).attr('style', 'color: var(--' + playAgainColor + ');'));
     }
     if (waitOnDc) {
         $('#list-of-waiters').append($('<li>').html('A player has disconnected and<br>must be replaced before continuing...'));
