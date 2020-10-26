@@ -76,8 +76,6 @@ function catchupPlayer(gameId, plrId) {
     if (g) {
         let p = g.getPlr(plrId);
 
-        io.to(plrId).emit('set turn tickers', g.turns + 1, g.getStageLimit());
-
         for (let i = 0; i < g.communalStrokes.length; i++) {
             io.to(plrId).emit('take communal stroke', g.communalStrokes[i]);
         }
@@ -105,6 +103,7 @@ function catchupPlayer(gameId, plrId) {
         }
         io.to(plrId).emit('set as host', g.hostId == plrId);
         updateGameInfoToPlrs(gameId);
+        io.to(plrId).emit('set turn tickers', g.turns + 1, g.getStageLimit());
     }
 }
 
@@ -134,6 +133,8 @@ function updateGameInfoToPlrs(gameId) {
     }
 }
 
+const CHAR_A = "A".charCodeAt(0);
+const LENGTH_ALPHABET = 26;
 function hostIdToGameId(hostId) {
     let hash = 0;
     for (let i = 0; i < hostId.length; i++) {
@@ -141,23 +142,20 @@ function hostIdToGameId(hostId) {
         hash = ((hash << 5) - hash) + char;
         hash = hash & hash;
     }
-    hash = Math.abs(hash) + '';
+    let startingExtraChar = parseInt(String(Math.abs(hash)).substring(0, 2)) % LENGTH_ALPHABET;
+    let sfx = startingExtraChar;
+    let pfx = hostId.replace(/[^a-z]/gi, '').toUpperCase().substring(0, 4);
 
-    let code = hash.substring(hash.length - 4);
-    let idx = 0;
-    while (code in liveGames && idx < hostId.length) {
-        code += hostId[idx];
-        idx++;
-    }
-    if (!(code in liveGames)) {
-        return code;
-    }
-
-    idx = 0;
-    while ((code + idx) in liveGames) {
-        idx++;
-    }
-    return code + idx;
+    let code = '';
+    do {
+        sfx = (sfx + 1) % LENGTH_ALPHABET;
+        code = pfx + String.fromCharCode(sfx + CHAR_A);
+        if (sfx == startingExtraChar) {
+            pfx = code;
+        }
+    } while (code in liveGames);
+     
+    return code;
 }
 
 function advanceTurn(g, gt = -2) {

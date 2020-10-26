@@ -86,10 +86,13 @@ socket.on('take story content', function (c) {
 });
 
 socket.on('set turn tickers', function (n, m) {
-    if (n == 1) {
-        groupDrawBoard.clearBoard();
+    if (n > 0) {
+        $('#turn-counter').text(gameId + ' | ' + n + '/' + m);
+
+        if (n == 1) {
+            groupDrawBoard.clearBoard();
+        }
     }
-    $('#turn-counter').text(gameId + ' | ' + n + '/' + m);
 });
 
 var playerToNames = {};
@@ -184,7 +187,7 @@ function removeFromPenList(e) {
 }
 
 function getServerTupleHTML(gameId, hostName, extraBtnAttrs) {
-    return `<button onclick='joinGameId(${gameId});' ${extraBtnAttrs}>Join</button> ${gameId} hosted by ${hostName}`;
+    return `<button onclick="joinGameId('${gameId}');" ${extraBtnAttrs}>Join</button> ${gameId} hosted by ${hostName}`;
 }
 
 socket.on('take pubgame list', function (pubGames) {
