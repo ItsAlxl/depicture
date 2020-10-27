@@ -65,7 +65,8 @@ function changeView(v) {
     $('#view-' + v).removeClass('invis-elm');
     currentView = v;
 
-    if (v == 'draw' || v == 'caption') {
+    groupDrawBoard.stopDrawing();
+    if (['draw', 'caption', 'wait'].includes(v)) {
         if (v == 'draw') {
             resetDrawingOptions();
             lockDrawSubmit(true);
@@ -93,8 +94,6 @@ socket.on('set turn tickers', function (n, m) {
         if (n == 1) {
             groupDrawBoard.clearBoard();
         }
-    } else {
-
     }
 });
 

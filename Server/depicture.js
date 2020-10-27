@@ -76,10 +76,6 @@ function catchupPlayer(gameId, plrId) {
     if (g) {
         let p = g.getPlr(plrId);
 
-        for (let i = 0; i < g.communalStrokes.length; i++) {
-            io.to(plrId).emit('take communal stroke', g.communalStrokes[i]);
-        }
-
         switch (g.getState()) {
             case 'ingame':
                 if (p.isActive()) {
@@ -102,8 +98,13 @@ function catchupPlayer(gameId, plrId) {
                 io.to(plrId).emit('take view', 'lobby');
         }
         io.to(plrId).emit('set as host', g.hostId == plrId);
+
         updateGameInfoToPlrs(gameId);
         io.to(plrId).emit('set turn tickers', g.turns + 1, g.getStageLimit());
+
+        for (let i = 0; i < g.communalStrokes.length; i++) {
+            io.to(plrId).emit('take communal stroke', g.communalStrokes[i]);
+        }
     }
 }
 
