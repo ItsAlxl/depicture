@@ -89,7 +89,7 @@ function catchupPlayer(gameId, plrId) {
                 }
                 break;
             case 'story-rollout':
-                io.to(plrId).emit('take completed stories', g.stories, g.getStageLimit());
+                showRollout(g, plrId);
                 for (let i = 0; i < g.stagesRevealed; i++) {
                     io.to(plrId).emit('reveal next story stage');
                 }
@@ -106,6 +106,13 @@ function catchupPlayer(gameId, plrId) {
             io.to(plrId).emit('take communal stroke', g.communalStrokes[i]);
         }
     }
+}
+
+function showRollout(g, to = '') {
+    if (to.length == 0) {
+        to = g.id;
+    }
+    io.to(to).emit('take completed stories', g.stories, g.getStageLimit(), g.communalStrokes);
 }
 
 function quitGame(socket, gameId) {
@@ -168,7 +175,7 @@ function advanceTurn(g, gt = -2) {
     if (endNow) {
         g.downgradePlayers();
         updateGameInfoToPlrs(g.id);
-        io.to(g.id).emit('take completed stories', g.stories, g.getStageLimit(), g.communalStrokes);
+        showRollout(g);
     } else {
         io.to(g.id).emit('set turn tickers', g.turns + 1, g.getStageLimit());
         for (let p in g.plrTurnOrder) {
