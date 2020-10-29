@@ -297,27 +297,27 @@ io.on('connection', (socket) => {
         }
     });
 
-	socket.on('like image', (gameId, imageId) => {
-		let g = getGame(gameId);
-		if (g) {
-			p = g.getPlr(socket.id);
-			if (!p.likes.includes(imageId)) {
-				io.to(gameId).emit('add like', imageId);
-				p.likes.push(imageId);
-			}	
-		}
-	});
-	
-	socket.on('unlike image', (gameId, imageId) => {
-		let g = getGame(gameId);
-		if (g) {
-			p = g.getPlr(socket.id);
-			if (p.likes.includes(imageId)) {
-				io.to(gameId).emit('remove like', imageId);
-				p.likes = p.likes.filter(function(e) { return e !== imageId })
-			}	
-		}
-	});
+    socket.on('like image', (gameId, imageId) => {
+        let g = getGame(gameId);
+        if (g) {
+            p = g.getPlr(socket.id);
+            if (!p.likes.includes(imageId)) {
+                io.to(gameId).emit('add like', imageId);
+                p.likes.push(imageId);
+            }
+        }
+    });
+
+    socket.on('unlike image', (gameId, imageId) => {
+        let g = getGame(gameId);
+        if (g) {
+            p = g.getPlr(socket.id);
+            if (p.likes.includes(imageId)) {
+                io.to(gameId).emit('remove like', imageId);
+                p.likes = p.likes.filter(function (e) { return e !== imageId })
+            }
+        }
+    });
 
     socket.on('disconnecting', () => {
         const rooms = Object.keys(socket.rooms);

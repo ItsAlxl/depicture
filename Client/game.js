@@ -466,8 +466,8 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
             } else {
                 scrollHtml += s.owners[j - 1] + ' drew:<br>';
                 scrollHtml += '<img width="480" height="384" class="art" src="' + strokesToDataUrl(s.images[idx]) + '">';
-				scrollHtml += '<br> <img class="like-button" src="like_off.png" id="like ' + i + ' ' + j + '" onclick="likeImage(\'like ' + i + ' ' + j + '\')">';
-				scrollHtml += '<span class="like-counter-off" id="counter ' + i + " " + j + '">0</span> <br>';
+                scrollHtml += '<br> <img class="like-button" src="like_off.png" id="like ' + i + ' ' + j + '" onclick="likeImage(\'like ' + i + ' ' + j + '\')">';
+                scrollHtml += '<span class="like-counter-off" id="counter ' + i + " " + j + '">0</span> <br>';
             }
             scrollHtml += '</p>';
             if (j == numStages - 1) {
@@ -485,31 +485,31 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
 });
 
 function likeImage(imageId) {
-	let im = document.getElementById(imageId);
-	if (im.src.includes('like_off.png')) {
-		im.src = 'like_on.png';
-		document.getElementById(imageId.replace('like', 'counter')).className = 'like-counter-on';
-		socket.emit('like image', gameId, imageId);
-	} else if (im.src.includes('like_on.png')) {
-		im.src = 'like_off.png';
-		document.getElementById(imageId.replace('like', 'counter')).className = 'like-counter-off';
-		socket.emit('unlike image', gameId, imageId);
-	}
+    let im = document.getElementById(imageId);
+    if (im.src.includes('like_off.png')) {
+        im.src = 'like_on.png';
+        document.getElementById(imageId.replace('like', 'counter')).classList.add('like-counter-on');
+        socket.emit('like image', gameId, imageId);
+    } else if (im.src.includes('like_on.png')) {
+        im.src = 'like_off.png';
+        document.getElementById(imageId.replace('like', 'counter')).classList.remove('like-counter-on');
+        socket.emit('unlike image', gameId, imageId);
+    }
 }
 
 
 socket.on('add like', function (imageId) {
     let ct = document.getElementById(imageId.replace('like', 'counter'));
-	let currentlikes = parseInt(ct.innerHTML);
-	currentlikes++;
-	ct.innerHTML = currentlikes;
+    let currentlikes = parseInt(ct.innerHTML);
+    currentlikes++;
+    ct.innerHTML = currentlikes;
 });
 
 socket.on('remove like', function (imageId) {
     let ct = document.getElementById(imageId.replace('like', 'counter'));
-	let currentlikes = parseInt(ct.innerHTML);
-	currentlikes--;
-	ct.innerHTML = currentlikes;
+    let currentlikes = parseInt(ct.innerHTML);
+    currentlikes--;
+    ct.innerHTML = currentlikes;
 });
 
 function emitStoryReveal() {
