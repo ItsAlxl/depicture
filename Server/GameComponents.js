@@ -38,6 +38,8 @@ class Player {
     nickname;
     stageDone = false;
     spectator = true;
+	
+	likes = [];
 
     constructor(id, name) {
         this.id = id;
