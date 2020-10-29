@@ -297,6 +297,20 @@ io.on('connection', (socket) => {
         }
     });
 
+	socket.on('like image', (gameId, imageId) => {
+		let g = getGame(gameId);
+		if (g) {
+			io.to(gameId).emit('add like', imageId);
+		}
+	});
+	
+	socket.on('unlike image', (gameId, imageId) => {
+		let g = getGame(gameId);
+		if (g) {
+			io.to(gameId).emit('remove like', imageId);
+		}
+	});
+
     socket.on('disconnecting', () => {
         const rooms = Object.keys(socket.rooms);
         for (let r in rooms) {
