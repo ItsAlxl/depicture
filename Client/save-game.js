@@ -1,4 +1,4 @@
-const COPY_CSS_TAGS_ON_SAVE = [':root', '(prefers-color-scheme: dark)', '.art', '#ending-scroll p', 'body', 'h1', 'h2', 'h3', 'h4', 'h5'];
+const COPY_CSS_TAGS_ON_SAVE = [':root', '(prefers-color-scheme: dark)', '.art', '#ending-scroll p', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', '.like-button', '.like-counter', '.like-counter-on'];
 
 function saveGameFile() {
     // get text
