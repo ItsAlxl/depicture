@@ -97,21 +97,21 @@ td.rightCell {
 }
 
 .like-button {
-	width: 32px;
-	height: 32px;
-	float: left;
+    width: 32px;
+    height: 32px;
+    float: left;
+}
+
+.like-counter {
+    color: var(--font-color);
+    float: left;
+    vertical-align: middle;
+    padding-top: 8px;
+    padding-left: 6px;
 }
 
 .like-counter-on {
-	color: green;
-}
-
-.like-counter{
-	color: black;
-	float: left;
-	vertical-align: middle;
-	padding-top: 8px;
-	padding-left: 6px;
+    color: var(--good);
 }
 
 #ending-scroll p {
