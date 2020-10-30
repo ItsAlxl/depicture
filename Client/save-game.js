@@ -1,14 +1,39 @@
 const COPY_CSS_TAGS_ON_SAVE = [':root', '(prefers-color-scheme: dark)', '.art', '#ending-scroll p', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', '.like-button', '.like-counter', '.like-counter-on'];
 
+let saveText = '';
+let saveImgCount = 0;
+let srcToDataUrl = {};
+
 function saveGameFile() {
     // get text
-    let data = document.getElementById('ending-scroll').innerHTML;
+    saveText = document.getElementById('ending-scroll').innerHTML;
 
     // scrub and format
-    data = data.replaceAll(' id="story-stage"', '');
-    data = data.replaceAll('<span>', '\n\t<span>');
-    data = data.replaceAll('<div>', '\n<div>');
-    data = data.replaceAll('</div>', '\n</div>');
+    saveText = saveText.split(' id="story-stage"').join('');
+    saveText = saveText.split('<span>').join('\n\t<span>');
+    saveText = saveText.split('<div>').join('\n\t<div>');
+    saveText = saveText.split('</div>').join('\n\t</div>');
+
+    // begin replacing image srcs with DataURL
+    let imgTags = saveText.match(/<img.+?src=".+?">/g);
+    console.log(imgTags);
+    saveImgCount = imgTags.length;
+    for (let i = 0; i < imgTags.length; i++) {
+        let imgSrc = imgTags[i].match(/src="(.+?)"/)[1];
+        if (!imgSrc.startsWith('data:') && !(imgSrc in srcToDataUrl)) {
+            srcToDataUrl[imgSrc] = '';
+            console.log(imgSrc);
+            let img = new Image();
+            img.src = imgSrc;
+            img.onload = function(){
+                srcToDataUrl[imgSrc] = imgToDataUrl(img);
+                saveImgCount--;
+                attemptSavegameImgReplace();
+            }
+        } else {
+            saveImgCount--;
+        }
+    }
 
     // apply style
     let style = '\n';
@@ -37,11 +62,24 @@ function saveGameFile() {
 </body>
 </html>`;
 
-    data = hat + data + boots;
+    saveText = hat + saveText + boots;
+    attemptSavegameImgReplace();
+}
 
+function attemptSavegameImgReplace() {
+    if (saveImgCount == 0) {
+        console.log(srcToDataUrl);
+        for (let src in srcToDataUrl) {
+            saveText = saveText.split('src="' + src + '"').join('src="' + srcToDataUrl[src] + '"');
+        }
+        serveSaveFile();
+    }
+}
+
+function serveSaveFile() {
     // create file
     let filename = 'depicture-save.html';
-    let file = new Blob([data], { type: 'text/html' });
+    let file = new Blob([saveText], { type: 'text/html' });
 
     // offer file
     if (window.navigator.msSaveOrOpenBlob) { // for IE10+
@@ -58,4 +96,12 @@ function saveGameFile() {
             window.URL.revokeObjectURL(url);
         }, 0);
     }
+}
+
+function imgToDataUrl(img) {
+    let cvs = document.createElement('canvas');
+    cvs.width = img.naturalWidth;
+    cvs.height = img.naturalHeight;
+    cvs.getContext('2d').drawImage(img, 0, 0);
+    return cvs.toDataURL();
 }
