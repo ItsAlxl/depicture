@@ -17,10 +17,9 @@ class Stage {
     }
 
     remLike(plr) {
-        let idx = this.likers.findIndex(plr);
-        if (idx > -1) {
-            this.likers.splice(idx, 1);
-        }
+        this.likers = this.likers.filter(function(e) {
+            return e !== plr;
+        })
     }
 
     getNumLikes() {

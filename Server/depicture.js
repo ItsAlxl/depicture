@@ -297,25 +297,17 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('like image', (gameId, imageId) => {
+    socket.on('set like stage', (gameId, storyIdx, stageIdx, liking) => {
         let g = getGame(gameId);
         if (g) {
-            p = g.getPlr(socket.id);
-            if (!p.likes.includes(imageId)) {
-                io.to(gameId).emit('add like', imageId);
-                p.likes.push(imageId);
+            let s = g.stories[storyIdx].stages[stageIdx];
+            if (liking) {
+                s.addLike(socket.id);
+            } else {
+                s.remLike(socket.id);
             }
-        }
-    });
 
-    socket.on('unlike image', (gameId, imageId) => {
-        let g = getGame(gameId);
-        if (g) {
-            p = g.getPlr(socket.id);
-            if (p.likes.includes(imageId)) {
-                io.to(gameId).emit('remove like', imageId);
-                p.likes = p.likes.filter(function (e) { return e !== imageId })
-            }
+            io.to(gameId).emit('upd likes', storyIdx, stageIdx, s.getNumLikes());
         }
     });
 

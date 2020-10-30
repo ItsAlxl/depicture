@@ -476,8 +476,8 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
                 scrollHtml += '<img width="480" height="384" class="art" src="' + strokesToDataUrl(s.content) + '">';
             }
             
-            scrollHtml += '<br><img class="like-button" src="like_off.png" id="like ' + storyIdx + ' ' + stageIdx + '" onclick="likeImage(\'like ' + storyIdx + ' ' + stageIdx + '\')">';
-            scrollHtml += '<span class="like-counter" id="counter ' + storyIdx + " " + stageIdx + '">0</span> <br>';
+            scrollHtml += '<br><img class="like-button" src="like_off.png" id="' + getLikeId('btn', storyIdx, stageIdx) + '" onclick="likeStage(' + storyIdx + ', ' + stageIdx + ')">';
+            scrollHtml += '<span class="like-counter" id="' + getLikeId('cnt', storyIdx, stageIdx) + '">0</span><br>';
 
             scrollHtml += '</p>';
             
@@ -495,32 +495,27 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
     $('#ending-scroll').html(scrollHtml);
 });
 
-function likeImage(imageId) {
-    let im = document.getElementById(imageId);
-    if (im.src.includes('like_off.png')) {
-        im.src = 'like_on.png';
-        document.getElementById(imageId.replace('like', 'counter')).classList.add('like-counter-on');
-        socket.emit('like image', gameId, imageId);
-    } else if (im.src.includes('like_on.png')) {
-        im.src = 'like_off.png';
-        document.getElementById(imageId.replace('like', 'counter')).classList.remove('like-counter-on');
-        socket.emit('unlike image', gameId, imageId);
-    }
+function getLikeId(type, storyIdx, stageIdx) {
+    return 'like' + type + storyIdx + '-' + stageIdx;
 }
 
+function likeStage(storyIdx, stageIdx) {
+    let img = document.getElementById(getLikeId('btn', storyIdx, stageIdx));
+    let cnt = document.getElementById(getLikeId('cnt', storyIdx, stageIdx));
 
-socket.on('add like', function (imageId) {
-    let ct = document.getElementById(imageId.replace('like', 'counter'));
-    let currentlikes = parseInt(ct.innerHTML);
-    currentlikes++;
-    ct.innerHTML = currentlikes;
-});
+    let liking = !cnt.classList.contains('like-counter-on');
+    if (liking) {
+        img.src = 'like_on.png';
+        cnt.classList.add('like-counter-on');
+    } else {
+        img.src = 'like_off.png';
+        cnt.classList.remove('like-counter-on');
+    }
+    socket.emit('set like stage', gameId, storyIdx, stageIdx, liking);
+}
 
-socket.on('remove like', function (imageId) {
-    let ct = document.getElementById(imageId.replace('like', 'counter'));
-    let currentlikes = parseInt(ct.innerHTML);
-    currentlikes--;
-    ct.innerHTML = currentlikes;
+socket.on('upd likes', function (storyIdx, stageIdx, numLikes) {
+    document.getElementById(getLikeId('cnt', storyIdx, stageIdx)).innerText = numLikes;
 });
 
 function emitStoryReveal() {
