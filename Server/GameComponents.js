@@ -17,7 +17,7 @@ class Stage {
     }
 
     remLike(plr) {
-        this.likers = this.likers.filter(function(e) {
+        this.likers = this.likers.filter(function (e) {
             return e !== plr;
         })
     }

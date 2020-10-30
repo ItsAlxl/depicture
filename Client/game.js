@@ -475,12 +475,10 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
             } else {
                 scrollHtml += '<img width="480" height="384" class="art" src="' + strokesToDataUrl(s.content) + '">';
             }
-            
-            scrollHtml += '<br><img class="like-button" src="like_off.png" id="' + getLikeId('btn', storyIdx, stageIdx) + '" onclick="likeStage(' + storyIdx + ', ' + stageIdx + ')">';
-            scrollHtml += '<span class="like-counter" id="' + getLikeId('cnt', storyIdx, stageIdx) + '">0</span><br>';
 
+            scrollHtml += getLikeHtml(storyIdx, stageIdx);
             scrollHtml += '</p>';
-            
+
             if (stageIdx == numStages - 1) {
                 scrollHtml += '<p>And that\'s how the story ended.</p><br><br><br>';
             } else {
@@ -494,6 +492,14 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
 
     $('#ending-scroll').html(scrollHtml);
 });
+
+function getLikeHtml(storyIdx, stageIdx) {
+    let btnId = getLikeId('btn', storyIdx, stageIdx);
+    let cntId = getLikeId('cnt', storyIdx, stageIdx);
+    return `
+    <br><img class="like-button" src="like_off.png" id="${btnId}" onclick="likeStage(${storyIdx}, ${stageIdx})">
+    <span class="like-counter" id="${cntId}">0</span><br>`
+}
 
 function getLikeId(type, storyIdx, stageIdx) {
     return 'like' + type + storyIdx + '-' + stageIdx;
