@@ -1,35 +1,52 @@
+class Stage {
+    type;
+    content;
+    onwer;
+    likers = [];
+
+    constructor(owner, type, content) {
+        this.owner = owner;
+        this.type = type;
+        this.content = content;
+    }
+
+    addLike(plr) {
+        if (!(plr in this.likers)) {
+            this.likers.push(plr);
+        }
+    }
+
+    remLike(plr) {
+        let idx = this.likers.findIndex(plr);
+        if (idx > -1) {
+            this.likers.splice(idx, 1);
+        }
+    }
+
+    getNumLikes() {
+        return this.likers.length;
+    }
+}
+
 class Story {
-    images = [];
-    captions = [];
-    owners = [];
+    stages = [];
 
     constructor(seed) {
-        this.captions.push(seed);
+        this.takeStage('caption', seed);
     }
 
-    getCurrent(type) {
-        if (type == 'caption') {
-            return this.images[this.images.length - 1];
-        } else {
-            return this.captions[this.captions.length - 1];
+    getPrevStage() {
+        return this.stages[this.stages.length - 1];
+    }
+
+    takeStage(type, content, idx = -1, owner = 'anonymous player') {
+        if (this.getNumPlrStages() == idx) {
+            this.stages.push(new Stage(owner, type, content));
         }
     }
 
-    takeCurrent(type, content, owner = 'anonymous player', idx) {
-        let halfIdx = Math.floor(idx / 2);
-
-        if (this.getNumStages() == idx) {
-            if (type == 'caption') {
-                this.captions[halfIdx + 1] = content;
-            } else {
-                this.images[halfIdx] = content;
-            }
-            this.owners[idx] = owner;
-        }
-    }
-
-    getNumStages() {
-        return this.owners.length;
+    getNumPlrStages() {
+        return this.stages.length - 1;
     }
 }
 
@@ -335,7 +352,7 @@ class Room {
     }
 
     getCurrentStory(plrId) {
-        return this.plrToStory(plrId).getCurrent(this.getCurrentView());
+        return this.plrToStory(plrId).getPrevStage();
     }
 
     getNearestWidth(to) {
@@ -371,13 +388,14 @@ class Room {
                 if (this.getCurrentView() == 'draw') {
                     this.correctStrokes(content);
                 }
-                this.plrToStory(plrId).takeCurrent(this.getCurrentView(), content, plrName, this.turns);
+                this.plrToStory(plrId).takeStage(this.getCurrentView(), content, this.turns, plrName);
                 this.uptickReady(plrId);
             }
         }
     }
 }
 
-exports.Room = Room;
+exports.Stage = Stage;
 exports.Story = Story;
 exports.Player = Player;
+exports.Room = Room;

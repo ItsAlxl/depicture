@@ -79,11 +79,11 @@ function changeView(v) {
     }
 }
 
-socket.on('take story content', function (c) {
+socket.on('take story content', function (s) {
     if (currentView == 'caption') {
-        $('#display-img').attr('src', strokesToDataUrl(c));
+        $('#display-img').attr('src', strokesToDataUrl(s.content));
     } else {
-        $('#prompt-text').html(c);
+        $('#prompt-text').html(s.content);
     }
 });
 
@@ -448,29 +448,40 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
     // +1 for the beginning prompt
     numStages++;
     let scrollHtml = '';
-    for (let i = 0; i < stories.length; i++) {
+    for (let storyIdx = 0; storyIdx < stories.length; storyIdx++) {
         scrollHtml += '<div>'
 
-        let s = stories[i];
-        for (let j = 0; j < numStages; j++) {
-            let idx = Math.floor(j / 2);
-
+        let story = stories[storyIdx];
+        let stages = story.stages;
+        for (let stageIdx = 0; stageIdx < stages.length; stageIdx++) {
+            let s = stages[stageIdx];
             scrollHtml += '<span id="story-stage"><br><p>'
-            if (j % 2 == 0) {
-                if (j == 0) {
-                    scrollHtml += 'The story began with:<br>';
-                } else {
-                    scrollHtml += s.owners[j - 1] + ' wrote:<br>';
-                }
-                scrollHtml += s.captions[idx];
+
+            let introText;
+            if (stageIdx == 0) {
+                introText = 'The story began with';
             } else {
-                scrollHtml += s.owners[j - 1] + ' drew:<br>';
-                scrollHtml += '<img width="480" height="384" class="art" src="' + strokesToDataUrl(s.images[idx]) + '">';
-                scrollHtml += '<br> <img class="like-button" src="like_off.png" id="like ' + i + ' ' + j + '" onclick="likeImage(\'like ' + i + ' ' + j + '\')">';
-                scrollHtml += '<span class="like-counter" id="counter ' + i + " " + j + '">0</span> <br>';
+                introText = s.owner;
+                if (s.type == 'caption') {
+                    introText += ' wrote';
+                } else {
+                    introText += ' drew';
+                }
             }
+            scrollHtml += introText + ':<br>';
+
+            if (s.type == 'caption') {
+                scrollHtml += s.content;
+            } else {
+                scrollHtml += '<img width="480" height="384" class="art" src="' + strokesToDataUrl(s.content) + '">';
+            }
+            
+            scrollHtml += '<br><img class="like-button" src="like_off.png" id="like ' + storyIdx + ' ' + stageIdx + '" onclick="likeImage(\'like ' + storyIdx + ' ' + stageIdx + '\')">';
+            scrollHtml += '<span class="like-counter" id="counter ' + storyIdx + " " + stageIdx + '">0</span> <br>';
+
             scrollHtml += '</p>';
-            if (j == numStages - 1) {
+            
+            if (stageIdx == numStages - 1) {
                 scrollHtml += '<p>And that\'s how the story ended.</p><br><br><br>';
             } else {
                 scrollHtml += '</span>';
