@@ -467,7 +467,7 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
                 scrollHtml += s.owners[j - 1] + ' drew:<br>';
                 scrollHtml += '<img width="480" height="384" class="art" src="' + strokesToDataUrl(s.images[idx]) + '">';
                 scrollHtml += '<br> <img class="like-button" src="like_off.png" id="like ' + i + ' ' + j + '" onclick="likeImage(\'like ' + i + ' ' + j + '\')">';
-                scrollHtml += '<span class="like-counter-off" id="counter ' + i + " " + j + '">0</span> <br>';
+                scrollHtml += '<span class="like-counter" id="counter ' + i + " " + j + '">0</span> <br>';
             }
             scrollHtml += '</p>';
             if (j == numStages - 1) {
