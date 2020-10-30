@@ -96,6 +96,24 @@ td.rightCell {
     display: none;
 }
 
+.like-button {
+	width: 32px;
+	height: 32px;
+	float: left;
+}
+
+.like-counter-on {
+	color: green;
+}
+
+.like-counter{
+	color: black;
+	float: left;
+	vertical-align: middle;
+	padding-top: 8px;
+	padding-left: 6px;
+}
+
 #ending-scroll p {
     margin: 0px;
 }

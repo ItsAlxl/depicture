@@ -39,6 +39,8 @@ class Player {
     stageDone = false;
     spectator = true;
 
+    likes = [];
+
     constructor(id, name) {
         this.id = id;
         this.nickname = name;
