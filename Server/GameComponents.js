@@ -351,7 +351,7 @@ class Room {
     }
 
     hasStorySubmitted(s) {
-        return s.owners.length == this.turns + 1;
+        return s.getNumPlrStages() == this.turns + 1;
     }
 
     getCurrentStory(plrId) {
