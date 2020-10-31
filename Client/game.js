@@ -403,8 +403,13 @@ function lockDrawSubmit(l) {
 }
 
 function verifyDrawing() {
+    let cbox = document.getElementById('cbox-verify-drawing');
+    if (cbox.checked) {
+        socket.emit('correct my strokes', gameId, myDrawBoard.strokeHistory);
+    } else {
+        lockDrawSubmit(true);
+    }
     document.getElementById('cbox-verify-drawing').checked = false;
-    socket.emit('correct my strokes', gameId, myDrawBoard.strokeHistory);
 }
 socket.on('take corrected strokes', function (strokes) {
     myDrawBoard.strokeHistory = strokes;
