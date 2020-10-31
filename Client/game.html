@@ -45,21 +45,25 @@
                     <br>
                     <button id="host-button" onclick="hostGame();">Host Game</button>
                     <br>
-                    <input type="checkbox" id="cbox-host-public" name="hpg" onclick="togglePublicGame();">
+                    <input type="checkbox" id="cbox-host-public" name="hpg">
                     <label for="cbox-host-public">Public Game</label>
-                    <br>
-                    <h4>Prompt Source</h4>
-                    <input id="prompt-host" type="text" autocomplete="off"
-                        value="https://itsalxl.com/depicture-words" />
-                    <h4>Pen Colors</h4>
-                    <button onclick="addPenColorToList();">Add New Color</button>
-                    <ul id="pen-color-define" class="pen-list">
-                        <li>Black</li>
-                        <li>Eraser</li>
-                    </ul>
-                    <h4>Pen Sizes</h4>
-                    <button onclick="addPenWidthToList();">Add New Size</button>
-                    <ul id="pen-width-define" class="pen-list"></ul>
+                    <br><br>
+                    <button onclick="accordion('server-opts');">Game Options</button>
+
+                    <div id='server-opts' class='accordion-target accordion-hidden'>
+                        <h4>Prompt Source</h4>
+                        <input id="prompt-host" type="text" autocomplete="off"
+                            value="https://itsalxl.com/depicture-words" />
+                        <h4>Pen Colors</h4>
+                        <button onclick="addPenColorToList();">Add New Color</button>
+                        <ul id="pen-color-define" class="pen-list">
+                            <li>Black</li>
+                            <li>Eraser</li>
+                        </ul>
+                        <h4>Pen Sizes</h4>
+                        <button onclick="addPenWidthToList();">Add New Size</button>
+                        <ul id="pen-width-define" class="pen-list"></ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -171,6 +175,16 @@
     <script src="canvas_paint.js"></script>
     <script src="game.js"></script>
     <script src="save-game.js"></script>
+
+    <!-- Kept here so it can be easily copied into the saved-game files -->
+    <script id="accordion-script">
+        function accordion(id) {
+            let targs = document.querySelectorAll('.accordion-target#' + id);
+            for (let i = 0; i < targs.length; i++) {
+                targs[i].classList.toggle('accordion-hidden');
+            }
+        }
+    </script>
 </body>
 
 </html>

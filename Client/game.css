@@ -148,10 +148,6 @@ input[type=color] {
     text-align: center;
 }
 
-.invis-elm {
-    display: none;
-}
-
 body {
     font-family: "Roboto", sans-serif;
     display: block;
@@ -226,4 +222,12 @@ h5 {
 .grid-box input {
     margin-top: 5px;
     margin-bottom: 5px;
+}
+
+.invis-elm {
+    display: none;
+}
+
+.accordion-hidden {
+    display: none;
 }

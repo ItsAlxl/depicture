@@ -131,6 +131,11 @@ function applyMasterVolume() {
     dingdingSound.volume = document.getElementById('slider-master-vol').value;
 }
 
+function getAccordionBtnHtml(id, text) {
+    return `
+    <button id=${'btn-accordion-' + id} onclick="accordion('${id}');">${text}</button>`;
+}
+
 // Pre-Lobby
 
 function getPenColorChoiceHtml(name, lbl, value) {
@@ -497,8 +502,10 @@ function getLikeHtml(storyIdx, stageIdx) {
     let btnId = getLikeId('btn', storyIdx, stageIdx);
     let cntId = getLikeId('cnt', storyIdx, stageIdx);
     return `
-    <br><img class="like-button" src="like_off.png" id="${btnId}" onclick="likeStage(${storyIdx}, ${stageIdx});">
-    <span class="like-counter" id="${cntId}">0</span><br>`;
+    <div id="likes" class="accordion-target">
+        <img class="like-button" src="like_off.png" id="${btnId}" onclick="likeStage(${storyIdx}, ${stageIdx});">
+        <span class="like-counter" id="${cntId}">0</span>
+    </div>`;
 }
 
 function getLikeId(type, storyIdx, stageIdx) {

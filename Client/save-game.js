@@ -1,4 +1,4 @@
-const COPY_CSS_TAGS_ON_SAVE = [':root', '(prefers-color-scheme: dark)', '.art', '#ending-scroll p', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', '.like-button', '.like-counter', '.like-counter-on'];
+const COPY_CSS_TAGS_ON_SAVE = [':root', '(prefers-color-scheme: dark)', '.art', '#ending-scroll p', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', '.like-button', '.like-counter', '.like-counter-on', '.accordion-hidden'];
 
 let saveText = '';
 let saveImgCount = 0;
@@ -6,7 +6,8 @@ let srcToDataUrl = {};
 
 function saveGameFile() {
     // get text
-    saveText = document.getElementById('ending-scroll').innerHTML;
+    saveText = getAccordionBtnHtml('likes', 'Toggle Like Visibility');
+    saveText += '<br><br>' + document.getElementById('ending-scroll').innerHTML;
 
     // scrub and format
     saveText = saveText.split(' id="story-stage"').join('');
@@ -16,16 +17,14 @@ function saveGameFile() {
 
     // begin replacing image srcs with DataURL
     let imgTags = saveText.match(/<img.+?src=".+?">/g);
-    console.log(imgTags);
     saveImgCount = imgTags.length;
     for (let i = 0; i < imgTags.length; i++) {
         let imgSrc = imgTags[i].match(/src="(.+?)"/)[1];
         if (!imgSrc.startsWith('data:') && !(imgSrc in srcToDataUrl)) {
             srcToDataUrl[imgSrc] = '';
-            console.log(imgSrc);
             let img = new Image();
             img.src = imgSrc;
-            img.onload = function(){
+            img.onload = function () {
                 srcToDataUrl[imgSrc] = imgToDataUrl(img);
                 saveImgCount--;
                 attemptSavegameImgReplace();
@@ -35,7 +34,7 @@ function saveGameFile() {
         }
     }
 
-    // apply style
+    // grab style
     let style = '\n';
     let sheet = document.styleSheets[0];
     sheet = sheet.cssRules || sheet.rules;
@@ -47,6 +46,9 @@ function saveGameFile() {
         }
     });
 
+    // grab accordion script
+    let accordionScript = document.scripts.namedItem('accordion-script').text;
+
     // encase
     let hat = `<!DOCTYPE html>
 <html>
@@ -54,6 +56,7 @@ function saveGameFile() {
 <head>
     <title>depicture - Saved Game</title>
     <style>` + style + `</style>
+    <script>` + accordionScript + `</script>
 </head>
 <body>
 <div id="ending-scroll">`
@@ -68,7 +71,6 @@ function saveGameFile() {
 
 function attemptSavegameImgReplace() {
     if (saveImgCount == 0) {
-        console.log(srcToDataUrl);
         for (let src in srcToDataUrl) {
             saveText = saveText.split('src="' + src + '"').join('src="' + srcToDataUrl[src] + '"');
         }
