@@ -10,7 +10,7 @@ function saveGameFile() {
     saveText += '<br><br>' + document.getElementById('ending-scroll').innerHTML;
 
     // scrub and format
-    saveText = saveText.split(' id="story-stage"').join('');
+    saveText = saveText.split(' class="story-stage"').join('');
     saveText = saveText.split('<span>').join('\n\t<span>');
     saveText = saveText.split('<div>').join('\n\t<div>');
     saveText = saveText.split('</div>').join('\n\t</div>');

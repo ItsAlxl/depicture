@@ -443,17 +443,11 @@ function drawCommunalStroke(s) {
     drawStrokeOnCtx(groupDrawBoard.drawCtx, s);
 }
 
+const STORY_START_TEXT = 'The story began with';
 socket.on('take completed stories', function (stories, numStages, commStrokes = []) {
     $('#ending-scroll').empty();
     changeView('end');
     document.getElementById('cbox-keep-playing').checked = false;
-
-    if (commStrokes.length > 0) {
-        groupDrawBoard.clearBoard();
-        for (let i = 0; i < commStrokes.length; i++) {
-            drawCommunalStroke(commStrokes[i]);
-        }
-    }
 
     // +1 for the beginning prompt
     numStages++;
@@ -465,11 +459,11 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
         let stages = story.stages;
         for (let stageIdx = 0; stageIdx < stages.length; stageIdx++) {
             let s = stages[stageIdx];
-            scrollHtml += '<span id="story-stage"><br><p>'
+            scrollHtml += '<span class="story-stage"><br><p>'
 
             let introText;
             if (stageIdx == 0) {
-                introText = 'The story began with';
+                introText = STORY_START_TEXT;
             } else {
                 introText = s.owner;
                 if (s.type == 'caption') {
@@ -486,7 +480,9 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
                 scrollHtml += '<img width="480" height="384" class="art" src="' + strokesToDataUrl(s.content) + '">';
             }
 
-            scrollHtml += getLikeHtml(storyIdx, stageIdx);
+            if (introText != STORY_START_TEXT) {
+                scrollHtml += getLikeHtml(storyIdx, stageIdx);
+            }
             scrollHtml += '</p>';
 
             if (stageIdx == numStages - 1) {
@@ -497,10 +493,14 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
         }
         scrollHtml += '</div>';
     }
-    scrollHtml += '<div id="story-stage">As a community, we made this:<br>';
-    scrollHtml += '<img width="720" height="576" class="art" src="' + groupDrawBoard.drawCanvas.toDataURL() + '"></div>';
+    scrollHtml += '<div class="story-stage">As a community, we made this:<br>';
+    scrollHtml += '<canvas width="720" height="576" class="art" id="communal-display"></canvas></div>';
 
     $('#ending-scroll').html(scrollHtml);
+
+    var groupDisplayBoard = new HistoryDrawBoard(document.getElementById('communal-display'));
+    groupDisplayBoard.strokeHistory = commStrokes;
+    groupDisplayBoard.drawFromHistory();
 });
 
 function getLikeHtml(storyIdx, stageIdx) {
@@ -545,17 +545,17 @@ socket.on('reveal next story stage', function () {
 });
 
 function revealNextStoryStage() {
-    let latestStage = $('#story-stage');
+    let latestStage = $('.story-stage').first();
     let stageDOM = latestStage.get(0);
     if (stageDOM) {
         latestStage.fadeIn('slow');
-        latestStage.prop('id', '');
+        latestStage.removeClass('story-stage');
 
         if (document.getElementById('cbox-follow-end-scroll').checked) {
             stageDOM.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
         }
 
-        if (!document.getElementById('story-stage')) {
+        if (document.getElementsByClassName('story-stage').length == 0) {
             document.getElementById('driver-reveal').setAttribute('disabled', '');
             document.getElementById('restart-game-btn').removeAttribute('disabled');
         }
