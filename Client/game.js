@@ -497,8 +497,8 @@ function getLikeHtml(storyIdx, stageIdx) {
     let btnId = getLikeId('btn', storyIdx, stageIdx);
     let cntId = getLikeId('cnt', storyIdx, stageIdx);
     return `
-    <br><img class="like-button" src="like_off.png" id="${btnId}" onclick="likeStage(${storyIdx}, ${stageIdx})">
-    <span class="like-counter" id="${cntId}">0</span><br>`
+    <br><img class="like-button" src="like_off.png" id="${btnId}" onclick="likeStage(${storyIdx}, ${stageIdx});">
+    <span class="like-counter" id="${cntId}">0</span><br>`;
 }
 
 function getLikeId(type, storyIdx, stageIdx) {

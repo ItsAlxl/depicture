@@ -1,7 +1,7 @@
 class Stage {
     type;
     content;
-    onwer;
+    owner;
     likers = [];
 
     constructor(owner, type, content) {
@@ -343,6 +343,10 @@ class Room {
     plrToStory(plrId) {
         let idx = this.plrTurnOrder.indexOf(plrId) + this.turns;
         idx = idx % this.stories.length;
+        console.log('---');
+        console.log(this.stories);
+        console.log(idx);
+        console.log(this.stories[idx]);
         return this.stories[idx];
     }
 
