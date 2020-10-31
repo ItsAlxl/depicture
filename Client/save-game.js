@@ -15,6 +15,9 @@ function saveGameFile() {
     saveText = saveText.split('<div>').join('\n\t<div>');
     saveText = saveText.split('</div>').join('\n\t</div>');
 
+    // change communal canvas into image
+    saveText += '<img width="720" height="576" class="art" src="' + strokesToDataUrl(groupDisplayBoard.getStrokeTimeline(), groupDisplayBoard.drawCanvas) + '">';
+
     // begin replacing image srcs with DataURL
     let imgTags = saveText.match(/<img.+?src=".+?">/g);
     saveImgCount = imgTags.length;

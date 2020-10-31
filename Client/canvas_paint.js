@@ -199,6 +199,10 @@ class HistoryDrawBoard extends PipedDrawBoard {
             this.strokeHistory = [];
         }
     }
+
+    getStrokeTimeline() {
+        return this.strokeHistory.concat(this.undoHistory.reverse());
+    }
 }
 
 function connectDrawBoardEvents(drawboard) {
@@ -284,10 +288,10 @@ function drawFromStrokes(canvas, strokes) {
     }
 }
 
-function strokesToDataUrl(strokes) {
+function strokesToDataUrl(strokes, widthHeightObj = myDrawBoard.drawCanvas) {
     let c = document.createElement('canvas');
-    c.width = myDrawBoard.drawCanvas.width;
-    c.height = myDrawBoard.drawCanvas.height;
+    c.width = widthHeightObj.width;
+    c.height = widthHeightObj.height;
     drawFromStrokes(c, strokes);
     let d = c.toDataURL();
     return d;

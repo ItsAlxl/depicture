@@ -494,7 +494,8 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
         }
         scrollHtml += '</div>';
     }
-    scrollHtml += '<div id="communal-disp-container" class="story-stage">As a community, we made this:<br></div>';
+
+    scrollHtml += '<div class="story-stage">As a community, we made this:</div>';
 
     $('#ending-scroll').html(scrollHtml);
 
@@ -596,6 +597,10 @@ function restartGame() {
 socket.on('beginning restart', function () {
     document.getElementById('driver-reveal').removeAttribute('disabled');
     document.getElementById('restart-game-btn').setAttribute('disabled', '');
+
+    let dispContainer = $('#communal-disp-container');
+    dispContainer.fadeOut(1);
+    dispContainer.addClass('story-stage');
 
     document.getElementById('hidden-stash').appendChild(document.getElementById('moving-communal-container'));
     $('#slider-communal-timeline').fadeOut(1);
