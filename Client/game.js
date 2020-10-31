@@ -498,8 +498,8 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
 
     $('#ending-scroll').html(scrollHtml);
 
-    groupDisplayBoard.strokeHistory = commStrokes;
-    groupDisplayBoard.drawFromHistory();
+    groupDisplayBoard.clearBoard();
+    groupDisplayBoard.undoHistory = commStrokes.reverse();
 });
 
 function getLikeHtml(storyIdx, stageIdx) {
@@ -557,10 +557,23 @@ function revealNextStoryStage() {
         // If no more stages, reveal communal board
         document.getElementById('communal-disp-container').appendChild(groupDisplayBoard.drawCanvas);
         groupDisplayBoard.drawCanvas.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
-        
+        revealCommunalStep(groupDisplayBoard.undoHistory.length);
+
         document.getElementById('driver-reveal').setAttribute('disabled', '');
         document.getElementById('restart-game-btn').removeAttribute('disabled');
     }
+}
+
+const COMM_REVEAL_STEP_TIME = 250;
+function revealCommunalStep(idx) {
+    setTimeout(function () {
+        groupDisplayBoard.redo();
+
+        idx--;
+        if (idx > 0) {
+            revealCommunalStep(idx);
+        }
+    }, COMM_REVEAL_STEP_TIME)
 }
 
 function togglePlayAgain() {
