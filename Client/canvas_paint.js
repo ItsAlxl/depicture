@@ -136,6 +136,7 @@ class PipedDrawBoard extends DrawBoard {
 }
 
 class HistoryDrawBoard extends PipedDrawBoard {
+    undoHistory = [];
     strokeHistory = [];
     strokeHistoryHistory = [];
 
@@ -144,13 +145,14 @@ class HistoryDrawBoard extends PipedDrawBoard {
     }
 
     handleCallbacks(stroke) {
+        this.disableRedo();
         this.strokeHistory.push(stroke);
         super.handleCallbacks(stroke);
     }
 
     undo() {
         if (this.strokeHistory.length > 0) {
-            this.strokeHistory.pop();
+            this.undoHistory.push(this.strokeHistory.pop());
         } else {
             if (this.strokeHistoryHistory.length > 0) {
                 this.strokeHistory = this.strokeHistoryHistory.pop();
@@ -159,6 +161,17 @@ class HistoryDrawBoard extends PipedDrawBoard {
             }
         }
         this.drawFromHistory();
+    }
+
+    redo() {
+        if (this.undoHistory.length > 0) {
+            this.strokeHistory.push(this.undoHistory.pop());
+            this.drawFromHistory();
+        }
+    }
+
+    disableRedo() {
+        this.undoHistory.length = 0;
     }
 
     drawFromHistory() {
@@ -172,6 +185,7 @@ class HistoryDrawBoard extends PipedDrawBoard {
     }
 
     resetStrokeHistory(deep = false) {
+        this.disableRedo();
         if (deep) {
             this.strokeHistory.length = 0;
             this.strokeHistoryHistory.length = 0;

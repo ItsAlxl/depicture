@@ -131,15 +131,17 @@
                 <td>
                     <button onclick="myDrawBoard.undo();">Undo</button>
                     <br>
+                    <button onclick="myDrawBoard.redo();">Redo</button>
+                    <br>
                     <button onclick="myDrawBoard.wipe();">Clear Canvas</button>
                 </td>
                 <td id="pen-size-list" class="rightCell"></td>
                 <td id="pen-color-list"></td>
                 <td class="rightCell">
                     <input onclick="verifyDrawing();" type="checkbox" id="cbox-verify-drawing">
-                    <label for="cbox-verify-drawing">Verify</label>
+                    <label for="cbox-verify-drawing">Finished</label>
                     <br>
-                    <button onclick="submitDrawing();" id="submit-drawing-btn" disabled>DONE</button>
+                    <button onclick="submitDrawing();" id="submit-drawing-btn" disabled>SUBMIT</button>
                 </td>
             </tr>
         </table>
