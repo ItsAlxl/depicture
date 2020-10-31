@@ -265,7 +265,10 @@ function hostGame() {
             }
         }
 
-        socket.emit('host game', plrName, penClrs, penWidths, document.getElementById('cbox-host-public').checked);
+        socket.emit('host game', plrName, penClrs, penWidths,
+            document.getElementById('cbox-host-public').checked,
+            document.getElementById('cbox-shuffle-turn-order').checked,
+            document.getElementById('cbox-linear-order').checked);
     }
 }
 

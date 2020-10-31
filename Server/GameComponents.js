@@ -80,6 +80,8 @@ class Player {
 class Room {
     id;
     isPublic;
+    shufflePlrOrder;
+    linearStoryOrder;
 
     stories = [];
     plrs = {};
@@ -100,9 +102,11 @@ class Room {
 
     // penClrMap is {clrName: '#hexval'}
     // penWidthMap is {intval: 'Width Name'}
-    constructor(id, penClrMap, penWidthMap, isPubGame) {
+    constructor(id, penClrMap, penWidthMap, isPubGame, doesShufflePlrs, doesLinearOrder) {
         this.id = id;
         this.isPublic = isPubGame;
+        this.shufflePlrOrder = doesShufflePlrs;
+        this.linearStoryOrder = doesLinearOrder;
 
         Object.assign(this.allowedPenClrs, penClrMap);
         this.allowedPenWidths = penWidthMap;
@@ -259,12 +263,14 @@ class Room {
         }
         this.setState('ingame');
 
-        // Shuffle (Durstenfeld / Fisher-Yates)
-        for (let i = this.plrTurnOrder.length - 1; i > 0; i--) {
-            let j = Math.floor(Math.random() * (i + 1));
-            let temp = this.plrTurnOrder[i];
-            this.plrTurnOrder[i] = this.plrTurnOrder[j];
-            this.plrTurnOrder[j] = temp;
+        if (this.shufflePlrOrder) {
+            // Shuffle (Durstenfeld / Fisher-Yates)
+            for (let i = this.plrTurnOrder.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                let temp = this.plrTurnOrder[i];
+                this.plrTurnOrder[i] = this.plrTurnOrder[j];
+                this.plrTurnOrder[j] = temp;
+            }
         }
     }
 
@@ -340,10 +346,24 @@ class Room {
         }
     }
 
+    plrIdxToStoryIdx(plrIdx) {
+        let idx = plrIdx;
+        if (this.linearStoryOrder) {
+            idx += this.turns;
+        } else {
+            if (this.turns % 2 == 0) {
+                idx -= Math.floor(this.turns / 2);
+            } else {
+                idx += Math.ceil(this.turns / 2);
+            }
+        }
+
+        // the extra % and + ensure it returns >0
+        return ((idx % this.stories.length) + this.stories.length) % this.stories.length;
+    }
+
     plrToStory(plrId) {
-        let idx = this.plrTurnOrder.indexOf(plrId) + this.turns;
-        idx = idx % this.stories.length;
-        return this.stories[idx];
+        return this.stories[this.plrIdxToStoryIdx(this.plrTurnOrder.indexOf(plrId))];
     }
 
     hasStorySubmitted(s) {

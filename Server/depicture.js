@@ -196,11 +196,11 @@ io.on('connection', (socket) => {
     givePubServerList(socket.id);
     io.to(socket.id).emit('apply input restrictions', INPUT_RESTRICTIONS);
 
-    socket.on('host game', (nick, penClrs, penWidths, isPublic) => {
+    socket.on('host game', (nick, penClrs, penWidths, isPublic, doesShufflePlrs, doesLinearOrder) => {
         if (nick.length >= 3) {
             let gameId = hostIdToGameId(socket.id);
 
-            let g = new Room(gameId, penClrs, penWidths, isPublic);
+            let g = new Room(gameId, penClrs, penWidths, isPublic, doesShufflePlrs, doesLinearOrder);
             g.addPlr(socket.id, nick.substring(0, INPUT_RESTRICTIONS['username']));
             makeNewGame(gameId, g);
 

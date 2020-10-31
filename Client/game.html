@@ -54,6 +54,14 @@
                         <h4>Prompt Source</h4>
                         <input id="prompt-host" type="text" autocomplete="off"
                             value="https://itsalxl.com/depicture-words" />
+                        <h4>Turn Order</h4>
+                        <input type="checkbox" id="cbox-shuffle-turn-order" name="sto" checked>
+                        <label for="cbox-shuffle-turn-order">Shuffle turn order between games</label>
+                        <br>
+                        <span title="If checked, players will always give to the same player and receive from the same player in a game. If unchecked, the receiver and giver will change throughout the game. Regardless, every player contributes to each story one time.">
+                            <input type="checkbox" id="cbox-linear-order" name="cta">
+                            <label for="cbox-linear-order">Linear story order (?)</label>
+                        </span>
                         <h4>Pen Colors</h4>
                         <button onclick="addPenColorToList();">Add New Color</button>
                         <ul id="pen-color-define" class="pen-list">
