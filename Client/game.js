@@ -4,6 +4,7 @@ var APIHost = '';
 
 var myDrawBoard = new HistoryDrawBoard(document.getElementById('draw-canvas'));
 var groupDrawBoard = new PipedDrawBoard(document.getElementById('communal-canvas'));
+var groupDisplayBoard = new HistoryDrawBoard(document.getElementById('communal-display'));
 
 connectDrawBoardEvents(myDrawBoard);
 connectDrawBoardEvents(groupDrawBoard);
@@ -493,12 +494,10 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
         }
         scrollHtml += '</div>';
     }
-    scrollHtml += '<div class="story-stage">As a community, we made this:<br>';
-    scrollHtml += '<canvas width="720" height="576" class="art" id="communal-display"></canvas></div>';
+    scrollHtml += '<div id="communal-disp-container" class="story-stage">As a community, we made this:<br></div>';
 
     $('#ending-scroll').html(scrollHtml);
 
-    var groupDisplayBoard = new HistoryDrawBoard(document.getElementById('communal-display'));
     groupDisplayBoard.strokeHistory = commStrokes;
     groupDisplayBoard.drawFromHistory();
 });
@@ -554,11 +553,13 @@ function revealNextStoryStage() {
         if (document.getElementById('cbox-follow-end-scroll').checked) {
             stageDOM.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
         }
-
-        if (document.getElementsByClassName('story-stage').length == 0) {
-            document.getElementById('driver-reveal').setAttribute('disabled', '');
-            document.getElementById('restart-game-btn').removeAttribute('disabled');
-        }
+    } else {
+        // If no more stages, reveal communal board
+        document.getElementById('communal-disp-container').appendChild(groupDisplayBoard.drawCanvas);
+        groupDisplayBoard.drawCanvas.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
+        
+        document.getElementById('driver-reveal').setAttribute('disabled', '');
+        document.getElementById('restart-game-btn').removeAttribute('disabled');
     }
 }
 
@@ -569,5 +570,7 @@ function togglePlayAgain() {
 function restartGame() {
     document.getElementById('driver-reveal').removeAttribute('disabled');
     document.getElementById('restart-game-btn').setAttribute('disabled', '');
+    document.getElementById('hidden-stash').appendChild(groupDisplayBoard.drawCanvas);
+
     socket.emit('begin restart', gameId);
 }
