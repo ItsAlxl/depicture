@@ -165,8 +165,9 @@ class HistoryDrawBoard extends PipedDrawBoard {
 
     redo() {
         if (this.undoHistory.length > 0) {
-            this.strokeHistory.push(this.undoHistory.pop());
-            this.drawFromHistory();
+            let s = this.undoHistory.pop();
+            this.strokeHistory.push(s);
+            drawStrokeOnCtx(this.drawCtx, s)
         }
     }
 
