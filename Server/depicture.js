@@ -280,11 +280,12 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('begin restart', (gameId) => {
+    socket.on('HOST: begin restart', (gameId) => {
         let g = getGame(gameId);
-        if (g) {
+        if (g && g.hostId == socket.id) {
             g.restart();
             g.setupGame();
+            io.to(gameId).emit('beginning restart');
             io.to(g.hostId).emit('take story seeds', g.getNumActivePlrs());
         }
     });

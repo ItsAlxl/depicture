@@ -181,7 +181,7 @@ class HistoryDrawBoard extends PipedDrawBoard {
     }
 
     drawFromHistoryUpTo(toIdx) {
-        drawFromHistory(this.strokeHistory.slice(0, toIdx));
+        this.drawFromHistory(this.strokeHistory.slice(0, toIdx));
     }
 
     wipe(deepHistoryCleanse = false) {

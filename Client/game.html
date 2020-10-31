@@ -174,7 +174,12 @@
     </div>
     <br><br><br>
     <div id="hidden-stash" class="invis-elm">
-        <canvas width="720" height="576" class="art" id="communal-display"></canvas>'
+        <div id="moving-communal-container">
+            <canvas width="720" height="576" class="art" id="communal-display"></canvas>
+            <br>
+            <input type="range" class="invis-elm" min="0" max="0" value="0" step="1" id="slider-communal-timeline"
+                oninput="groupDisplayBoard.drawFromHistoryUpTo(this.value);">
+        </div>
     </div>
 
     <script src="canvas_paint.js"></script>

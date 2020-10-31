@@ -498,7 +498,7 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
 
     $('#ending-scroll').html(scrollHtml);
 
-    groupDisplayBoard.clearBoard();
+    groupDisplayBoard.wipe(true);
     groupDisplayBoard.undoHistory = commStrokes.reverse();
 });
 
@@ -555,7 +555,7 @@ function revealNextStoryStage() {
         }
     } else {
         // If no more stages, reveal communal board
-        document.getElementById('communal-disp-container').appendChild(groupDisplayBoard.drawCanvas);
+        document.getElementById('communal-disp-container').appendChild(document.getElementById('moving-communal-container'));
         groupDisplayBoard.drawCanvas.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
         revealCommunalStep(groupDisplayBoard.undoHistory.length);
 
@@ -564,7 +564,7 @@ function revealNextStoryStage() {
     }
 }
 
-const COMM_REVEAL_STEP_TIME = 250;
+const COMM_REVEAL_STEP_TIME = 150;
 function revealCommunalStep(idx) {
     setTimeout(function () {
         groupDisplayBoard.redo();
@@ -572,8 +572,17 @@ function revealCommunalStep(idx) {
         idx--;
         if (idx > 0) {
             revealCommunalStep(idx);
+        } else {
+            revealCommunalTimeline();
         }
     }, COMM_REVEAL_STEP_TIME)
+}
+
+let commTimelineSlider = document.getElementById('slider-communal-timeline');
+function revealCommunalTimeline() {
+    $('#slider-communal-timeline').fadeIn('slow');
+    commTimelineSlider.max = groupDisplayBoard.strokeHistory.length;
+    commTimelineSlider.value = commTimelineSlider.max;
 }
 
 function togglePlayAgain() {
@@ -581,9 +590,15 @@ function togglePlayAgain() {
 }
 
 function restartGame() {
+    socket.emit('HOST: begin restart', gameId);
+}
+
+socket.on('beginning restart', function () {
     document.getElementById('driver-reveal').removeAttribute('disabled');
     document.getElementById('restart-game-btn').setAttribute('disabled', '');
-    document.getElementById('hidden-stash').appendChild(groupDisplayBoard.drawCanvas);
 
-    socket.emit('begin restart', gameId);
-}
+    document.getElementById('hidden-stash').appendChild(document.getElementById('moving-communal-container'));
+    $('#slider-communal-timeline').fadeOut(1);
+    commTimelineSlider.value = 0;
+    commTimelineSlider.max = 0;
+});
