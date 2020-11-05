@@ -568,7 +568,7 @@ function revealNextStoryStage() {
     }
 }
 
-const COMM_REVEAL_STEP_TIME = 150;
+const COMM_REVEAL_STEP_TIME = 5;
 function revealCommunalStep(idx) {
     setTimeout(function () {
         groupDisplayBoard.redo();
