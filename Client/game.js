@@ -276,9 +276,9 @@ function joinGame() {
     joinGameId($('#tline-join-code').val());
 }
 
-function joinGameId(joinGameId) {
+function joinGameId(gId) {
     if (validateName()) {
-        socket.emit('join game', joinGameId, plrName);
+        socket.emit('join game', gId, plrName);
     }
 }
 
