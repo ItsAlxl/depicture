@@ -197,8 +197,8 @@ function removeFromPenList(e) {
     p.parentNode.removeChild(p);
 }
 
-function getServerTupleHTML(gameId, hostName, extraBtnAttrs) {
-    return `<button onclick="joinGameId('${gameId}');" ${extraBtnAttrs}>Join</button> ${gameId} hosted by ${hostName}`;
+function getServerTupleHTML(dispGameId, hostName, extraBtnAttrs) {
+    return `<button onclick="joinGameId('${dispGameId}');" ${extraBtnAttrs}>Join</button> ${dispGameId} hosted by ${hostName}`;
 }
 
 socket.on('take pubgame list', function (pubGames) {
@@ -276,9 +276,9 @@ function joinGame() {
     joinGameId($('#tline-join-code').val());
 }
 
-function joinGameId(gameId) {
+function joinGameId(joinGameId) {
     if (validateName()) {
-        socket.emit('join game', gameId, plrName);
+        socket.emit('join game', joinGameId, plrName);
     }
 }
 
@@ -503,7 +503,8 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
     $('#ending-scroll').html(scrollHtml);
 
     groupDisplayBoard.wipe(true);
-    groupDisplayBoard.undoHistory = commStrokes.reverse();
+    commStrokes.reverse();
+    groupDisplayBoard.undoHistory = commStrokes;
 });
 
 function getLikeHtml(storyIdx, stageIdx) {

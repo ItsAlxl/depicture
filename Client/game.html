@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html lang="en">
 <html>
 
 <head>
@@ -22,7 +22,7 @@
 <body onload="initViews();">
     <div id="view-join" class="invis-elm view">
         <div>
-            <img width=400 src="logo.png">
+            <img width=400 src="logo.png"  alt="The depicture logo">
             <p><a href="about.html">About</a></p>
         </div>
         <h2>Name</h2>
@@ -105,7 +105,7 @@
     <div id="view-wait" class="invis-elm view">
         <h1>Waiting on other players...</h1>
         <p>Draw with other players while you wait! You can see who you're waiting on at the bottom.</p>
-        <table class="game-table">
+        <table class="game-table" role="presentation">
             <tr>
                 <td class="centerCell" colspan="2">
                     <canvas id="communal-canvas" width="720" height="576" class="art"></canvas>
@@ -129,7 +129,7 @@
             <h2>Draw this:</h2>
             <h1 id="prompt-text"></h1>
         </div>
-        <table class="game-table">
+        <table class="game-table" role="presentation">
             <tr>
                 <td colspan="4" class="centerCell">
                     <canvas id="draw-canvas" width="480" height="384" class="art"></canvas>
@@ -157,7 +157,7 @@
 
     <div id="view-caption" class="invis-elm view">
         <h2>Say what you see:</h2>
-        <img id="display-img" width="480" height="384" class="art">
+        <img id="display-img" width="480" height="384" class="art" alt="">
         <br>
         <input id="tline-picture-guess" type="text" autocomplete="off" />
         <button id="btn-picture-guess" onclick="submitTitleGuess();">Submit</button>

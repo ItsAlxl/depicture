@@ -91,7 +91,7 @@ class DrawBoard {
             this.drawCtx.strokeStyle = this.currentStroke.color;
 
             this.currentStroke.verifyPrevPoint(this.last_penX, this.last_penY);
-            if (this.last_penX >= 0 && this.last_penX >= 0) {
+            if (this.last_penX >= 0 && this.last_penY >= 0) {
                 this.currentStroke.addPoint(this.penX, this.penY);
 
                 this.drawLineOnCtx(this.last_penX, this.last_penY, this.penX, this.penY);
@@ -201,7 +201,9 @@ class HistoryDrawBoard extends PipedDrawBoard {
     }
 
     getStrokeTimeline() {
-        return this.strokeHistory.concat(this.undoHistory.reverse());
+        let reverseHist = this.undoHistory.slice();
+        reverseHist.reverse();
+        return this.strokeHistory.concat(reverseHist);
     }
 }
 
