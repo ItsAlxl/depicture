@@ -3,6 +3,8 @@ A game about drawing what you read, then saying what you see.
 
 Each player is given a distinct prompt, which they attempt to depict in a drawing. Then, the drawings are passed between players, who now have to guess what the prompt was that inspired the drawing of another player. The guesses are then passed along, and now everyone has to draw based on that prompt. This continues until every player has contributed to every story, at which point the stories are all revealed, and everyone can see just how badly the whole thing ended up.
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ItsAlxl_depicture&metric=alert_status)](https://sonarcloud.io/dashboard?id=ItsAlxl_depicture)
+
 # Where can I play?
 ## Online
 You can access the game [here](https://depicture.itsalxl.com); play with your friends!
