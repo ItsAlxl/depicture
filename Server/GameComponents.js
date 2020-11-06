@@ -323,9 +323,8 @@ class Room {
         if (this.turns == fromTurn) {
             this.resetReady();
 
-            let sl = this.getStageLimit();
             this.turns++;
-            if ((sl > 0 && this.turns >= sl) || this.turns >= this.getNumActivePlrs()) {
+            if (this.turns >= this.getStageLimit()) {
                 this.setState('story-rollout');
                 return true;
             } else {
@@ -335,7 +334,8 @@ class Room {
     }
 
     getStageLimit() {
-        return Math.min(this.stageLimit, this.getNumActivePlrs());
+        let sl = Math.min(this.stageLimit, this.getNumActivePlrs());
+        return sl > 0 ? sl : this.getNumActivePlrs();
     }
 
     getCurrentView() {
@@ -346,20 +346,24 @@ class Room {
         }
     }
 
+    // returns a % b, but guarantees >0
+    posMod(a, b) {
+        return ((a % b) + b) % b;
+    }
+
     plrIdxToStoryIdx(plrIdx) {
-        let idx = plrIdx;
+        let idx;
         if (this.linearStoryOrder) {
-            idx += this.turns;
+            idx = this.turns;
         } else {
             if (this.turns % 2 == 0) {
-                idx -= Math.floor(this.turns / 2);
+                idx = -Math.floor(this.turns * 0.5);
             } else {
-                idx += Math.ceil(this.turns / 2);
+                idx = Math.ceil(this.turns * 0.5);
             }
+            idx = this.posMod(idx, this.getStageLimit());
         }
-
-        // the extra % and + ensure it returns >0
-        return ((idx % this.stories.length) + this.stories.length) % this.stories.length;
+        return this.posMod(plrIdx + idx, this.getNumActivePlrs());
     }
 
     plrToStory(plrId) {
