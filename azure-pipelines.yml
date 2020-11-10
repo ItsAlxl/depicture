@@ -1,0 +1,18 @@
+trigger:
+- main
+
+steps:
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerhub-alxl'
+    repository: 'depicture'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: 'latest'
+
+- task: SSH@0
+  inputs:
+    sshEndpoint: 'ssh-itsalxl.com'
+    runOptions: 'commands'
+    commands: 'sh depicture-nginx/auto-update.sh'
+    readyTimeout: '20000'
