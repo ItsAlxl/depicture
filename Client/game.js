@@ -498,13 +498,14 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
         scrollHtml += '</div>';
     }
 
-    scrollHtml += '<div class="story-stage">As a community, we made this:</div>';
+    if (commStrokes.length > 0) {
+        scrollHtml += '<div class="story-stage">As a community, we made this:</div>';
+        groupDisplayBoard.wipe(true);
+        commStrokes.reverse();
+    }
+    groupDisplayBoard.undoHistory = commStrokes;
 
     $('#ending-scroll').html(scrollHtml);
-
-    groupDisplayBoard.wipe(true);
-    commStrokes.reverse();
-    groupDisplayBoard.undoHistory = commStrokes;
 });
 
 function getLikeHtml(storyIdx, stageIdx) {
@@ -559,18 +560,32 @@ function revealNextStoryStage() {
             stageDOM.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
         }
     } else {
-        // If no more stages, reveal communal board
-        document.getElementById('communal-disp-container').appendChild(document.getElementById('moving-communal-container'));
-        groupDisplayBoard.drawCanvas.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
-        revealCommunalStep(groupDisplayBoard.undoHistory.length);
+        // If no more stages, reveal communal board (if applicable)
+        if (groupDisplayBoard.undoHistory.length > 0) {
+            let calcStep = MAX_COMM_REVEAL_WHOLE_TIME / groupDisplayBoard.undoHistory.length;
+            if (calcStep < 1) {
+                commStepTime = 1;
+                commEveryOther = Math.round(1 / calcStep);
+            } else {
+                commStepTime = Math.min(Math.round(calcStep), MAX_COMM_REVEAL_STEP_TIME);
+            }
+
+            document.getElementById('communal-disp-container').appendChild(document.getElementById('moving-communal-container'));
+            groupDisplayBoard.drawCanvas.scrollIntoView({ alignToTop: false, behavior: 'smooth' });
+            revealCommunalStep(groupDisplayBoard.undoHistory.length);
+        }
 
         document.getElementById('driver-reveal').setAttribute('disabled', '');
         document.getElementById('restart-game-btn').removeAttribute('disabled');
     }
 }
 
-const COMM_REVEAL_STEP_TIME = 5;
+const MAX_COMM_REVEAL_WHOLE_TIME = 7500;
+const MAX_COMM_REVEAL_STEP_TIME = 100;
+let commStepTime = 0;
+let commEveryOther = 0;
 function revealCommunalStep(idx) {
+    let delay = commEveryOther <= 0 || idx % commEveryOther == 0 ? commStepTime : 0;
     setTimeout(function () {
         groupDisplayBoard.redo();
 
@@ -580,7 +595,7 @@ function revealCommunalStep(idx) {
         } else {
             revealCommunalTimeline();
         }
-    }, COMM_REVEAL_STEP_TIME)
+    }, delay)
 }
 
 let commTimelineSlider = document.getElementById('slider-communal-timeline');
