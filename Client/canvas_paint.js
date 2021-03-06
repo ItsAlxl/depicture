@@ -38,6 +38,8 @@ class DrawBoard {
 
     currentStroke = null;
 
+    blind = false;
+
     constructor(canvas) {
         this.drawCanvas = canvas;
         this.drawCtx = this.drawCanvas.getContext('2d');
@@ -94,19 +96,13 @@ class DrawBoard {
             if (this.last_penX >= 0 && this.last_penY >= 0) {
                 this.currentStroke.addPoint(this.penX, this.penY);
 
-                this.drawLineOnCtx(this.last_penX, this.last_penY, this.penX, this.penY);
+                if (!this.blind) {
+                    drawLineOnCtx(this.drawCtx, this.last_penX, this.last_penY, this.penX, this.penY);
+                }
             }
         }
         this.last_penX = this.penX;
         this.last_penY = this.penY;
-    }
-
-    drawLineOnCtx(aX, aY, bX, bY) {
-        this.drawCtx.beginPath();
-        this.drawCtx.moveTo(aX, aY);
-        this.drawCtx.lineTo(bX, bY);
-        this.drawCtx.lineJoin = this.drawCtx.lineCap = 'round';
-        this.drawCtx.stroke();
     }
 }
 
@@ -167,7 +163,9 @@ class HistoryDrawBoard extends PipedDrawBoard {
         if (this.undoHistory.length > 0) {
             let s = this.undoHistory.pop();
             this.strokeHistory.push(s);
-            drawStrokeOnCtx(this.drawCtx, s)
+            if (!this.blind) {
+                drawStrokeOnCtx(this.drawCtx, s);
+            }
         }
     }
 
@@ -176,8 +174,10 @@ class HistoryDrawBoard extends PipedDrawBoard {
     }
 
     drawFromHistory(hist = this.strokeHistory) {
-        this.clearBoard();
-        drawFromStrokes(this.drawCanvas, hist);
+        if (!this.blind) {
+            this.clearBoard();
+            drawFromStrokes(this.drawCanvas, hist);
+        }
     }
 
     drawFromHistoryUpTo(toIdx) {

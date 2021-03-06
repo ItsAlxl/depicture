@@ -36,8 +36,13 @@ ul {
 }
 
 .art {
-    border: 1px solid #000;
+    border: 3px solid #000;
     background-color: #fff;
+}
+
+.blinded {
+    border: 3px solid #fff;
+    background-color: #000;
 }
 
 canvas.art {

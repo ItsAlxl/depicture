@@ -88,6 +88,7 @@ class Room {
     hostId;
     plrTurnOrder = [];
     numActivePlrs;
+
     turns;
     stageLimit = 0;
     stagesRevealed;
@@ -97,16 +98,18 @@ class Room {
     allowedPenClrs = {};
     defaultPenWidth;
     colorRestrictor;
+    blindsDrawers;
 
     communalStrokes = [];
 
     // penClrMap is {clrName: '#hexval'}
     // penWidthMap is {intval: 'Width Name'}
-    constructor(id, penClrMap, penWidthMap, isPubGame, doesShufflePlrs, doesLinearOrder) {
+    constructor(id, penClrMap, penWidthMap, isPubGame, doesShufflePlrs, doesLinearOrder, blindsDrawers) {
         this.id = id;
         this.isPublic = isPubGame;
         this.shufflePlrOrder = doesShufflePlrs;
         this.linearStoryOrder = doesLinearOrder;
+        this.blindsDrawers = blindsDrawers;
 
         Object.assign(this.allowedPenClrs, penClrMap);
         this.allowedPenWidths = penWidthMap;

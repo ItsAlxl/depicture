@@ -179,6 +179,13 @@ socket.on('take pen restrictions', function (penWidths, penColors, defWidth) {
     $('#pen-size-list').html(widthListHtml);
 });
 
+socket.on('take gamemode settings', function (blindDrawing) {
+    myDrawBoard.blind = blindDrawing;
+    if (blindDrawing) {
+        myDrawBoard.drawCanvas.classList.add('blinded');
+    }
+});
+
 function generatePenList(name, valueType, value) {
     return `
     <li><input type="text" value="${name}"/> : <input type="${valueType}" value="${value}"/> <button onclick='removeFromPenList(this);'>X</button></li>`
@@ -268,7 +275,8 @@ function hostGame() {
         socket.emit('host game', plrName, penClrs, penWidths,
             document.getElementById('cbox-host-public').checked,
             document.getElementById('cbox-shuffle-turn-order').checked,
-            document.getElementById('cbox-linear-order').checked);
+            document.getElementById('cbox-linear-order').checked,
+            document.getElementById('cbox-draw-blindly').checked);
     }
 }
 
