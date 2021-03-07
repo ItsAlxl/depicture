@@ -1,3 +1,10 @@
+const { DateCountdownTimer } = require('./date-timer.js');
+
+// returns a % b, but guarantees >0
+function posMod(a, b) {
+    return ((a % b) + b) % b;
+}
+
 class Stage {
     type;
     content;
@@ -89,6 +96,10 @@ class Room {
     plrTurnOrder = [];
     numActivePlrs;
 
+    gameOpts;
+    turnTimer = new DateCountdownTimer(this.timerExpired.bind(this));
+    timerCallback = null;
+
     turns;
     stageLimit = 0;
     stagesRevealed;
@@ -98,18 +109,20 @@ class Room {
     allowedPenClrs = {};
     defaultPenWidth;
     colorRestrictor;
-    blindsDrawers;
 
     communalStrokes = [];
 
     // penClrMap is {clrName: '#hexval'}
     // penWidthMap is {intval: 'Width Name'}
-    constructor(id, penClrMap, penWidthMap, isPubGame, doesShufflePlrs, doesLinearOrder, blindsDrawers) {
+    constructor(id, penClrMap, penWidthMap, isPubGame, turnOpts, gameOpts) {
         this.id = id;
         this.isPublic = isPubGame;
-        this.shufflePlrOrder = doesShufflePlrs;
-        this.linearStoryOrder = doesLinearOrder;
-        this.blindsDrawers = blindsDrawers;
+
+        this.shufflePlrOrder = turnOpts.shuffle;
+        this.linearStoryOrder = turnOpts.linear;
+
+        this.gameOpts = gameOpts;
+        this.turnTimer.msDuration = gameOpts.timeLimit;
 
         Object.assign(this.allowedPenClrs, penClrMap);
         this.allowedPenWidths = penWidthMap;
@@ -129,6 +142,12 @@ class Room {
         this.numActivePlrs = -1;
         this.setState('lobby');
         this.resetReady();
+    }
+
+    timerExpired() {
+        if (this.timerCallback != null) {
+            this.timerCallback(this.id);
+        }
     }
 
     getPublicInfo() {
@@ -349,11 +368,6 @@ class Room {
         }
     }
 
-    // returns a % b, but guarantees >0
-    posMod(a, b) {
-        return ((a % b) + b) % b;
-    }
-
     plrIdxToStoryIdx(plrIdx) {
         let idx;
         if (this.linearStoryOrder) {
@@ -364,9 +378,9 @@ class Room {
             } else {
                 idx = Math.ceil(this.turns * 0.5);
             }
-            idx = this.posMod(idx, this.getStageLimit());
+            idx = posMod(idx, this.getStageLimit());
         }
-        return this.posMod(plrIdx + idx, this.getNumActivePlrs());
+        return posMod(plrIdx + idx, this.getNumActivePlrs());
     }
 
     plrToStory(plrId) {

@@ -6,6 +6,15 @@ var myDrawBoard = new HistoryDrawBoard(document.getElementById('draw-canvas'));
 var groupDrawBoard = new PipedDrawBoard(document.getElementById('communal-canvas'));
 var groupDisplayBoard = new HistoryDrawBoard(document.getElementById('communal-display'));
 
+var turnTimer = new rAFCountdownTimer(
+    function () {
+        turnTimerDisplay.innerHTML = 'Time\'s up!';
+    },
+    function (msRemain) {
+        turnTimerDisplay.innerHTML = (msRemain / 1000).toFixed(1);
+    });
+var turnTimerDisplay = document.getElementById('time-left');
+
 connectDrawBoardEvents(myDrawBoard);
 connectDrawBoardEvents(groupDrawBoard);
 
@@ -86,6 +95,7 @@ socket.on('take story content', function (s) {
     } else {
         $('#prompt-text').html(s.content);
     }
+    turnTimer.start();
 });
 
 socket.on('set turn tickers', function (n, m) {
@@ -139,6 +149,26 @@ function getAccordionBtnHtml(id, text) {
 
 // Pre-Lobby
 
+function getOrDefault(obj, prop, def = null) {
+    return (prop in obj) ? obj[prop] : def;
+}
+
+socket.on('take gamemode settings', function (settings) {
+    myDrawBoard.blind = getOrDefault(settings, 'blindDraw', false);
+    if (myDrawBoard.blind) {
+        myDrawBoard.drawCanvas.classList.add('blinded');
+    } else {
+        myDrawBoard.drawCanvas.classList.remove('blinded');
+    }
+
+    turnTimer.msDuration = getOrDefault(settings, 'timeLimit', 0);
+    if (turnTimer.msDuration <= 0) {
+        turnTimerDisplay.classList.add('invis-elm');
+    } else {
+        turnTimerDisplay.classList.remove('invis-elm');
+    }
+});
+
 function getPenColorChoiceHtml(name, lbl, value) {
     return `
     <input type="radio" id="pen-clr-${name}" name="pc" onclick="myDrawBoard.setPenColor('${value}');">
@@ -177,13 +207,6 @@ socket.on('take pen restrictions', function (penWidths, penColors, defWidth) {
         widthListHtml += getPenWidthChoiceHtml(wName, w);
     }
     $('#pen-size-list').html(widthListHtml);
-});
-
-socket.on('take gamemode settings', function (blindDrawing) {
-    myDrawBoard.blind = blindDrawing;
-    if (blindDrawing) {
-        myDrawBoard.drawCanvas.classList.add('blinded');
-    }
 });
 
 function generatePenList(name, valueType, value) {
@@ -274,9 +297,14 @@ function hostGame() {
 
         socket.emit('host game', plrName, penClrs, penWidths,
             document.getElementById('cbox-host-public').checked,
-            document.getElementById('cbox-shuffle-turn-order').checked,
-            document.getElementById('cbox-linear-order').checked,
-            document.getElementById('cbox-draw-blindly').checked);
+            {
+                'shuffle': document.getElementById('cbox-shuffle-turn-order').checked,
+                'linear': document.getElementById('cbox-linear-order').checked
+            },
+            {
+                'blindDraw': document.getElementById('cbox-draw-blindly').checked,
+                'timeLimit': document.getElementById('time-limit').value * 1000
+            });
     }
 }
 
@@ -434,15 +462,27 @@ socket.on('ding ding', function () {
     dingdingSound.play();
 });
 
+
+socket.on('force turn end', function () {
+    switch (currentView) {
+        case 'draw':
+            submitDrawing();
+            break;
+        case 'caption':
+            submitTitleGuess(0);
+            break;
+    }
+});
+
 function submitDrawing() {
     socket.emit('give story content', gameId, myDrawBoard.strokeHistory);
     changeView('wait');
     myDrawBoard.wipe(true);
 }
 
-function submitTitleGuess() {
+function submitTitleGuess(minLength = 3) {
     let caption = $('#tline-picture-guess').val().trim();
-    if (caption.length >= 3) {
+    if (caption.length >= minLength) {
         caption = caption.substring(0, INPUT_RESTRICTIONS['prompt']);
         socket.emit('give story content', gameId, caption);
         changeView('wait');

@@ -22,7 +22,7 @@
 <body onload="initViews();">
     <div id="view-join" class="invis-elm view">
         <div>
-            <img width=400 src="logo.png"  alt="The depicture logo">
+            <img width=400 src="logo.png" alt="The depicture logo">
             <p><a href="about.html">About</a></p>
         </div>
         <h2>Name</h2>
@@ -55,14 +55,18 @@
                         <input id="prompt-host" type="text" autocomplete="off"
                             value="https://itsalxl.com/depicture-words" />
                         <h4>Game</h4>
+                        <label for="time-limit">Round Time Limit (sec)</label>
+                        <br>
+                        <input id="time-limit" type="number" min="0" value="0" />
+                        <br>
                         <input type="checkbox" id="cbox-draw-blindly" name="dab">
                         <label for="cbox-draw-blindly">Drawers are blind</label>
-                        <br>
                         <h4>Turn Order</h4>
                         <input type="checkbox" id="cbox-shuffle-turn-order" name="sto" checked>
                         <label for="cbox-shuffle-turn-order">Shuffle turn order between games</label>
                         <br>
-                        <span title="If checked, players will always give to the same player and receive from the same player in a game. If unchecked, the receiver and giver will change throughout the game. Regardless, every player contributes to each story one time.">
+                        <span
+                            title="If checked, players will always give to the same player and receive from the same player in a game. If unchecked, the receiver and giver will change throughout the game. Regardless, every player contributes to each story one time.">
                             <input type="checkbox" id="cbox-linear-order" name="cta">
                             <label for="cbox-linear-order">Linear story order (?)</label>
                         </span>
@@ -104,6 +108,7 @@
         <label for="slider-master-vol">Master Volume</label><br>
         <input type="range" min="0" max="1" value="0.3" step="0.05" id="slider-master-vol"
             oninput="applyMasterVolume();">
+        <h3 id="time-left"></h3>
         <h3 id="last-plr-warning"></h3>
     </div>
     <div id="view-wait" class="invis-elm view">
@@ -196,6 +201,7 @@
     </div>
 
     <script src="canvas_paint.js"></script>
+    <script src="raf-timer.js"></script>
     <script src="game.js"></script>
     <script src="save-game.js"></script>
 

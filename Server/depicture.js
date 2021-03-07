@@ -67,7 +67,7 @@ function joinGame(socket, nickname, gameId) {
         socket.join(gameId);
 
         io.to(socket.id).emit('take pen restrictions', g.allowedPenWidths, g.allowedPenClrs, g.defaultPenWidth);
-        io.to(socket.id).emit('take gamemode settings', g.blindsDrawers);
+        io.to(socket.id).emit('take gamemode settings', g.gameOpts);
         catchupPlayer(gameId, socket.id);
     }
 }
@@ -182,7 +182,12 @@ function advanceTurn(g, gt = -2) {
         for (let p in g.plrTurnOrder) {
             servePlrStoryContent(g.plrTurnOrder[p], g);
         }
+        g.turnTimer.start();
     }
+}
+
+function forceTurnEnd(gid) {
+    io.to(gid).emit('force turn end');
 }
 
 function servePlrStoryContent(plrId, game) {
@@ -197,11 +202,12 @@ io.on('connection', (socket) => {
     givePubServerList(socket.id);
     io.to(socket.id).emit('apply input restrictions', INPUT_RESTRICTIONS);
 
-    socket.on('host game', (nick, penClrs, penWidths, isPublic, doesShufflePlrs, doesLinearOrder, blindsDrawers) => {
+    socket.on('host game', (nick, penClrs, penWidths, isPublic, turnOpts, gameOpts) => {
         if (nick.length >= 3) {
             let gameId = hostIdToGameId(socket.id);
 
-            let g = new Room(gameId, penClrs, penWidths, isPublic, doesShufflePlrs, doesLinearOrder, blindsDrawers);
+            let g = new Room(gameId, penClrs, penWidths, isPublic, turnOpts, gameOpts);
+            g.timerCallback = forceTurnEnd;
             g.addPlr(socket.id, nick.substring(0, INPUT_RESTRICTIONS['username']));
             makeNewGame(gameId, g);
 
