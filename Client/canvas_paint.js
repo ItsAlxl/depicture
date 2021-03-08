@@ -109,24 +109,43 @@ class DrawBoard {
 
 class PipedDrawBoard extends DrawBoard {
     strokeCallbacks = [];
+    redrawCallbacks = [];
 
-    addCallback(f) {
+    addStrokeCallback(f) {
         this.strokeCallbacks.push(f);
+    }
+
+    addRedrawCallback(f) {
+        this.redrawCallbacks.push(f);
     }
 
     stopDrawing() {
         if (this.currentStroke) {
             let latest = {};
             Object.assign(latest, this.currentStroke);
-            this.handleCallbacks(latest);
+            this.handleStrokeCallbacks(latest);
         }
         super.stopDrawing();
     }
 
-    handleCallbacks(stroke) {
+    clearBoard(doCallback = true) {
+        if (doCallback) {
+            this.handleRedrawCallbacks([]);
+        }
+        super.clearBoard();
+    }
+
+    handleStrokeCallbacks(stroke) {
         for (let cb in this.strokeCallbacks) {
             let f = this.strokeCallbacks[cb];
             f(stroke);
+        }
+    }
+
+    handleRedrawCallbacks(strokes) {
+        for (let cb in this.redrawCallbacks) {
+            let f = this.redrawCallbacks[cb];
+            f(strokes);
         }
     }
 }
@@ -140,10 +159,12 @@ class HistoryDrawBoard extends PipedDrawBoard {
         super(canvas);
     }
 
-    handleCallbacks(stroke) {
-        this.disableRedo();
+    handleStrokeCallbacks(stroke, disableRedo = true) {
+        if (disableRedo) {
+            this.disableRedo();
+        }
         this.strokeHistory.push(stroke);
-        super.handleCallbacks(stroke);
+        super.handleStrokeCallbacks(stroke);
     }
 
     undo() {
@@ -163,6 +184,7 @@ class HistoryDrawBoard extends PipedDrawBoard {
         if (this.undoHistory.length > 0) {
             let s = this.undoHistory.pop();
             this.strokeHistory.push(s);
+            this.handleStrokeCallbacks(s, false);
             if (!this.blind) {
                 drawStrokeOnCtx(this.drawCtx, s);
             }
@@ -174,10 +196,11 @@ class HistoryDrawBoard extends PipedDrawBoard {
     }
 
     drawFromHistory(hist = this.strokeHistory) {
+        this.clearBoard(false);
         if (!this.blind) {
-            this.clearBoard();
             drawFromStrokes(this.drawCanvas, hist);
         }
+        this.handleRedrawCallbacks(hist);
     }
 
     drawFromHistoryUpTo(toIdx) {
@@ -185,7 +208,7 @@ class HistoryDrawBoard extends PipedDrawBoard {
     }
 
     wipe(deepHistoryCleanse = false) {
-        this.clearBoard();
+        this.clearBoard(true);
         this.resetStrokeHistory(deepHistoryCleanse);
     }
 

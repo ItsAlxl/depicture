@@ -3,6 +3,7 @@ var socket = io();
 var APIHost = '';
 
 var myDrawBoard = new HistoryDrawBoard(document.getElementById('draw-canvas'));
+var displayBoard = new DrawBoard(document.getElementById('display-canvas'));
 var groupDrawBoard = new PipedDrawBoard(document.getElementById('communal-canvas'));
 var groupDisplayBoard = new HistoryDrawBoard(document.getElementById('communal-display'));
 
@@ -14,14 +15,15 @@ var turnTimer = new rAFCountdownTimer(
         turnTimerDisplay.innerHTML = (msRemain / 1000).toFixed(1);
     });
 var turnTimerDisplay = document.getElementById('time-left');
+var gamemode = '';
 
 connectDrawBoardEvents(myDrawBoard);
 connectDrawBoardEvents(groupDrawBoard);
 
-groupDrawBoard.addCallback(function (stroke) {
+groupDrawBoard.addStrokeCallback(function (stroke) {
     socket.emit('give communal stroke', gameId, stroke);
 });
-myDrawBoard.addCallback(function () {
+myDrawBoard.addStrokeCallback(function () {
     lockDrawSubmit(true);
 });
 
@@ -90,17 +92,20 @@ function changeView(v) {
 }
 
 socket.on('take story content', function (s) {
-    if (currentView == 'caption') {
-        $('#display-img').attr('src', strokesToDataUrl(s.content));
+    if (s.type == 'draw') {
+        displayBoard.clearBoard();
+        drawFromStrokes(displayBoard.drawCanvas, s.content);
     } else {
         $('#prompt-text').html(s.content);
     }
-    turnTimer.start();
 });
 
-socket.on('set turn tickers', function (n, m) {
+socket.on('set turn tickers', function (n, m, time) {
     if (n > 0) {
         $('#turn-counter').text(gameId + ' | ' + n + '/' + m);
+
+        turnTimer.msDuration = time;
+        turnTimer.start();
 
         if (n == 1) {
             groupDrawBoard.clearBoard();
@@ -166,6 +171,23 @@ socket.on('take gamemode settings', function (settings) {
         turnTimerDisplay.classList.add('invis-elm');
     } else {
         turnTimerDisplay.classList.remove('invis-elm');
+    }
+
+    gamemode = getOrDefault(settings, 'gamemode', 'depicture');
+    switch (gamemode) {
+        case 'party':
+            myDrawBoard.addStrokeCallback(function (s) {
+                socket.emit('give solo stroke', gameId, s);
+            });
+            myDrawBoard.addRedrawCallback(function (s) {
+                socket.emit('give solo redraw', gameId, s);
+            });
+
+            document.getElementById('party-drawing-btns').classList.remove('invis-elm');
+            break;
+        default:
+            document.getElementById('depicture-drawing-btns').classList.remove('invis-elm');
+            break;
     }
 });
 
@@ -303,7 +325,8 @@ function hostGame() {
             },
             {
                 'blindDraw': document.getElementById('cbox-draw-blindly').checked,
-                'timeLimit': document.getElementById('time-limit').value * 1000
+                'timeLimit': document.getElementById('time-limit').value * 1000,
+                'gamemode': document.getElementById('select-gamemode').value
             });
     }
 }
@@ -363,8 +386,7 @@ function appendLists(fromHost) {
 
 var fullSeedDeck = [];
 var seedDeck = [];
-var numPlrs = -1;
-function populateSeeds(fromHost, nameArray) {
+function populateSeeds(fromHost, nameArray, amt, startGame) {
     fromHost = ensureEndingSlash(fromHost);
 
     let query = '?';
@@ -380,12 +402,10 @@ function populateSeeds(fromHost, nameArray) {
             fullSeedDeck.push(seeds[s]);
         }
     })
-        .done(finishSeedSetup);
+        .done(_jsonSeedFinish.bind({'amt': amt, 'startGame': startGame}));
 }
 
-socket.on('take story seeds', function (nPlrs) {
-    numPlrs = nPlrs;
-
+socket.on('take story seeds', function (amt, startGame) {
     if (fullSeedDeck.length == 0) {
         let deckCheckboxes = document.getElementsByName('deck-cbox');
         let grabNames = [];
@@ -394,15 +414,18 @@ socket.on('take story seeds', function (nPlrs) {
                 grabNames.push(deckCheckboxes[i].value);
             }
         }
-        populateSeeds(APIHost, grabNames);
-    } else if (seedDeck.length == 0) {
-        finishSeedSetup();
+        populateSeeds(APIHost, grabNames, amt, startGame);
     } else {
-        serveSeeds();
+        serveSeeds(amt, startGame);
     }
 });
 
-function finishSeedSetup() {
+function _jsonSeedFinish() {
+    reshuffleSeeds();
+    serveSeeds(this.amt, this.startGame);
+}
+
+function reshuffleSeeds() {
     // Copy full deck
     seedDeck = fullSeedDeck.slice();
     // Shuffle (Durstenfeld / Fisher-Yates)
@@ -412,15 +435,17 @@ function finishSeedSetup() {
         seedDeck[i] = seedDeck[j];
         seedDeck[j] = temp;
     }
-    serveSeeds();
 }
 
-function serveSeeds() {
+function serveSeeds(amt, startGame) {
     let seeds = [];
-    for (let i = 0; i < numPlrs; i++) {
+    for (let i = 0; i < amt; i++) {
         seeds.push(seedDeck.pop());
+        if (seedDeck.length == 0) {
+            reshuffleSeeds();
+        }
     }
-    socket.emit('give story seeds', gameId, seeds);
+    socket.emit('give story seeds', gameId, seeds, startGame);
 }
 
 // Playing the game
@@ -457,13 +482,22 @@ socket.on('take corrected strokes', function (strokes) {
     lockDrawSubmit(false);
 });
 
+socket.on('take solo stroke', function (stroke) {
+    drawStrokeOnCtx(displayBoard.drawCtx, stroke);
+});
+
+socket.on('take solo redraw', function (strokes) {
+    displayBoard.clearBoard();
+    drawFromStrokes(displayBoard.drawCanvas, strokes);
+});
+
 socket.on('ding ding', function () {
     document.getElementById('last-plr-warning').innerHTML = 'You are the last player to finish!';
     dingdingSound.play();
 });
 
 
-socket.on('force turn end', function () {
+socket.on('force turn end', function (timeIsUp) {
     switch (currentView) {
         case 'draw':
             submitDrawing();
@@ -472,11 +506,26 @@ socket.on('force turn end', function () {
             submitTitleGuess(0);
             break;
     }
+    if (timeIsUp) {
+        switch (gamemode) {
+            case 'party':
+                endPlrTurn();
+                break;
+        }
+    }
 });
 
-function submitDrawing() {
-    socket.emit('give story content', gameId, myDrawBoard.strokeHistory);
-    changeView('wait');
+function submitDrawing(endsTurn = false) {
+    socket.emit('give story content', gameId, 'draw', myDrawBoard.strokeHistory, endsTurn);
+
+    switch (gamemode) {
+        case 'party':
+            break;
+        default:
+            changeView('wait');
+            break;
+    }
+
     myDrawBoard.wipe(true);
 }
 
@@ -484,25 +533,36 @@ function submitTitleGuess(minLength = 3) {
     let caption = $('#tline-picture-guess').val().trim();
     if (caption.length >= minLength) {
         caption = caption.substring(0, INPUT_RESTRICTIONS['prompt']);
-        socket.emit('give story content', gameId, caption);
-        changeView('wait');
+        socket.emit('give story content', gameId, 'caption', caption);
+
+        switch (gamemode) {
+            case 'party':
+                break;
+            default:
+                changeView('wait');
+                break;
+        }
+
         $('#tline-picture-guess').val('');
     }
 }
 
-socket.on('take communal stroke', drawCommunalStroke);
-function drawCommunalStroke(s) {
-    drawStrokeOnCtx(groupDrawBoard.drawCtx, s);
+function endPlrTurn() {
+    submitDrawing(true);
 }
 
+socket.on('take communal stroke', function (s) {
+    drawStrokeOnCtx(groupDrawBoard.drawCtx, s);
+});
+
 const STORY_START_TEXT = 'The story began with';
-socket.on('take completed stories', function (stories, numStages, commStrokes = []) {
+socket.on('take completed stories', function (stories, commStrokes = []) {
     $('#ending-scroll').empty();
     changeView('end');
     document.getElementById('cbox-keep-playing').checked = false;
 
-    // +1 for the beginning prompt
-    numStages++;
+    console.log(stories);
+
     let scrollHtml = '';
     for (let storyIdx = 0; storyIdx < stories.length; storyIdx++) {
         scrollHtml += '<div>'
@@ -537,7 +597,7 @@ socket.on('take completed stories', function (stories, numStages, commStrokes = 
             }
             scrollHtml += '</p>';
 
-            if (stageIdx == numStages - 1) {
+            if (stageIdx == stages.length - 1) {
                 scrollHtml += '<p>And that\'s how the story ended.</p><br><br><br>';
             } else {
                 scrollHtml += '</span>';

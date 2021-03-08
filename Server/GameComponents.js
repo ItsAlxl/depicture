@@ -32,27 +32,55 @@ class Stage {
     getNumLikes() {
         return this.likers.length;
     }
+
+    compareCaption(c) {
+        if (this.type != 'caption') {
+            return false;
+        }
+
+        return this.content.toLowerCase() == c.toLowerCase();
+    }
 }
 
 class Story {
     stages = [];
 
-    constructor(seed) {
-        this.takeStage('caption', seed);
+    takePrompt(p) {
+        this.takeStageForce('caption', p, 'depicture');
     }
 
     getPrevStage() {
         return this.stages[this.stages.length - 1];
     }
 
-    takeStage(type, content, idx = -1, owner = 'anonymous player') {
+    takeStageForce(type, content, owner = 'anonymous player') {
+        this.stages.push(new Stage(owner, type, content));
+    }
+
+    takeStageStrict(type, content, owner = 'anonymous player', idx = -1) {
         if (this.getNumPlrStages() == idx) {
-            this.stages.push(new Stage(owner, type, content));
+            this.takeStageForce(type, content, owner);
         }
     }
 
     getNumPlrStages() {
         return this.stages.length - 1;
+    }
+
+    isEmpty() {
+        return this.stages.length == 0;
+    }
+
+    getLastSeedStage() {
+        for(let i = this.stages.length - 1; i > 0; i--) {
+            if (this.stages[i].type == 'caption' && this.stages[i-1].type == 'draw') {
+                return this.stages[i];
+            }
+        }
+        if (this.stages[0].type == 'caption') {
+            return this.stages[0];
+        }
+        return null;
     }
 }
 
@@ -90,6 +118,7 @@ class Room {
     shufflePlrOrder;
     linearStoryOrder;
 
+    promptDeck = [];
     stories = [];
     plrs = {};
     hostId;
@@ -97,6 +126,7 @@ class Room {
     numActivePlrs;
 
     gameOpts;
+    gamemode;
     turnTimer = new DateCountdownTimer(this.timerExpired.bind(this));
     timerCallback = null;
 
@@ -122,6 +152,7 @@ class Room {
         this.linearStoryOrder = turnOpts.linear;
 
         this.gameOpts = gameOpts;
+        this.gamemode = gameOpts.gamemode;
         this.turnTimer.msDuration = gameOpts.timeLimit;
 
         Object.assign(this.allowedPenClrs, penClrMap);
@@ -294,13 +325,37 @@ class Room {
                 this.plrTurnOrder[j] = temp;
             }
         }
+
+        for (let i = 0; i < this.numActivePlrs; i++) {
+            this.stories.push(new Story());
+        }
+    }
+
+    getPromptRequestNum() {
+        let numPrompts = this.getNumActivePlrs();
+        switch (this.gamemode) {
+            case 'party':
+                numPrompts = 100;
+                break;
+        }
+
+        return numPrompts - this.promptDeck.length;
     }
 
     takeStorySeeds(seeds) {
-        if (this.stories.length == 0) {
-            for (let i = 0; i < seeds.length; i++) {
-                this.stories.push(new Story(seeds[i]));
+        this.promptDeck = this.promptDeck.concat(seeds);
+        for (let i = 0; i < this.stories.length; i++) {
+            if (this.stories[i].isEmpty()) {
+                this.giveStoryPrompt(this.stories[i]);
             }
+        }
+    }
+
+    giveStoryPrompt(story) {
+        if (this.promptDeck.length > 0) {
+            story.takePrompt(this.promptDeck.pop());
+        } else {
+            story.takePrompt('<- no prompts available ->');
         }
     }
 
@@ -368,19 +423,36 @@ class Room {
         }
     }
 
+    getCurrentMainPlrId() {
+        return this.plrTurnOrder[this.turns];
+    }
+
+    getCurrentMainStory() {
+        return this.plrToStory(this.getCurrentMainPlrId());
+    }
+
+    getCurrentMainSeedStage() {
+        return this.getCurrentMainStory().getLastSeedStage();
+    }
+
     plrIdxToStoryIdx(plrIdx) {
-        let idx;
-        if (this.linearStoryOrder) {
-            idx = this.turns;
-        } else {
-            if (this.turns % 2 == 0) {
-                idx = -Math.floor(this.turns * 0.5);
-            } else {
-                idx = Math.ceil(this.turns * 0.5);
-            }
-            idx = posMod(idx, this.getStageLimit());
+        switch (this.gamemode) {
+            case 'party':
+                return plrIdx;
+            default:
+                let idx;
+                if (this.linearStoryOrder) {
+                    idx = this.turns;
+                } else {
+                    if (this.turns % 2 == 0) {
+                        idx = -Math.floor(this.turns * 0.5);
+                    } else {
+                        idx = Math.ceil(this.turns * 0.5);
+                    }
+                    idx = posMod(idx, this.getStageLimit());
+                }
+                return posMod(plrIdx + idx, this.getNumActivePlrs());
         }
-        return posMod(plrIdx + idx, this.getNumActivePlrs());
     }
 
     plrToStory(plrId) {
@@ -391,7 +463,7 @@ class Room {
         return s.getNumPlrStages() == this.turns + 1;
     }
 
-    getCurrentStory(plrId) {
+    getCurrentStage(plrId) {
         return this.plrToStory(plrId).getPrevStage();
     }
 
@@ -421,15 +493,19 @@ class Room {
         }
     }
 
-    takeCurrentStory(plrId, content) {
-        if (this.hasPlr(plrId) && content != undefined && content != null) {
-            let plrName = this.getPlr(plrId).nickname;
-            if (plrName != null && plrName != undefined) {
-                if (this.getCurrentView() == 'draw') {
+    takeCurrentStory(plrId, type, content, ownerId = plrId, force = false) {
+        if (this.hasPlr(plrId) && this.hasPlr(ownerId) && content) {
+            let plrName = this.getPlr(ownerId).nickname;
+            if (plrName) {
+                if (type == 'draw') {
                     this.correctStrokes(content);
                 }
-                this.plrToStory(plrId).takeStage(this.getCurrentView(), content, this.turns, plrName);
-                this.uptickReady(plrId);
+
+                if (force) {
+                    this.plrToStory(plrId).takeStageForce(type, content, plrName);
+                } else {
+                    this.plrToStory(plrId).takeStageStrict(type, content, plrName, this.turns);
+                }
             }
         }
     }

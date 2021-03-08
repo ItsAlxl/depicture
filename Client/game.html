@@ -55,6 +55,13 @@
                         <input id="prompt-host" type="text" autocomplete="off"
                             value="https://itsalxl.com/depicture-words" />
                         <h4>Game</h4>
+                        <label for="select-gamemode">Gamemode</label>
+                        <br>
+                        <select id="select-gamemode" name="game">
+                            <option value="depicture">depicture</option>
+                            <option value="party">picture party</option>
+                        </select>
+                        <br>
                         <label for="time-limit">Round Time Limit (sec)</label>
                         <br>
                         <input id="time-limit" type="number" min="0" value="0" />
@@ -155,10 +162,17 @@
                 <td id="pen-size-list" class="rightCell"></td>
                 <td id="pen-color-list"></td>
                 <td class="rightCell">
-                    <input onclick="verifyDrawing();" type="checkbox" id="cbox-verify-drawing">
-                    <label for="cbox-verify-drawing">Finished</label>
-                    <br>
-                    <button onclick="submitDrawing();" id="submit-drawing-btn" disabled>SUBMIT</button>
+                    <div id="depicture-drawing-btns" class="invis-elm">
+                        <input onclick="verifyDrawing();" type="checkbox" id="cbox-verify-drawing">
+                        <label for="cbox-verify-drawing">Finished</label>
+                        <br>
+                        <button onclick="submitDrawing();" id="submit-drawing-btn" disabled>SUBMIT</button>
+                    </div>
+                    <div id="party-drawing-btns" class="invis-elm">
+                        <button onclick="submitDrawing();" id="skip-drawing-btn">SKIP</button>
+                        <br>
+                        <button onclick="endPlrTurn();" id="end-turn-btn">END TURN</button>
+                    </div>
                 </td>
             </tr>
         </table>
@@ -166,7 +180,7 @@
 
     <div id="view-caption" class="invis-elm view">
         <h2>Say what you see:</h2>
-        <img id="display-img" width="480" height="384" class="art" alt="">
+        <canvas id="display-canvas" width="480" height="384" class="art"></canvas>
         <br>
         <input id="tline-picture-guess" type="text" autocomplete="off" />
         <button id="btn-picture-guess" onclick="submitTitleGuess();">Submit</button>

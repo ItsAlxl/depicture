@@ -101,7 +101,7 @@ function catchupPlayer(gameId, plrId) {
         io.to(plrId).emit('set as host', g.hostId == plrId);
 
         updateGameInfoToPlrs(gameId);
-        io.to(plrId).emit('set turn tickers', g.turns + 1, g.getStageLimit());
+        io.to(plrId).emit('set turn tickers', g.turns + 1, g.getStageLimit(), g.turnTimer.getMsRemaining());
 
         for (let i = 0; i < g.communalStrokes.length; i++) {
             io.to(plrId).emit('take communal stroke', g.communalStrokes[i]);
@@ -113,7 +113,7 @@ function showRollout(g, to = '') {
     if (to.length == 0) {
         to = g.id;
     }
-    io.to(to).emit('take completed stories', g.stories, g.getStageLimit(), g.communalStrokes);
+    io.to(to).emit('take completed stories', g.stories, g.communalStrokes);
 }
 
 function quitGame(socket, gameId) {
@@ -178,7 +178,7 @@ function advanceTurn(g, gt = -2) {
         updateGameInfoToPlrs(g.id);
         showRollout(g);
     } else {
-        io.to(g.id).emit('set turn tickers', g.turns + 1, g.getStageLimit());
+        io.to(g.id).emit('set turn tickers', g.turns + 1, g.getStageLimit(), g.turnTimer.msDuration);
         for (let p in g.plrTurnOrder) {
             servePlrStoryContent(g.plrTurnOrder[p], g);
         }
@@ -187,13 +187,31 @@ function advanceTurn(g, gt = -2) {
 }
 
 function forceTurnEnd(gid) {
-    io.to(gid).emit('force turn end');
+    io.to(gid).emit('force turn end', true);
+}
+
+function requestPrompts(game, startGame = false) {
+    io.to(game.hostId).emit('take story seeds', game.getPromptRequestNum(), startGame);
 }
 
 function servePlrStoryContent(plrId, game) {
     if (plrId.length > 0) {
-        io.to(plrId).emit('take view', game.getCurrentView());
-        io.to(plrId).emit('take story content', game.getCurrentStory(plrId));
+        switch (game.gamemode) {
+            case 'party':
+                requestPrompts(game);
+
+                if (plrId == game.getCurrentMainPlrId()) {
+                    io.to(plrId).emit('take view', 'draw');
+                    io.to(plrId).emit('take story content', game.getCurrentStage(plrId));
+                } else {
+                    io.to(plrId).emit('take view', 'caption');
+                }
+                break;
+            default:
+                io.to(plrId).emit('take view', game.getCurrentView());
+                io.to(plrId).emit('take story content', game.getCurrentStage(plrId));
+                break;
+        }
     }
 }
 
@@ -227,28 +245,29 @@ io.on('connection', (socket) => {
         let g = getGame(gameId);
         if (g) {
             g.setupGame(stageLimit);
-            io.to(socket.id).emit('take story seeds', g.getNumActivePlrs());
+            requestPrompts(g, true);
         }
     });
-
-    socket.on('give story seeds', (gameId, seeds) => {
-        let g = getGame(gameId);
-        if (g) {
-            g.takeStorySeeds(seeds);
-            advanceTurn(g, -1);
-            for (let p in g.plrs) {
-                if (!g.plrs[p].isActive()) {
-                    io.to(socket.id).emit('take view', 'wait');
-                }
-            }
-        }
-    });
-
+    
     socket.on('give communal stroke', (gameId, s) => {
         let g = getGame(gameId);
         if (g) {
             g.communalStrokes.push(s);
             io.to(gameId).emit('take communal stroke', s);
+        }
+    });
+
+    socket.on('give solo stroke', (gameId, s) => {
+        let g = getGame(gameId);
+        if (g) {
+            io.to(gameId).emit('take solo stroke', s);
+        }
+    });
+
+    socket.on('give solo redraw', (gameId, s) => {
+        let g = getGame(gameId);
+        if (g) {
+            io.to(gameId).emit('take solo redraw', s);
         }
     });
 
@@ -260,21 +279,45 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('give story content', (gameId, c) => {
+    socket.on('give story content', (gameId, type, c, endsTurn) => {
         let g = getGame(gameId);
         if (g) {
-            if (g.getCurrentView() == 'caption') {
+            if (type == 'caption') {
                 c = c.substring(0, INPUT_RESTRICTIONS['prompt']);
             }
-            g.takeCurrentStory(socket.id, c);
 
-            updateGameInfoToPlrs(gameId);
+            switch (g.gamemode) {
+                case 'party':
+                    if (type == 'caption') {
+                        if (g.getCurrentMainSeedStage().compareCaption(c)) {
+                            io.to(g.getCurrentMainPlrId()).emit('force turn end', false);
+                        }
+                        g.takeCurrentStory(g.getCurrentMainPlrId(), 'caption', c, socket.id, true);
+                    }
 
-            let lastPlrId = g.getLastUnreadyPlrId();
-            if (lastPlrId == null) {
-                advanceTurn(g);
-            } else if (lastPlrId.length > 0) {
-                io.to(lastPlrId).emit('ding ding');
+                    if (socket.id == g.getCurrentMainPlrId()) {
+                        g.takeCurrentStory(g.getCurrentMainPlrId(), 'draw', c, socket.id, true);
+                        if (endsTurn) {
+                            advanceTurn(g);
+                        } else {
+                            g.giveStoryPrompt(g.getCurrentMainStory());
+                            io.to(socket.id).emit('take story content', g.getCurrentStage(socket.id));
+                        }
+                    }
+                    break;
+                default:
+                    g.takeCurrentStory(socket.id, type, c);
+                    g.uptickReady(socket.id);
+
+                    updateGameInfoToPlrs(gameId);
+        
+                    let lastPlrId = g.getLastUnreadyPlrId();
+                    if (lastPlrId == null) {
+                        advanceTurn(g);
+                    } else if (lastPlrId.length > 0) {
+                        io.to(lastPlrId).emit('ding ding');
+                    }
+                    break;
             }
         }
     });
@@ -293,7 +336,24 @@ io.on('connection', (socket) => {
             g.restart();
             g.setupGame();
             io.to(gameId).emit('beginning restart');
-            io.to(g.hostId).emit('take story seeds', g.getNumActivePlrs());
+
+            requestPrompts(g, true);
+        }
+    });
+
+    socket.on('give story seeds', (gameId, seeds, startGame) => {
+        let g = getGame(gameId);
+        if (g) {
+            g.takeStorySeeds(seeds);
+
+            if (startGame) {
+                advanceTurn(g, -1);
+                for (let p in g.plrs) {
+                    if (!g.plrs[p].isActive()) {
+                        io.to(socket.id).emit('take view', 'wait');
+                    }
+                }
+            }
         }
     });
 

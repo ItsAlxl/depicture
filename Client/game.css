@@ -221,7 +221,7 @@ h5 {
     padding-top: 30px;
 }
 
-.grid-box input {
+.grid-box input, .grid-box select {
     margin-top: 5px;
     margin-bottom: 5px;
 }
