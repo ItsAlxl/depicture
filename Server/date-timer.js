@@ -15,6 +15,7 @@ class DateCountdownTimer {
 
     start() {
         if (this.msDuration > 0) {
+            this.cancel();
             this.dateTarget = new Date(new Date().getTime() + this.msDuration);
             this.intervalID = setInterval(this.intervalCallback.bind(this), this.updateTime);
         }
@@ -29,12 +30,20 @@ class DateCountdownTimer {
             if (this.finishCallback != null) {
                 this.finishCallback();
             }
-            clearInterval(this.intervalID);
+            this.cancel();
         }
     }
 
+    cancel() {
+        clearInterval(this.intervalID);
+    }
+
     getMsRemaining() {
-        return this.dateTarget.getTime() - (new Date().getTime());
+        if (this.dateTarget) {
+            return this.dateTarget.getTime() - (new Date().getTime());
+        } else {
+            return 0;
+        }
     }
 }
 

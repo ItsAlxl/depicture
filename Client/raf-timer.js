@@ -6,6 +6,8 @@ class rAFCountdownTimer {
     msDuration = 0;
     msElapsed = 0;
 
+    cancelOnNextTick = false;
+
     rAFid;
 
     constructor(finishCallback, updateCallback = null) {
@@ -37,8 +39,16 @@ class rAFCountdownTimer {
                 this.finishCallback();
             }
         } else {
-            this.rAFid = requestAnimationFrame(this.rAFCallback);
+            if (this.cancelOnNextTick) {
+                this.cancelOnNextTick = false;
+            } else {
+                this.rAFid = requestAnimationFrame(this.rAFCallback);
+            }
         }
+    }
+
+    cancel() {
+        this.cancelOnNextTick = true;
     }
 
     getMsRemaining() {
