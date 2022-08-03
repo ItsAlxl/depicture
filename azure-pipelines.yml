@@ -14,6 +14,6 @@ steps:
   inputs:
     sshEndpoint: 'ssh-itsalxl.com'
     runOptions: 'commands'
-    commands: 'sh depicture-nginx/auto-update.sh'
+    commands: 'sh alxl-site/auto-update.sh'
     failOnStdErr: false
     readyTimeout: '20000'
